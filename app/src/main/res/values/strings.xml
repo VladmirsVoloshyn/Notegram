@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">Notegram</string>
+
+
+    <!-- add -->
+    <string name="s_add_text">Text</string>
+    <string name="s_add_text_qr">From QR</string>
+    <string name="s_todo">To do list</string>
+    <string name="s_audio">Audio record</string>
+
+    <!--search -->
+    <string name="s_search">Search in notes</string>
+
+    <!--main -->
+    <string name="s_no_notes">No notes yet.</string>
+
+    <string name="s_delete">Delete</string>
+    <string name="s_share">Share</string>
+    <string name="s_pin">Pin</string>
+    <string name="s_unpin">Unpin</string>
+
+    <!--text note -->
+    <string name="s_title">Title</string>
+    <string name="s_text">Text</string>
+</resources>
