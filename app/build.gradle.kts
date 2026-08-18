@@ -74,4 +74,7 @@ dependencies {
 
     //GSON
     implementation(libs.converter.gson)
+
+    //collections
+    implementation(libs.collections.reorderable)
 }

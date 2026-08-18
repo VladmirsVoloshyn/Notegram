@@ -21,8 +21,7 @@ sealed interface MainIntent : MviIntent {
         data class SelectNote(
             val noteId: NoteId,
             val itemLayoutInfo: ItemLayoutInfo
-        ) :
-            MainScreenIntent
+        ) : MainScreenIntent
 
         data object CloseSelectionMenu : MainScreenIntent
 
@@ -34,5 +33,10 @@ sealed interface MainIntent : MviIntent {
         data class Text(val text: String) : EditNote
 
         data class ChangeColor(val color: ColorPref) : EditNote
+
+        data class EditTodo(val text: String, val todoIdemId: String? = null) : EditNote
+        data class DeleteTodoItem(val id: String) : EditNote
+        data class CheckTodoItem(val id: String) : EditNote
+        data class Reorder(val id: String, val from: Int, val to: Int) : EditNote
     }
 }

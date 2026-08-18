@@ -1,8 +1,11 @@
-package com.uladzimirv.notegram.domain.model.note
+package com.uladzimirv.notegram.domain.model.note.text
 
 import com.uladzimirv.notegram.data.database.entity.TextNoteEntity
+import com.uladzimirv.notegram.domain.model.note.Note
 import com.uladzimirv.notegram.ui.layout.main.com.ColorPref
 import com.uladzimirv.notegram.ui.layout.main.com.toColorNotePref
+import com.uladzimirv.notegram.ui.model.NoteUI
+import com.uladzimirv.notegram.ui.model.TextNoteUI
 import com.uladzimirv.notegram.util.STRING_EMPTY
 import java.util.UUID
 
@@ -11,10 +14,18 @@ data class TextNote(
     override val createdAt: Long,
     override val updatedAd: Long,
     override val title: String,
-    override val text: String,
     override val pinned: Boolean,
-    override val colorPref: ColorPref
-) : Note(id, createdAt, createdAt, title, text, pinned, colorPref) {
+    override val colorPref: ColorPref,
+    val text: String,
+) : Note(id, createdAt, updatedAd, title, pinned, colorPref) {
+
+    override fun toUIModel(): NoteUI = TextNoteUI(
+        id = id,
+        text = text,
+        title = title,
+        pinned = pinned,
+        colorPref = colorPref
+    )
 
     companion object {
         fun empty(text: String = STRING_EMPTY, title: String = STRING_EMPTY): TextNote = TextNote(
@@ -26,6 +37,7 @@ data class TextNote(
             pinned = false,
             colorPref = ColorPref.COMMON
         )
+
 
         fun TextNote.toEntity(): TextNoteEntity = TextNoteEntity(
             id = id,

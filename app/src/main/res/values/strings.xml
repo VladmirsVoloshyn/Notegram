@@ -22,4 +22,7 @@
     <!--text note -->
     <string name="s_title">Title</string>
     <string name="s_text">Text</string>
+
+    <!--todolist note -->
+    <string name="s_add_item">Add item</string>
 </resources>

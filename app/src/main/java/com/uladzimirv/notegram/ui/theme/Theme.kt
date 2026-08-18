@@ -67,8 +67,6 @@ val borderSecondary: Color
     }
 
 
-
-
 @Composable
 fun getAppTheme(): Theme {
     return Theme.LIGHT
@@ -87,9 +85,9 @@ val dark = Color(0xFFA1A1A1)
 val borderDarkPrimary = Color(0xFFC4C4C4)
 val borderLightSecondary = Color(0xFFEAEAEA)
 
-val orange = Color(0xFFF59C8B)
-val cyan = Color(0xFFA5E7E7)
-val glow = Color(0xFF8197E8)
-val pink = Color(0xFFE080A4)
+val orange = Color(0xFFFF8770)
+val cyan = Color(0xFF7CD2D2)
+val glow = Color(0xFF6789FF)
+val pink = Color(0xFFE177A3)
 
 

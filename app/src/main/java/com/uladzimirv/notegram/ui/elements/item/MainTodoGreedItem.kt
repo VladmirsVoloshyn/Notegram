@@ -6,6 +6,7 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -32,19 +33,25 @@ import com.uladzimirv.notegram.domain.model.note.NoteId
 import com.uladzimirv.notegram.ui.elements.Gap
 import com.uladzimirv.notegram.ui.layout.main.com.ColorPref
 import com.uladzimirv.notegram.ui.layout.main.com.ItemLayoutInfo
-import com.uladzimirv.notegram.ui.model.TextNoteUI
+import com.uladzimirv.notegram.ui.model.TodoNoteUI
 import com.uladzimirv.notegram.ui.theme.backgroundSecondary
 import com.uladzimirv.notegram.ui.theme.borderPrimary
+import com.uladzimirv.notegram.ui.theme.buttonPrimary
+import com.uladzimirv.notegram.ui.theme.buttonSecondary
 import com.uladzimirv.notegram.ui.theme.cyan
 import com.uladzimirv.notegram.ui.theme.glow
 import com.uladzimirv.notegram.ui.theme.orange
 import com.uladzimirv.notegram.ui.theme.pink
+import com.uladzimirv.notegram.ui.theme.textPrimary
+import com.uladzimirv.notegram.ui.theme.textSecondary
+import com.uladzimirv.notegram.util.VEVO
 import com.uladzimirv.notegram.util.ifNotEmpty
 
+
 @Composable
-fun MainTextNoteGreedItem(
+fun MainTodoNoteGreedItem(
     modifier: Modifier = Modifier,
-    note: TextNoteUI,
+    note: TodoNoteUI,
     onClick: (NoteId) -> Unit,
     layoutInfo: ItemLayoutInfo?,
     onLongClick: (id: NoteId, li: ItemLayoutInfo) -> Unit
@@ -119,6 +126,7 @@ fun MainTextNoteGreedItem(
                     .align(Alignment.TopEnd)
             )
         }
+
         Column {
             note.title.ifNotEmpty {
                 Text(
@@ -129,16 +137,60 @@ fun MainTextNoteGreedItem(
                     overflow = TextOverflow.Ellipsis,
                     modifier = modifier.padding(end = 18.dp)
                 )
-                if (note.text.isNotEmpty()) Gap(10)
+                if (note.list.isNotEmpty()) Gap(10)
             }
-            note.text.ifNotEmpty {
+            val list = remember(note.list, note.selectedList) {
+                note.list + note.selectedList
+            }
+            VEVO(list)
+            repeat(if (list.size > 5) 5 else list.size) {
+                TodoListItemMainUI(
+                    text = list[it].text,
+                    selected = list[it].selected
+                )
+                Gap(6)
+            }
+            if (list.size > 5) {
                 Text(
-                    text = it,
-                    fontSize = 14.sp,
-                    maxLines = 15,
-                    overflow = TextOverflow.Ellipsis,
+                    text = "...",
+                    fontSize = 14.sp
                 )
             }
         }
     }
 }
+
+@Composable
+fun TodoListItemMainUI(
+    text: String,
+    selected: Boolean
+) {
+    val checkBox = remember(selected) {
+        if (selected) R.drawable.ic_checkbox_selected
+        else R.drawable.ic_checkbox_unchecked
+    }
+
+    val textColor = if (selected) textSecondary
+    else textPrimary
+
+    val buttonColor = if (selected) buttonSecondary
+    else buttonPrimary
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            painter = painterResource(checkBox),
+            contentDescription = null,
+            modifier = Modifier.size(14.dp),
+            tint = buttonColor
+        )
+        Gap(3)
+        Text(
+            text = text,
+            fontSize = 12.sp,
+            color = textColor
+        )
+    }
+}
+

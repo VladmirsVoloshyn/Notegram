@@ -2,17 +2,15 @@ package com.uladzimirv.notegram.app_flow.main
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
-import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.core.view.WindowCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.uladzimirv.notegram.app_flow.main.contract.MainIntent
-import com.uladzimirv.notegram.ui.layout.add_text.TextScreen
+import com.uladzimirv.notegram.ui.layout.note_ui.NoteScreen
 import com.uladzimirv.notegram.ui.layout.main.MainScreen
 import com.uladzimirv.notegram.util.compsoe.collectInLaunchedEffectWithLifecycle
 import dagger.hilt.android.AndroidEntryPoint
@@ -59,8 +57,8 @@ class MainActivity : ComponentActivity() {
                 state = viewState.main,
                 intent = intent
             )
-            TextScreen(
-                state = viewState.note,
+            NoteScreen(
+                state = viewState.noteState,
                 intent = intent
             )
         }

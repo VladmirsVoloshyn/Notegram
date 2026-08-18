@@ -1,32 +1,28 @@
 package com.uladzimirv.notegram.ui.elements.layer
 
 import android.annotation.SuppressLint
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import com.uladzimirv.notegram.R
-import com.uladzimirv.notegram.app_flow.main.contract.MainIntent
 import com.uladzimirv.notegram.domain.model.note.NoteId
 import com.uladzimirv.notegram.ui.elements.Gap
 import com.uladzimirv.notegram.ui.elements.button.AddItem
-import com.uladzimirv.notegram.ui.elements.item.MainGreedItem
+import com.uladzimirv.notegram.ui.elements.item.MainTextNoteGreedItem
+import com.uladzimirv.notegram.ui.elements.item.MainTodoNoteGreedItem
 import com.uladzimirv.notegram.ui.layout.main.com.ItemLayoutInfo
 import com.uladzimirv.notegram.ui.layout.main.com.MenuDestination
 import com.uladzimirv.notegram.ui.model.NoteUI
+import com.uladzimirv.notegram.ui.model.TextNoteUI
+import com.uladzimirv.notegram.ui.model.TodoNoteUI
 import com.uladzimirv.notegram.util.compsoe.clickableNoRipple
 
 @SuppressLint("ConfigurationScreenWidthHeight")
@@ -77,12 +73,27 @@ fun MainItemMenuLayer(
                 y = vertical
             )
         ) {
-            MainGreedItem(
-                note = note,
-                onClick = {},
-                layoutInfo = layoutInfo,
-                onLongClick = { it, it1 -> }
-            )
+
+            when (note) {
+                is TextNoteUI -> {
+                    MainTextNoteGreedItem(
+                        note = note,
+                        onClick = {},
+                        layoutInfo = layoutInfo,
+                        onLongClick = { it, it1 -> }
+                    )
+                }
+
+                is TodoNoteUI -> {
+                    MainTodoNoteGreedItem(
+                        note = note,
+                        onClick = {},
+                        layoutInfo = layoutInfo,
+                        onLongClick = { it, it1 -> }
+                    )
+                }
+            }
+
         }
         Box(
             modifier = Modifier.offset(

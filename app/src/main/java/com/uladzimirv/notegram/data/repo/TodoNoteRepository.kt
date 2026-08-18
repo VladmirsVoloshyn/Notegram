@@ -1,10 +1,10 @@
 package com.uladzimirv.notegram.data.repo
 
-import com.uladzimirv.notegram.data.database.dao.TextNoteDao
+import com.uladzimirv.notegram.data.database.dao.TodoNoteDao
 import com.uladzimirv.notegram.domain.model.note.NoteId
-import com.uladzimirv.notegram.domain.model.note.text.TextNote
-import com.uladzimirv.notegram.domain.model.note.text.TextNote.Companion.fromEntity
-import com.uladzimirv.notegram.domain.model.note.text.TextNote.Companion.toEntity
+import com.uladzimirv.notegram.domain.model.note.todo.TodoListNote
+import com.uladzimirv.notegram.domain.model.note.todo.TodoListNote.Companion.fromEntity
+import com.uladzimirv.notegram.domain.model.note.todo.TodoListNote.Companion.toEntity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.map
@@ -13,10 +13,10 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class TextNoteRepository @Inject constructor(
-    private val textNoteDao: TextNoteDao
+class TodoNoteRepository @Inject constructor(
+    private val todoNoteDao: TodoNoteDao
 ) {
-    val notesFlow = textNoteDao.getAllTextNotesAsFlow().map {
+    val notesFlow = todoNoteDao.getAllTextNotesAsFlow().map {
         it.map { it.fromEntity() }
     }
 
@@ -27,34 +27,35 @@ class TextNoteRepository @Inject constructor(
     }
 
     fun mockedAdd() {
-        textNotes.forEach {
+        todoNotes.forEach {
             addNote(it)
         }
     }
 
-    fun addNote(note: TextNote) {
+    fun addNote(note: TodoListNote) {
         scope.launch {
-            textNoteDao.insertNote(
+            todoNoteDao.insertNote(
                 note = note.toEntity()
             )
         }
     }
 
-    fun pinOrUnpinNote(note: TextNote) {
+    fun pinOrUnpinNote(note: TodoListNote) {
         scope.launch {
             val new = note.copy(
                 pinned = !note.pinned
             )
-            textNoteDao.insertNote(new.toEntity())
+            todoNoteDao.insertNote(new.toEntity())
         }
-
     }
 
     fun deleteNote(id: NoteId) {
         scope.launch {
-            textNoteDao.deleteById(
+            todoNoteDao.deleteById(
                 itemId = id
             )
         }
     }
+
+
 }

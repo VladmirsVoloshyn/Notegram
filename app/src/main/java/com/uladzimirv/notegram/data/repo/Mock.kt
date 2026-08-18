@@ -1,8 +1,11 @@
 package com.uladzimirv.notegram.data.repo
 
-import com.uladzimirv.notegram.domain.model.note.TextNote
+import com.uladzimirv.notegram.data.database.entity.TodoListItem
+import com.uladzimirv.notegram.domain.model.note.text.TextNote
+import com.uladzimirv.notegram.domain.model.note.todo.TodoListNote
+import java.util.UUID
 
-val notes = listOf(
+val textNotes = listOf(
     TextNote.empty(
         title = "Note 1",
         text = "Short Text Short TextShort TextShort TextShort TextShort TextShort TextShort TextShort TextShort TextShort TextShort Text"
@@ -35,5 +38,82 @@ val notes = listOf(
         title = "Note 8",
         text = "Short Text Short TextShort TextShort TextShort TextShort "
     ),
+)
 
+val todoNotes = listOf(
+    TodoListNote.empty(
+        title = "Note 1",
+        list = listOf(
+            TodoListItem(
+                text = "SomeText",
+                selected = false,
+                position = 0,
+                id = UUID.randomUUID().toString()
+            ),
+            TodoListItem(
+                text = "SomeTextSomeText",
+                selected = false,
+                position = 1,
+                id = UUID.randomUUID().toString()
+            ),
+            TodoListItem(
+                text = "SomeText1",
+                selected = false,
+                position = 2,
+                id = UUID.randomUUID().toString()
+            ),
+            TodoListItem(
+                text = "SomeText2",
+                selected = false,
+                position = 3,
+                id = UUID.randomUUID().toString()
+            )
+        )
+    ),
+    TodoListNote.empty(
+        title = "Note 2",
+        list = listOf(
+            TodoListItem(
+                text = "SomeText",
+                selected = false,
+                position = 0,
+                id = UUID.randomUUID().toString()
+            ),
+            TodoListItem(
+                text = "SomeTextSomeText",
+                selected = false,
+                position = 1,
+                id = UUID.randomUUID().toString()
+            ),
+            TodoListItem(
+                text = "SomeText1",
+                selected = false,
+                position = 2,
+                id = UUID.randomUUID().toString()
+            )
+        )
+    ),
+    TodoListNote.empty(
+        title = "Note 3",
+        list = listOf(
+            TodoListItem(
+                text = "SomeText",
+                selected = false,
+                position = 0,
+                id = UUID.randomUUID().toString()
+            ),
+            TodoListItem(
+                text = "SomeTextSomeText",
+                selected = false,
+                position = 1,
+                id = UUID.randomUUID().toString()
+            ),
+            TodoListItem(
+                text = "SomeText1",
+                selected = false,
+                position = 2,
+                id = UUID.randomUUID().toString()
+            )
+        )
     )
+)

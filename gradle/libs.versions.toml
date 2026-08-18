@@ -13,6 +13,7 @@ hiltAndroid = "2.57.2"
 devtoolsKsp = "2.2.20-2.0.4"
 kotlinxCollections = "0.5.0"
 gson = "3.0.0"
+reorderable = "0.9.6"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -36,6 +37,7 @@ hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltA
 hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hiltAndroid" }
 kotlinx-collections = { module = "org.jetbrains.kotlinx:kotlinx-collections-immutable", version.ref = "kotlinxCollections" }
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "gson" }
+collections-reorderable = {module = "org.burnoutcrew.composereorderable:reorderable", version.ref = "reorderable"}
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
