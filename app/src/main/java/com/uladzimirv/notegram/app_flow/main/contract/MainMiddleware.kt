@@ -1,15 +1,19 @@
 package com.uladzimirv.notegram.app_flow.main.contract
 
 import com.uladzimirv.notegram.core.mvi.MVIMiddleware
+import com.uladzimirv.notegram.data.database.entity.TodoListItem
 import com.uladzimirv.notegram.domain.model.note.Note
-import com.uladzimirv.notegram.domain.model.note.Note.Companion.toUIModel
 import com.uladzimirv.notegram.domain.model.note.NoteId
-import com.uladzimirv.notegram.domain.model.note.TextNote
+import com.uladzimirv.notegram.domain.model.note.text.TextNote
+import com.uladzimirv.notegram.domain.model.note.todo.TodoListNote
 import com.uladzimirv.notegram.ui.layout.main.com.ColorPref
 import com.uladzimirv.notegram.ui.layout.main.com.ItemLayoutInfo
+import com.uladzimirv.notegram.ui.layout.main.com.NoteType
 import com.uladzimirv.notegram.util.STRING_EMPTY
+import com.uladzimirv.notegram.util.VEVO
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toPersistentList
+import java.util.UUID
 
 interface MainMiddleware : MVIMiddleware<MainViewState> {
 
@@ -41,24 +45,30 @@ interface MainMiddleware : MVIMiddleware<MainViewState> {
                         main = viewState.main.copy(
                             isAddMenuOpened = false
                         ),
-                        note = viewState.note.copy(
+                        noteState = viewState.noteState.copy(
                             colorMenuOpened = false,
                             show = show,
                             note = if (show) {
-                                id?.let { lookForID -> viewState.main.notes.find { it.id == lookForID } as? TextNote }
-                                    ?: TextNote.empty()
+                                id?.let { lookForID -> viewState.main.notes.find { it.id == lookForID } }
+                                    ?: when (addNoteRequest) {
+                                        NoteType.TEXT -> TextNote.empty()
+                                        NoteType.VOICE -> TextNote.empty()
+                                        NoteType.QR -> TextNote.empty()
+                                        NoteType.TODO -> TodoListNote.empty()
+                                        null -> TextNote.empty()
+                                    }
                             } else null
                         )
                     )
                 }
 
                 is Notes -> {
-                    val substate = viewState.note
+                    val substate = viewState.noteState
                     val current = substate.note?.id
                     viewState.copy(
-                        note = substate.copy(
+                        noteState = substate.copy(
                             show = substate.show,
-                            note = notes.find { it.id == current } as? TextNote
+                            note = notes.find { it.id == current }
                         ),
                         main = viewState.main.copy(
                             notes = notes,
@@ -91,7 +101,7 @@ interface MainMiddleware : MVIMiddleware<MainViewState> {
                 )
 
                 is OpenColorContainer -> viewState.copy(
-                    note = viewState.note.copy(
+                    noteState = viewState.noteState.copy(
                         colorMenuOpened = open
                     )
                 )
@@ -111,7 +121,11 @@ interface MainMiddleware : MVIMiddleware<MainViewState> {
         data class OpenSearchBar(val open: Boolean) : MainScreenMiddleware
         data class SearchQuery(val query: String) : MainScreenMiddleware
 
-        data class ShowTextNoteBottomSheet(val show: Boolean, val id: NoteId? = null) :
+        data class ShowTextNoteBottomSheet(
+            val show: Boolean,
+            val id: NoteId? = null,
+            val addNoteRequest: NoteType? = null
+        ) :
             MainScreenMiddleware
 
         data class SelectNote(val id: NoteId, val itemLayoutInfo: ItemLayoutInfo) :
@@ -125,33 +139,164 @@ interface MainMiddleware : MVIMiddleware<MainViewState> {
         override fun reduce(viewState: MainViewState): MainViewState {
             return when (this) {
                 is EditNoteTitle -> {
-                    val note = viewState.note.note
-                    viewState.copy(
-                        note = viewState.note.copy(
-                            note = note?.copy(
-                                title = title
+                    when (val note = viewState.noteState.note) {
+                        is TodoListNote -> {
+                            viewState.copy(
+                                noteState = viewState.noteState.copy(
+                                    note = note.copy(
+                                        title = title
+                                    )
+                                )
+                            )
+                        }
+
+                        is TextNote -> viewState.copy(
+                            noteState = viewState.noteState.copy(
+                                note = note.copy(
+                                    title = title
+                                )
                             )
                         )
-                    )
+
+                        else -> viewState
+                    }
+
                 }
 
                 is EditNoteText -> {
-                    val note = viewState.note.note
-                    viewState.copy(
-                        note = viewState.note.copy(
-                            note = note?.copy(
+                    if (viewState.noteState.note is TextNote) {
+                        val note = viewState.noteState.note
+                        viewState.copy(
+                            noteState = viewState.noteState.copy(
+                                note = note.copy(
+                                    text = text
+                                )
+                            )
+                        )
+                    } else viewState
+
+                }
+
+                is EditNoteColor -> {
+                    when (val note = viewState.noteState.note) {
+                        is TodoListNote -> {
+                            viewState.copy(
+                                noteState = viewState.noteState.copy(
+                                    note = note.copy(
+                                        colorPref = colorPref
+                                    )
+                                )
+                            )
+                        }
+
+                        is TextNote -> viewState.copy(
+                            noteState = viewState.noteState.copy(
+                                note = note.copy(
+                                    colorPref = colorPref
+                                )
+                            )
+                        )
+
+                        else -> viewState
+                    }
+                }
+
+                is EditTodo -> {
+                    val note = viewState.noteState.note as? TodoListNote ?: return viewState
+                    val list = note.todoList.toMutableList()
+                    if (todoIdemId == null) {
+                        list.add(
+                            TodoListItem(
+                                id = UUID.randomUUID().toString(),
+                                text = STRING_EMPTY,
+                                position = list.size,
+                                selected = false
+                            )
+                        )
+                        val new = note.copy(
+                            todoList = list.toPersistentList()
+                        )
+                        viewState.copy(
+                            noteState = viewState.noteState.copy(
+                                note = new
+                            )
+                        )
+                    } else {
+                        val item = list.find { it.id == todoIdemId } ?: return viewState
+                        val newList = list.filter { it.id != todoIdemId }.toMutableList()
+                        newList.add(
+                            index = item.position,
+                            item.copy(
                                 text = text
+                            )
+                        )
+                        viewState.copy(
+                            noteState = viewState.noteState.copy(
+                                note = viewState.noteState.note.copy(
+                                    todoList = newList.toPersistentList()
+                                )
+                            )
+                        )
+                    }
+                }
+
+                is DeleteTodo -> {
+                    val note = viewState.noteState.note as? TodoListNote ?: return viewState
+                    val list = (note.todoList + note.selectedTodoList)
+                        .filter { it.id != todoIdemId }
+                        .mapIndexed { index, item ->
+                            item.copy(
+                                position = index
+                            )
+                        }
+
+                    viewState.copy(
+                        noteState = viewState.noteState.copy(
+                            note = viewState.noteState.note.copy(
+                                todoList = list.filter { !it.selected }.toPersistentList(),
+                                selectedTodoList = list.filter { it.selected }.toPersistentList()
                             )
                         )
                     )
                 }
 
-                is EditNoteColor -> {
-                    val note = viewState.note.note
+                is CheckTodo -> {
+                    val note = viewState.noteState.note as? TodoListNote ?: return viewState
+                    val list = note.todoList + note.selectedTodoList
+                    val item = list.find { it.id == todoIdemId } ?: return viewState
+                    val newList = list.filter { it.id != todoIdemId }.toMutableList()
+                    newList.add(
+                        index = item.position,
+                        item.copy(
+                            selected = !item.selected
+                        )
+                    )
                     viewState.copy(
-                        note = viewState.note.copy(
-                            note = note?.copy(
-                                colorPref = colorPref
+                        noteState = viewState.noteState.copy(
+                            note = viewState.noteState.note.copy(
+                                todoList = newList.filter { !it.selected }.toPersistentList(),
+                                selectedTodoList = newList.filter { it.selected }.toPersistentList()
+                            )
+                        )
+                    )
+                }
+
+                is ReorderTodo -> {
+                    val note = viewState.noteState.note as? TodoListNote ?: return viewState
+                    val newList =
+                        note.todoList.toMutableList().apply {
+                            if (to in note.todoList.indices) {
+                                add(to, removeAt(from))
+                            } else return viewState
+                        }
+                    viewState.copy(
+                        noteState = viewState.noteState.copy(
+                            note = viewState.noteState.note.copy(
+                                todoList = newList.mapIndexed { index, item ->
+                                    item.copy(
+                                        position = index
+                                    )
+                                }.toPersistentList()
                             )
                         )
                     )
@@ -164,6 +309,14 @@ interface MainMiddleware : MVIMiddleware<MainViewState> {
         data class EditNoteTitle(val title: String) : NoteScreen
         data class EditNoteText(val text: String) : NoteScreen
         data class EditNoteColor(val colorPref: ColorPref) : NoteScreen
+
+        data class EditTodo(val text: String, val todoIdemId: String? = null) : NoteScreen
+
+        data class DeleteTodo(val todoIdemId: String) : NoteScreen
+
+        data class CheckTodo(val todoIdemId: String) : NoteScreen
+
+        data class ReorderTodo(val id: String, val from: Int, val to: Int) : NoteScreen
 
     }
 

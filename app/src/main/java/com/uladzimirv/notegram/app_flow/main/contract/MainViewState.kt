@@ -2,7 +2,7 @@ package com.uladzimirv.notegram.app_flow.main.contract
 
 import com.uladzimirv.notegram.core.mvi.MviViewState
 import com.uladzimirv.notegram.domain.model.note.Note
-import com.uladzimirv.notegram.domain.model.note.TextNote
+import com.uladzimirv.notegram.domain.model.note.text.TextNote
 import com.uladzimirv.notegram.ui.layout.main.com.ItemLayoutInfo
 import com.uladzimirv.notegram.ui.model.NoteUI
 import com.uladzimirv.notegram.util.STRING_EMPTY
@@ -12,7 +12,7 @@ import kotlinx.collections.immutable.toPersistentList
 
 data class MainViewState(
     val main: MainScreenSubstate,
-    val note: TextNoteSubState = TextNoteSubState()
+    val noteState: NoteSubState = NoteSubState()
 ) : MviViewState {
 
     data class MainScreenSubstate(
@@ -24,9 +24,9 @@ data class MainViewState(
         val isSearchBarActive: Boolean = false
     )
 
-    data class TextNoteSubState(
+    data class NoteSubState(
         val show: Boolean = false,
-        val note: TextNote? = null,
+        val note: Note? = null,
         val colorMenuOpened : Boolean = false
     )
 

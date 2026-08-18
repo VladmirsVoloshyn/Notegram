@@ -8,8 +8,6 @@ import com.uladzimirv.notegram.app_flow.main.contract.MainMiddleware.NoteScreen.
 import com.uladzimirv.notegram.app_flow.main.contract.MainViewState
 import com.uladzimirv.notegram.core.mvi.AbstractMVIViewModel
 import com.uladzimirv.notegram.domain.manager.NotesManager
-import com.uladzimirv.notegram.domain.model.note.Note
-import com.uladzimirv.notegram.ui.layout.main.com.NoteType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList
@@ -37,9 +35,7 @@ class MainViewModel @Inject constructor(
 
     override val viewState: StateFlow<MainViewState>
 
-    val fl = notesManager.textNotesFlow.map {
-        val list = mutableListOf<Note>()
-        list.addAll(it)
+    val fl = notesManager.notesFlow.map { list ->
         MainMiddleware.MainScreenMiddleware.Notes(list.sortedBy { it.createdAt }
             .sortedBy { !it.pinned }.toPersistentList())
     }
@@ -111,20 +107,12 @@ class MainViewModel @Inject constructor(
                     }
 
                     is MainIntent.MainScreenIntent.Add -> {
-                        when (intent.noteType) {
-                            NoteType.TEXT -> {
-                                emit(
-                                    MainMiddleware.MainScreenMiddleware.ShowTextNoteBottomSheet(
-                                        show = true
-                                    )
-                                )
-                            }
-
-                            NoteType.VOICE,
-                            NoteType.QR,
-                            NoteType.TODO -> {
-                            }
-                        }
+                        emit(
+                            MainMiddleware.MainScreenMiddleware.ShowTextNoteBottomSheet(
+                                show = true,
+                                addNoteRequest = intent.noteType
+                            )
+                        )
                     }
 
                     is MainIntent.MainScreenIntent.CloseSheets -> emit(
@@ -147,7 +135,6 @@ class MainViewModel @Inject constructor(
                     }
                 }
             }
-
         }
 
         val textNoteFlow = filterIsInstance<MainIntent.EditNote>().flatMapLatest {
@@ -177,6 +164,41 @@ class MainViewModel @Inject constructor(
                             )
                         )
                     }
+
+                    is MainIntent.EditNote.EditTodo -> {
+                        emit(
+                            MainMiddleware.NoteScreen.EditTodo(
+                                text = it.text,
+                                todoIdemId = it.todoIdemId
+                            )
+                        )
+                    }
+
+                    is MainIntent.EditNote.DeleteTodoItem -> {
+                        emit(
+                            MainMiddleware.NoteScreen.DeleteTodo(
+                                todoIdemId = it.id
+                            )
+                        )
+                    }
+
+                    is MainIntent.EditNote.CheckTodoItem -> {
+                        emit(
+                            MainMiddleware.NoteScreen.CheckTodo(
+                                todoIdemId = it.id
+                            )
+                        )
+                    }
+
+                    is MainIntent.EditNote.Reorder -> {
+                        emit(
+                            MainMiddleware.NoteScreen.ReorderTodo(
+                                id = it.id,
+                                from = it.from,
+                                to = it.to
+                            )
+                        )
+                    }
                 }
                 updateNote()
             }
@@ -190,7 +212,7 @@ class MainViewModel @Inject constructor(
 
     private suspend fun updateNote(mills: Int = 500) {
         delay(mills.milliseconds)
-        viewState.value.note.note?.let {
+        viewState.value.noteState.note?.let {
             notesManager.addNote(
                 it
             )

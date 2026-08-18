@@ -1,21 +1,14 @@
 package com.uladzimirv.notegram.ui.layout.main
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.animateBounds
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
@@ -33,13 +26,15 @@ import com.uladzimirv.notegram.R
 import com.uladzimirv.notegram.app_flow.main.contract.MainIntent
 import com.uladzimirv.notegram.app_flow.main.contract.MainViewState
 import com.uladzimirv.notegram.ui.elements.Gap
-import com.uladzimirv.notegram.ui.elements.item.MainGreedItem
+import com.uladzimirv.notegram.ui.elements.item.MainTextNoteGreedItem
+import com.uladzimirv.notegram.ui.elements.item.MainTodoNoteGreedItem
 import com.uladzimirv.notegram.ui.elements.layer.AddNoteLayer
 import com.uladzimirv.notegram.ui.elements.layer.MainItemMenuLayer
 import com.uladzimirv.notegram.ui.elements.search_bar.TopSearchBar
+import com.uladzimirv.notegram.ui.model.TextNoteUI
+import com.uladzimirv.notegram.ui.model.TodoNoteUI
 import com.uladzimirv.notegram.ui.theme.backgroundPrimary
 import com.uladzimirv.notegram.ui.theme.textSecondary
-import com.uladzimirv.notegram.util.vibration.clickVibrate
 import com.uladzimirv.notegram.util.vibration.tickVibrate
 
 @Composable
@@ -110,20 +105,41 @@ fun MainScreen(
                                     items = state.uiNotes.toList(),
                                     key = { item -> item.id }
                                 ) {
-                                    MainGreedItem(
-                                        note = it,
-                                        modifier = Modifier.animateItem(),
-                                        onClick = { intent(MainIntent.MainScreenIntent.OpenNote(it)) },
-                                        layoutInfo = null,
-                                        onLongClick = { id, li ->
-                                            intent(
-                                                MainIntent.MainScreenIntent.SelectNote(
-                                                    noteId = id,
-                                                    itemLayoutInfo = li
-                                                )
+                                    when(it){
+                                        is TextNoteUI -> {
+                                            MainTextNoteGreedItem(
+                                                note = it,
+                                                modifier = Modifier.animateItem(),
+                                                onClick = { intent(MainIntent.MainScreenIntent.OpenNote(it)) },
+                                                layoutInfo = null,
+                                                onLongClick = { id, li ->
+                                                    intent(
+                                                        MainIntent.MainScreenIntent.SelectNote(
+                                                            noteId = id,
+                                                            itemLayoutInfo = li
+                                                        )
+                                                    )
+                                                }
                                             )
                                         }
-                                    )
+
+                                        is TodoNoteUI -> {
+                                            MainTodoNoteGreedItem(
+                                                note = it,
+                                                modifier = Modifier.animateItem(),
+                                                onClick = { intent(MainIntent.MainScreenIntent.OpenNote(it)) },
+                                                layoutInfo = null,
+                                                onLongClick = { id, li ->
+                                                    intent(
+                                                        MainIntent.MainScreenIntent.SelectNote(
+                                                            noteId = id,
+                                                            itemLayoutInfo = li
+                                                        )
+                                                    )
+                                                }
+                                            )
+                                        }
+                                    }
                                 }
 
                             }

@@ -1,8 +1,6 @@
 package com.uladzimirv.notegram.ui.elements.bottom_bar
 
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandIn
 import androidx.compose.animation.fadeIn
@@ -50,7 +48,6 @@ fun NoteBottomBar(
     changeColor: (ColorPref) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    println("VEVO $colorMenuOpened")
     Row(
         horizontalArrangement = Arrangement.End,
         verticalAlignment = Alignment.Bottom,
@@ -115,8 +112,7 @@ fun NoteBottomBar(
             }
 
         }
-
-        Gap(16)
+        Gap(24)
         val resource = remember(colorMenuOpened) {
             if (colorMenuOpened) R.drawable.ic_cross
             else R.drawable.ic_brush
@@ -151,7 +147,7 @@ fun NoteBottomBar(
                 tint = buttonPrimary,
             )
         }
-        Gap(8)
+        Gap(16)
         Icon(
             modifier = Modifier
                 .clickable(

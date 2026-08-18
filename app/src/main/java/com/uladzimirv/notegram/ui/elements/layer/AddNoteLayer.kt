@@ -49,15 +49,15 @@ fun AddNoteLayer(
                     ),
                 horizontalAlignment = Alignment.End
             ) {
-                AddItem(
-                    modifier = Modifier,
-                    iconResId = R.drawable.ic_audio,
-                    titleResId = R.string.s_audio,
-                    isVisible = !isClosed,
-                ) {
-                    add(NoteType.VOICE)
-                }
-                Gap(6)
+//                AddItem(
+//                    modifier = Modifier,
+//                    iconResId = R.drawable.ic_audio,
+//                    titleResId = R.string.s_audio,
+//                    isVisible = !isClosed,
+//                ) {
+//                    add(NoteType.VOICE)
+//                }
+//                Gap(6)
                 AddItem(
                     modifier = Modifier,
                     iconResId = R.drawable.ic_todo_list,

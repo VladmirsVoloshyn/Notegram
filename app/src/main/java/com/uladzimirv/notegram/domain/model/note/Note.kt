@@ -10,17 +10,10 @@ abstract class Note(
     open val createdAt: Long,
     open val updatedAd: Long,
     open val title: String,
-    open val text: String,
     open val pinned: Boolean,
     open val colorPref: ColorPref
 ) {
-    companion object {
-        fun Note.toUIModel() = NoteUI(
-            id = id,
-            text = text,
-            title = title,
-            pinned = pinned,
-            colorPref = colorPref
-        )
-    }
+
+    abstract fun toUIModel(): NoteUI
+
 }
