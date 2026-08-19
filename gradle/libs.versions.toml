@@ -14,6 +14,9 @@ devtoolsKsp = "2.2.20-2.0.4"
 kotlinxCollections = "0.5.0"
 gson = "3.0.0"
 reorderable = "0.9.6"
+cameraCore = "1.5.1"
+barcodeScan = "17.3.0"
+zxing = "3.5.3"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -38,6 +41,12 @@ hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hil
 kotlinx-collections = { module = "org.jetbrains.kotlinx:kotlinx-collections-immutable", version.ref = "kotlinxCollections" }
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "gson" }
 collections-reorderable = {module = "org.burnoutcrew.composereorderable:reorderable", version.ref = "reorderable"}
+zxing = { module = "com.google.zxing:core", version.ref = "zxing" }
+androidx-camera-core = { group = "androidx.camera", name = "camera-core", version.ref = "cameraCore" }
+androidx-camera-lifecycle = { group = "androidx.camera", name = "camera-lifecycle", version.ref = "cameraCore" }
+androidx-camera-view = { group = "androidx.camera", name = "camera-view", version.ref = "cameraCore" }
+androidx-camera-camera2 = { module = "androidx.camera:camera-camera2", version.ref = "cameraCore" }
+mlkit-barcode-scanning = { group = "com.google.mlkit", name = "barcode-scanning", version.ref = "barcodeScan" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

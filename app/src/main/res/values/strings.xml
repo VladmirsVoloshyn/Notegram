@@ -13,7 +13,7 @@
 
     <!--main -->
     <string name="s_no_notes">No notes yet.</string>
-
+    <string name="s_menu_share_title">Share qr result</string>
     <string name="s_delete">Delete</string>
     <string name="s_share">Share</string>
     <string name="s_pin">Pin</string>
@@ -25,4 +25,11 @@
 
     <!--todolist note -->
     <string name="s_add_item">Add item</string>
+
+    <!--qr scanner -->
+    <string name="s_scan_result">Scanning result:</string>
+    <string name="s_save_as_text_note">Save as text</string>
+    <string name="s_link">Link</string>
+    <string name="s_unable_open_link">Unable to open this type of content</string>
+    <string name="s_share_qr_result">Share qr result</string>
 </resources>

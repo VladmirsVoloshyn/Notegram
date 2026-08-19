@@ -1,6 +1,7 @@
 package com.uladzimirv.notegram.ui.elements.layer
 
 import android.annotation.SuppressLint
+import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -10,7 +11,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.uladzimirv.notegram.R
 import com.uladzimirv.notegram.domain.model.note.NoteId
@@ -24,6 +27,7 @@ import com.uladzimirv.notegram.ui.model.NoteUI
 import com.uladzimirv.notegram.ui.model.TextNoteUI
 import com.uladzimirv.notegram.ui.model.TodoNoteUI
 import com.uladzimirv.notegram.util.compsoe.clickableNoRipple
+import com.uladzimirv.notegram.util.intent.sharePlainText
 
 @SuppressLint("ConfigurationScreenWidthHeight")
 @Composable
@@ -93,8 +97,21 @@ fun MainItemMenuLayer(
                     )
                 }
             }
-
         }
+
+        val shareText = remember {
+            when (note) {
+                is TextNoteUI -> "${note.title}\n${note.text}"
+                is TodoNoteUI -> "${note.title}\n${
+                    (note.list + note.selectedList).joinToString(
+                        separator = "\n"
+                    ) { "${if (it.selected) "+" else "-"} ${it.text}" }
+                }"
+
+                else -> ""
+            }
+        }
+
         Box(
             modifier = Modifier.offset(
                 x = menuHorizontalOffset.dp,
@@ -109,6 +126,7 @@ fun MainItemMenuLayer(
                     delete(note.id)
                     close()
                 },
+                shareText = shareText,
                 pin = {
                     pin(note.id)
                     close()
@@ -123,9 +141,12 @@ fun ActionColumn(
     isLayerVisible: Boolean,
     pinned: Boolean,
     menuDestination: MenuDestination,
+    shareText: String,
     delete: () -> Unit,
     pin: () -> Unit
 ) {
+    val context = LocalContext.current
+    val shareTitle = stringResource(R.string.s_menu_share_title)
     val alignment = remember {
         when (menuDestination) {
             MenuDestination.LEFT -> Alignment.End
@@ -143,12 +164,22 @@ fun ActionColumn(
             onClick = delete
         )
         Gap(6)
+        val intentErrorString = stringResource(R.string.s_unable_open_link)
         AddItem(
             iconResId = R.drawable.ic_share,
             titleResId = R.string.s_share,
             isVisible = isLayerVisible
         ) {
-
+            context.sharePlainText(
+                title = shareTitle,
+                text = shareText
+            ) {
+                Toast.makeText(
+                    context,
+                    intentErrorString,
+                    Toast.LENGTH_LONG
+                ).show()
+            }
         }
         Gap(6)
         val valuesPair = remember {

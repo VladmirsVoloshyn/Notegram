@@ -12,13 +12,14 @@ import kotlinx.collections.immutable.toPersistentList
 
 data class MainViewState(
     val main: MainScreenSubstate,
-    val noteState: NoteSubState = NoteSubState()
+    val noteState: NoteSubState = NoteSubState(),
+    val scannerState: QRScannerState = QRScannerState()
 ) : MviViewState {
 
     data class MainScreenSubstate(
         val notes: ImmutableList<Note> = persistentListOf(),
         val uiNotes: ImmutableList<NoteUI> = persistentListOf(),
-        val selectedNote : SelectedNoteInfo? = null,
+        val selectedNote: SelectedNoteInfo? = null,
         val query: String = STRING_EMPTY,
         val isAddMenuOpened: Boolean = false,
         val isSearchBarActive: Boolean = false
@@ -27,7 +28,13 @@ data class MainViewState(
     data class NoteSubState(
         val show: Boolean = false,
         val note: Note? = null,
-        val colorMenuOpened : Boolean = false
+        val colorMenuOpened: Boolean = false
+    )
+
+    data class QRScannerState(
+        val show: Boolean = false,
+        val qrScannerResult: String? = null,
+        val isResultIsLink: Boolean = false
     )
 
     companion object {
@@ -43,7 +50,7 @@ data class MainViewState(
     }
 
     data class SelectedNoteInfo(
-        val note : NoteUI,
+        val note: NoteUI,
         val layoutInfo: ItemLayoutInfo
     )
 }
