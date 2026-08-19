@@ -4,10 +4,12 @@ import androidx.lifecycle.viewModelScope
 import com.uladzimirv.notegram.app_flow.main.contract.MainEvent
 import com.uladzimirv.notegram.app_flow.main.contract.MainIntent
 import com.uladzimirv.notegram.app_flow.main.contract.MainMiddleware
+import com.uladzimirv.notegram.app_flow.main.contract.MainMiddleware.MainScreenMiddleware.ShowQR
 import com.uladzimirv.notegram.app_flow.main.contract.MainMiddleware.NoteScreen.EditNoteText
 import com.uladzimirv.notegram.app_flow.main.contract.MainViewState
 import com.uladzimirv.notegram.core.mvi.AbstractMVIViewModel
 import com.uladzimirv.notegram.domain.manager.NotesManager
+import com.uladzimirv.notegram.util.VEVO
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList
@@ -35,7 +37,7 @@ class MainViewModel @Inject constructor(
 
     override val viewState: StateFlow<MainViewState>
 
-    val fl = notesManager.notesFlow.map { list ->
+    val notesFlow = notesManager.notesFlow.map { list ->
         MainMiddleware.MainScreenMiddleware.Notes(list.sortedBy { it.createdAt }
             .sortedBy { !it.pinned }.toPersistentList())
     }
@@ -128,16 +130,45 @@ class MainViewModel @Inject constructor(
                         )
                     )
 
-                    is MainIntent.MainScreenIntent.CloseSelectionMenu -> emit(MainMiddleware.MainScreenMiddleware.CloseMenu)
+                    is MainIntent.MainScreenIntent.CloseSelectionMenu -> emit(
+                        MainMiddleware.MainScreenMiddleware.CloseMenu
+                    )
 
                     is MainIntent.MainScreenIntent.Delete -> {
-                        notesManager.deleteNote(intent.noteId)
+                        notesManager.deleteNote(id = intent.noteId)
+                    }
+
+                    is MainIntent.MainScreenIntent.OpenQRScanner -> {
+                        emit(ShowQR(show = intent.open))
                     }
                 }
             }
         }
 
-        val textNoteFlow = filterIsInstance<MainIntent.EditNote>().flatMapLatest {
+        val scannerFlow = filterIsInstance<MainIntent.QRScannerIntent>().flatMapLatest {
+            flow {
+                when (it) {
+                    is MainIntent.QRScannerIntent.QrScannerResult -> {
+                        emit(MainMiddleware.QRScannerMiddleware.ScannerResult(it.result))
+                    }
+
+                    is MainIntent.QRScannerIntent.DeleteResult -> {
+                        emit(MainMiddleware.QRScannerMiddleware.DeleteResult)
+                    }
+
+                    //is MainIntent.QRScannerIntent.ShareResult -> {}
+
+                    is MainIntent.QRScannerIntent.SaveAsTextNote -> {
+                        emit(MainMiddleware.QRScannerMiddleware.SaveAsTextNote)
+                        updateNote(100)
+                    }
+
+                    //is MainIntent.QRScannerIntent.GotoLink -> {}
+                }
+            }
+        }
+
+        val noteEditFlow = filterIsInstance<MainIntent.EditNote>().flatMapLatest {
             flow {
                 when (it) {
                     is MainIntent.EditNote.Title -> {
@@ -205,14 +236,16 @@ class MainViewModel @Inject constructor(
         }
         return merge(
             mainFlow,
-            textNoteFlow,
-            fl
+            noteEditFlow,
+            scannerFlow,
+            notesFlow
         )
     }
 
     private suspend fun updateNote(mills: Int = 500) {
         delay(mills.milliseconds)
         viewState.value.noteState.note?.let {
+            VEVO(it)
             notesManager.addNote(
                 it
             )

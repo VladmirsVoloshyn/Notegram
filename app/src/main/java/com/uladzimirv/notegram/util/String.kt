@@ -6,3 +6,7 @@ const val TEXT_NOTE_TABLE_NAME = "text_notes"
 const val TODO_NOTE_TABLE_NAME = "todo_notes"
 
 const val STRING_EMPTY = ""
+
+//HTTP
+const val HTTP = "http"
+const val HTTPS = "https"

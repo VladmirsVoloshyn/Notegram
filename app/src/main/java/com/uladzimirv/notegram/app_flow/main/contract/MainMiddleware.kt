@@ -9,6 +9,8 @@ import com.uladzimirv.notegram.domain.model.note.todo.TodoListNote
 import com.uladzimirv.notegram.ui.layout.main.com.ColorPref
 import com.uladzimirv.notegram.ui.layout.main.com.ItemLayoutInfo
 import com.uladzimirv.notegram.ui.layout.main.com.NoteType
+import com.uladzimirv.notegram.util.HTTP
+import com.uladzimirv.notegram.util.HTTPS
 import com.uladzimirv.notegram.util.STRING_EMPTY
 import com.uladzimirv.notegram.util.VEVO
 import kotlinx.collections.immutable.ImmutableList
@@ -42,19 +44,22 @@ interface MainMiddleware : MVIMiddleware<MainViewState> {
 
                 is ShowTextNoteBottomSheet -> {
                     viewState.copy(
+                        scannerState = viewState.scannerState.copy(
+                            show = addNoteRequest == NoteType.QR
+                        ),
                         main = viewState.main.copy(
                             isAddMenuOpened = false
                         ),
                         noteState = viewState.noteState.copy(
                             colorMenuOpened = false,
-                            show = show,
+                            show = show && addNoteRequest != NoteType.QR,
                             note = if (show) {
                                 id?.let { lookForID -> viewState.main.notes.find { it.id == lookForID } }
                                     ?: when (addNoteRequest) {
                                         NoteType.TEXT -> TextNote.empty()
                                         NoteType.VOICE -> TextNote.empty()
-                                        NoteType.QR -> TextNote.empty()
                                         NoteType.TODO -> TodoListNote.empty()
+                                        NoteType.QR,
                                         null -> TextNote.empty()
                                     }
                             } else null
@@ -100,6 +105,12 @@ interface MainMiddleware : MVIMiddleware<MainViewState> {
                     )
                 )
 
+                is ShowQR -> viewState.copy(
+                    scannerState = viewState.scannerState.copy(
+                        show = show
+                    )
+                )
+
                 is OpenColorContainer -> viewState.copy(
                     noteState = viewState.noteState.copy(
                         colorMenuOpened = open
@@ -111,6 +122,10 @@ interface MainMiddleware : MVIMiddleware<MainViewState> {
         }
 
         data class Notes(val notes: ImmutableList<Note>) : MainScreenMiddleware
+
+        data class ShowQR(
+            val show: Boolean
+        ) : MainScreenMiddleware
 
         data class OpenAddMenu(
             val open: Boolean
@@ -318,6 +333,51 @@ interface MainMiddleware : MVIMiddleware<MainViewState> {
 
         data class ReorderTodo(val id: String, val from: Int, val to: Int) : NoteScreen
 
+    }
+
+    sealed interface QRScannerMiddleware : MainMiddleware {
+
+        override fun reduce(viewState: MainViewState): MainViewState {
+            return when (this) {
+                is ScannerResult -> {
+                    val isLink = result.startsWith(HTTP) || result.startsWith(HTTPS)
+                    viewState.copy(
+                        scannerState = viewState.scannerState.copy(
+                            qrScannerResult = result,
+                            isResultIsLink = isLink
+                        )
+                    )
+                }
+
+                DeleteResult -> viewState.copy(
+                    scannerState = viewState.scannerState.copy(
+                        qrScannerResult = null
+                    )
+                )
+
+                SaveAsTextNote -> {
+                    val text = viewState.scannerState.qrScannerResult ?: return viewState
+                    viewState.copy(
+                        scannerState = viewState.scannerState.copy(
+                            qrScannerResult = null,
+                            isResultIsLink = false
+                        ),
+                        noteState = viewState.noteState.copy(
+                            colorMenuOpened = false,
+                            show = true,
+                            note = TextNote.empty(text = text)
+                        )
+                    )
+                }
+            }
+        }
+
+        data class ScannerResult(
+            val result: String
+        ) : QRScannerMiddleware
+
+        data object DeleteResult : QRScannerMiddleware
+        data object SaveAsTextNote : QRScannerMiddleware
     }
 
     data object Stub : MainMiddleware {

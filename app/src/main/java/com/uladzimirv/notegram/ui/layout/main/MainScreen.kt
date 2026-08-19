@@ -39,7 +39,7 @@ import com.uladzimirv.notegram.util.vibration.tickVibrate
 
 @Composable
 fun MainScreen(
-    state: MainViewState.MainScreenSubstate,
+    state: MainViewState,
     intent: (MainIntent) -> Unit
 ) {
     Scaffold(
@@ -52,7 +52,7 @@ fun MainScreen(
                 .padding(innerPadding)
                 .padding(horizontal = 16.dp)
                 .let {
-                    if (state.isAddMenuOpened || state.selectedNote != null) it.blur(
+                    if (state.main.isAddMenuOpened || state.main.selectedNote != null || state.scannerState.qrScannerResult != null) it.blur(
                         4.dp,
                         edgeTreatment = BlurredEdgeTreatment.Unbounded
                     )
@@ -63,8 +63,8 @@ fun MainScreen(
                 modifier = Modifier.padding(top = 12.dp)
             ) {
                 TopSearchBar(
-                    enabled = state.isSearchBarActive,
-                    query = state.query,
+                    enabled = state.main.isSearchBarActive,
+                    query = state.main.query,
                     onTextChanged = {
                         intent(
                             MainIntent.MainScreenIntent.SearchQuery(
@@ -89,7 +89,7 @@ fun MainScreen(
                     Box(
                         modifier = Modifier.fillMaxSize()
                     ) {
-                        if (state.notes.isEmpty()) {
+                        if (state.main.notes.isEmpty()) {
                             Text(
                                 text = stringResource(R.string.s_no_notes),
                                 modifier = Modifier.align(Alignment.Center),
@@ -102,15 +102,21 @@ fun MainScreen(
                                 verticalItemSpacing = 12.dp
                             ) {
                                 items(
-                                    items = state.uiNotes.toList(),
+                                    items = state.main.uiNotes.toList(),
                                     key = { item -> item.id }
                                 ) {
-                                    when(it){
+                                    when (it) {
                                         is TextNoteUI -> {
                                             MainTextNoteGreedItem(
                                                 note = it,
                                                 modifier = Modifier.animateItem(),
-                                                onClick = { intent(MainIntent.MainScreenIntent.OpenNote(it)) },
+                                                onClick = {
+                                                    intent(
+                                                        MainIntent.MainScreenIntent.OpenNote(
+                                                            it
+                                                        )
+                                                    )
+                                                },
                                                 layoutInfo = null,
                                                 onLongClick = { id, li ->
                                                     intent(
@@ -127,7 +133,13 @@ fun MainScreen(
                                             MainTodoNoteGreedItem(
                                                 note = it,
                                                 modifier = Modifier.animateItem(),
-                                                onClick = { intent(MainIntent.MainScreenIntent.OpenNote(it)) },
+                                                onClick = {
+                                                    intent(
+                                                        MainIntent.MainScreenIntent.OpenNote(
+                                                            it
+                                                        )
+                                                    )
+                                                },
                                                 layoutInfo = null,
                                                 onLongClick = { id, li ->
                                                     intent(
@@ -150,7 +162,7 @@ fun MainScreen(
             }
         }
         AnimatedVisibility(
-            visible = !state.isSearchBarActive && state.selectedNote == null,
+            visible = !state.main.isSearchBarActive && state.main.selectedNote == null && state.scannerState.qrScannerResult == null,
             enter = fadeIn(),
             exit = fadeOut()
         ) {
@@ -162,7 +174,7 @@ fun MainScreen(
             ) {
                 AddNoteLayer(
                     modifier = Modifier.align(Alignment.BottomEnd),
-                    isClosed = !state.isAddMenuOpened,
+                    isClosed = !state.main.isAddMenuOpened,
                     add = {
                         intent(
                             MainIntent.MainScreenIntent.Add(
@@ -174,21 +186,21 @@ fun MainScreen(
                     context.tickVibrate()
                     intent(
                         MainIntent.MainScreenIntent.OpenAddMenu(
-                            open = !state.isAddMenuOpened
+                            open = !state.main.isAddMenuOpened
                         )
                     )
                 }
             }
         }
         AnimatedVisibility(
-            visible = state.selectedNote != null,
+            visible = state.main.selectedNote != null,
             enter = fadeIn(),
             exit = fadeOut()
         ) {
-            state.selectedNote?.let {
+            state.main.selectedNote?.let {
                 MainItemMenuLayer(
-                    note = state.selectedNote.note,
-                    layoutInfo = state.selectedNote.layoutInfo,
+                    note = state.main.selectedNote.note,
+                    layoutInfo = state.main.selectedNote.layoutInfo,
                     isLayerVisible = true,
                     close = { intent(MainIntent.MainScreenIntent.CloseSelectionMenu) },
                     delete = { intent(MainIntent.MainScreenIntent.Delete(it)) },
