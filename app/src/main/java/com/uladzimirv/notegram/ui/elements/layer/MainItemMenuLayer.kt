@@ -82,18 +82,14 @@ fun MainItemMenuLayer(
                 is TextNoteUI -> {
                     MainTextNoteGreedItem(
                         note = note,
-                        onClick = {},
-                        layoutInfo = layoutInfo,
-                        onLongClick = { it, it1 -> }
+                        layoutInfo = layoutInfo
                     )
                 }
 
                 is TodoNoteUI -> {
                     MainTodoNoteGreedItem(
                         note = note,
-                        onClick = {},
-                        layoutInfo = layoutInfo,
-                        onLongClick = { it, it1 -> }
+                        layoutInfo = layoutInfo
                     )
                 }
             }

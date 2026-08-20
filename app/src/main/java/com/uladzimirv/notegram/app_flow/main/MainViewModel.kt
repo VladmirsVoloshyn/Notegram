@@ -96,7 +96,7 @@ class MainViewModel @Inject constructor(
                     }
 
                     is MainIntent.MainScreenIntent.OpenNote -> emit(
-                        MainMiddleware.MainScreenMiddleware.ShowTextNoteBottomSheet(
+                        MainMiddleware.MainScreenMiddleware.ShowNoteBottomSheet(
                             show = true,
                             id = intent.id
                         )
@@ -110,18 +110,18 @@ class MainViewModel @Inject constructor(
 
                     is MainIntent.MainScreenIntent.Add -> {
                         emit(
-                            MainMiddleware.MainScreenMiddleware.ShowTextNoteBottomSheet(
+                            MainMiddleware.MainScreenMiddleware.ShowNoteBottomSheet(
                                 show = true,
                                 addNoteRequest = intent.noteType
                             )
                         )
                     }
 
-                    is MainIntent.MainScreenIntent.CloseSheets -> emit(
-                        MainMiddleware.MainScreenMiddleware.ShowTextNoteBottomSheet(
-                            show = false
+                    is MainIntent.MainScreenIntent.CloseSheets -> {
+                        emit(
+                            MainMiddleware.CloseSheets
                         )
-                    )
+                    }
 
                     is MainIntent.MainScreenIntent.SelectNote -> emit(
                         MainMiddleware.MainScreenMiddleware.SelectNote(
@@ -156,14 +156,10 @@ class MainViewModel @Inject constructor(
                         emit(MainMiddleware.QRScannerMiddleware.DeleteResult)
                     }
 
-                    //is MainIntent.QRScannerIntent.ShareResult -> {}
-
                     is MainIntent.QRScannerIntent.SaveAsTextNote -> {
                         emit(MainMiddleware.QRScannerMiddleware.SaveAsTextNote)
                         updateNote(100)
                     }
-
-                    //is MainIntent.QRScannerIntent.GotoLink -> {}
                 }
             }
         }
@@ -245,7 +241,6 @@ class MainViewModel @Inject constructor(
     private suspend fun updateNote(mills: Int = 500) {
         delay(mills.milliseconds)
         viewState.value.noteState.note?.let {
-            VEVO(it)
             notesManager.addNote(
                 it
             )

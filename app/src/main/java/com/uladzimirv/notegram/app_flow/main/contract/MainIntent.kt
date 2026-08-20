@@ -40,9 +40,7 @@ sealed interface MainIntent : MviIntent {
     }
 
     interface QRScannerIntent : MainIntent {
-        data object GotoLink : QRScannerIntent
         data object SaveAsTextNote : QRScannerIntent
-        data object ShareResult : QRScannerIntent
         data object DeleteResult : QRScannerIntent
 
         data class QrScannerResult(

@@ -45,9 +45,9 @@ import com.uladzimirv.notegram.util.ifNotEmpty
 fun MainTextNoteGreedItem(
     modifier: Modifier = Modifier,
     note: TextNoteUI,
-    onClick: (NoteId) -> Unit,
+    onClick: (NoteId) -> Unit = {},
     layoutInfo: ItemLayoutInfo?,
-    onLongClick: (id: NoteId, li: ItemLayoutInfo) -> Unit
+    onLongClick: (id: NoteId, li: ItemLayoutInfo) -> Unit = {it, it1 ->}
 ) {
     val width = remember {
         mutableIntStateOf(0)

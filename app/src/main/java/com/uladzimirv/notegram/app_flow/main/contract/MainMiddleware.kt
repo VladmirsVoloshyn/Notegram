@@ -12,7 +12,6 @@ import com.uladzimirv.notegram.ui.layout.main.com.NoteType
 import com.uladzimirv.notegram.util.HTTP
 import com.uladzimirv.notegram.util.HTTPS
 import com.uladzimirv.notegram.util.STRING_EMPTY
-import com.uladzimirv.notegram.util.VEVO
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toPersistentList
 import java.util.UUID
@@ -42,7 +41,7 @@ interface MainMiddleware : MVIMiddleware<MainViewState> {
                     )
                 )
 
-                is ShowTextNoteBottomSheet -> {
+                is ShowNoteBottomSheet -> {
                     viewState.copy(
                         scannerState = viewState.scannerState.copy(
                             show = addNoteRequest == NoteType.QR
@@ -136,7 +135,7 @@ interface MainMiddleware : MVIMiddleware<MainViewState> {
         data class OpenSearchBar(val open: Boolean) : MainScreenMiddleware
         data class SearchQuery(val query: String) : MainScreenMiddleware
 
-        data class ShowTextNoteBottomSheet(
+        data class ShowNoteBottomSheet(
             val show: Boolean,
             val id: NoteId? = null,
             val addNoteRequest: NoteType? = null
@@ -324,13 +323,9 @@ interface MainMiddleware : MVIMiddleware<MainViewState> {
         data class EditNoteTitle(val title: String) : NoteScreen
         data class EditNoteText(val text: String) : NoteScreen
         data class EditNoteColor(val colorPref: ColorPref) : NoteScreen
-
         data class EditTodo(val text: String, val todoIdemId: String? = null) : NoteScreen
-
         data class DeleteTodo(val todoIdemId: String) : NoteScreen
-
         data class CheckTodo(val todoIdemId: String) : NoteScreen
-
         data class ReorderTodo(val id: String, val from: Int, val to: Int) : NoteScreen
 
     }
@@ -378,6 +373,27 @@ interface MainMiddleware : MVIMiddleware<MainViewState> {
 
         data object DeleteResult : QRScannerMiddleware
         data object SaveAsTextNote : QRScannerMiddleware
+    }
+
+    data object CloseSheets : MainMiddleware {
+        override fun reduce(viewState: MainViewState): MainViewState {
+            return viewState.copy(
+                main = viewState.main.copy(
+                    selectedNote = null,
+                    query = STRING_EMPTY,
+                    isAddMenuOpened = false,
+                    isSearchBarActive = false
+                ),
+                noteState = viewState.noteState.copy(
+                    show = false,
+                    note = null
+                ),
+                scannerState = viewState.scannerState.copy(
+                    show = false,
+                    qrScannerResult = null
+                )
+            )
+        }
     }
 
     data object Stub : MainMiddleware {

@@ -48,7 +48,7 @@ internal fun ScanQrScreen(
     BaseBottomSheet(
         showBottomSheet = state.show,
         backgroundColor = Color.Transparent,
-        onDismissRequest = { intent(MainIntent.MainScreenIntent.CloseSheets) }
+        onDismissRequest = { intent(MainIntent.MainScreenIntent.OpenQRScanner(false)) }
     ) {
         Column(
             modifier = Modifier
@@ -63,7 +63,7 @@ internal fun ScanQrScreen(
                     flashOn = false,
                     onQrCodeScanned = {
                         intent(MainIntent.QRScannerIntent.QrScannerResult(it))
-                        intent(MainIntent.MainScreenIntent.CloseSheets)
+                        intent(MainIntent.MainScreenIntent.OpenQRScanner(false))
                         context.clickVibrate()
                     },
                 )

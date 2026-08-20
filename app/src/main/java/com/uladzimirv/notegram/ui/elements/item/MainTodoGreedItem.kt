@@ -52,9 +52,9 @@ import com.uladzimirv.notegram.util.ifNotEmpty
 fun MainTodoNoteGreedItem(
     modifier: Modifier = Modifier,
     note: TodoNoteUI,
-    onClick: (NoteId) -> Unit,
+    onClick: (NoteId) -> Unit = {},
     layoutInfo: ItemLayoutInfo?,
-    onLongClick: (id: NoteId, li: ItemLayoutInfo) -> Unit
+    onLongClick: (id: NoteId, li: ItemLayoutInfo) -> Unit = {it, it1 ->}
 ) {
     val width = remember {
         mutableIntStateOf(0)
@@ -142,7 +142,6 @@ fun MainTodoNoteGreedItem(
             val list = remember(note.list, note.selectedList) {
                 note.list + note.selectedList
             }
-            VEVO(list)
             repeat(if (list.size > 5) 5 else list.size) {
                 TodoListItemMainUI(
                     text = list[it].text,
