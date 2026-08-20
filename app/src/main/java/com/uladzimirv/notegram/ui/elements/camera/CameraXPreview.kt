@@ -84,7 +84,7 @@ internal fun CameraXPreview(
                         lifecycleOwner, cameraSelector, preview, imageAnalyzer
                     )
                 } catch (exc: Exception) {
-                    VEVO(exc.message)
+                    exc.printStackTrace()
                 }
             }, ContextCompat.getMainExecutor(context))
 

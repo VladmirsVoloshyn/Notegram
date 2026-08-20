@@ -2,9 +2,11 @@ package com.uladzimirv.notegram.app_flow.main
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -26,6 +28,17 @@ import kotlinx.coroutines.withContext
 class MainActivity : ComponentActivity() {
 
     private val viewModel: MainViewModel by viewModels()
+
+    private var systemBackCallback: OnBackPressedCallback? = null
+
+    override fun onResume() {
+        super.onResume()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        systemBackCallback?.remove()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,6 +66,13 @@ class MainActivity : ComponentActivity() {
 
             val viewState by viewModel.viewState.collectAsStateWithLifecycle()
 
+            configureBackPress(
+                addMenuVisible = viewState.main.isAddMenuOpened,
+                itemMenuVisible = viewState.main.selectedNote != null,
+                searchVisible = viewState.main.isSearchBarActive,
+                hasQRData = viewState.scannerState.qrScannerResult != null,
+                intent = intent
+            )
 
             MainScreen(
                 state = viewState,
@@ -67,6 +87,28 @@ class MainActivity : ComponentActivity() {
                 intent = intent
             )
         }
+    }
+
+
+    @Composable
+    private fun configureBackPress(
+        addMenuVisible: Boolean,
+        itemMenuVisible: Boolean,
+        searchVisible: Boolean,
+        hasQRData: Boolean,
+        intent: (MainIntent) -> Unit,
+    ) {
+        systemBackCallback?.remove()
+        if (addMenuVisible || itemMenuVisible || searchVisible || hasQRData) {
+            systemBackCallback = object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    intent(MainIntent.MainScreenIntent.CloseSheets)
+                }
+            }
+            systemBackCallback?.let { callback ->
+                onBackPressedDispatcher.addCallback(callback)
+            }
+        } else systemBackCallback?.remove()
     }
 
 }
