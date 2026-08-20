@@ -9,4 +9,6 @@ abstract class NoteUI(
     open val id: NoteId,
     open val colorPref: ColorPref,
     open val pinned: Boolean
-)
+) {
+    abstract fun shareText(): String
+}

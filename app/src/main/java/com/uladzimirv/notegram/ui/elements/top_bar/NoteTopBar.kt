@@ -17,7 +17,7 @@ import com.uladzimirv.notegram.ui.theme.buttonPrimary
 @Composable
 fun NoteTopBar(
     back: () -> Unit,
-    delete: () -> Unit
+    onClick: () -> Unit
 ) {
     Row() {
         Icon(
@@ -38,10 +38,10 @@ fun NoteTopBar(
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null,
-                    onClick = delete
+                    onClick = onClick
                 )
                 .size(24.dp),
-            painter = painterResource(id = R.drawable.ic_delete),
+            painter = painterResource(id = R.drawable.ic_menu_dots),
             contentDescription = null,
             tint = buttonPrimary,
         )

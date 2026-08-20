@@ -8,4 +8,6 @@ data class TextNoteUI(
     val text: String,
     override val pinned: Boolean,
     override val colorPref: ColorPref
-) : NoteUI(id, colorPref, pinned)
+) : NoteUI(id, colorPref, pinned) {
+    override fun shareText(): String = "${title}\n${text}"
+}

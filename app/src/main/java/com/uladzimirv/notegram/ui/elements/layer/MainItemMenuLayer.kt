@@ -95,19 +95,6 @@ fun MainItemMenuLayer(
             }
         }
 
-        val shareText = remember {
-            when (note) {
-                is TextNoteUI -> "${note.title}\n${note.text}"
-                is TodoNoteUI -> "${note.title}\n${
-                    (note.list + note.selectedList).joinToString(
-                        separator = "\n"
-                    ) { "${if (it.selected) "+" else "-"} ${it.text}" }
-                }"
-
-                else -> ""
-            }
-        }
-
         Box(
             modifier = Modifier.offset(
                 x = menuHorizontalOffset.dp,
@@ -122,7 +109,7 @@ fun MainItemMenuLayer(
                     delete(note.id)
                     close()
                 },
-                shareText = shareText,
+                shareText = note.shareText(),
                 pin = {
                     pin(note.id)
                     close()
@@ -134,10 +121,12 @@ fun MainItemMenuLayer(
 
 @Composable
 fun ActionColumn(
+    modifier: Modifier = Modifier,
     isLayerVisible: Boolean,
     pinned: Boolean,
     menuDestination: MenuDestination,
     shareText: String,
+    onShareClicked : () -> Unit = {},
     delete: () -> Unit,
     pin: () -> Unit
 ) {
@@ -150,7 +139,7 @@ fun ActionColumn(
         }
     }
     Column(
-        modifier = Modifier,
+        modifier = modifier,
         horizontalAlignment = alignment
     ) {
         AddItem(
@@ -166,6 +155,7 @@ fun ActionColumn(
             titleResId = R.string.s_share,
             isVisible = isLayerVisible
         ) {
+            onShareClicked()
             context.sharePlainText(
                 title = shareTitle,
                 text = shareText

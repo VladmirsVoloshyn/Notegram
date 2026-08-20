@@ -28,7 +28,8 @@ data class MainViewState(
     data class NoteSubState(
         val show: Boolean = false,
         val note: Note? = null,
-        val colorMenuOpened: Boolean = false
+        val colorMenuOpened: Boolean = false,
+        val topMenuOpened: Boolean = false
     )
 
     data class QRScannerState(
