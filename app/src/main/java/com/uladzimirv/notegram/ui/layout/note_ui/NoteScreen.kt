@@ -27,6 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.BlurredEdgeTreatment
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.focus.FocusRequester
@@ -56,8 +57,10 @@ import com.uladzimirv.notegram.ui.elements.Gap
 import com.uladzimirv.notegram.ui.elements.bottom_bar.NoteBottomBar
 import com.uladzimirv.notegram.ui.elements.layer.ActionColumn
 import com.uladzimirv.notegram.ui.elements.top_bar.NoteTopBar
+import com.uladzimirv.notegram.ui.layout.main.DeleteConfirmationDialog
 import com.uladzimirv.notegram.ui.layout.main.com.ColorPref
 import com.uladzimirv.notegram.ui.layout.main.com.MenuDestination
+import com.uladzimirv.notegram.ui.layout.main.com.NoteType
 import com.uladzimirv.notegram.ui.theme.backgroundPrimary
 import com.uladzimirv.notegram.ui.theme.buttonPrimary
 import com.uladzimirv.notegram.ui.theme.buttonSecondary
@@ -80,6 +83,7 @@ import org.burnoutcrew.reorderable.reorderable
 @Composable
 fun NoteScreen(
     state: MainViewState.NoteSubState,
+    deleteState: MainViewState.DeleteState,
     intent: (MainIntent) -> Unit
 ) {
     val background =
@@ -116,7 +120,10 @@ fun NoteScreen(
                             orientation = Orientation.Vertical
                         )
                         .fillMaxSize().let {
-                            if (state.topMenuOpened) it.blur(6.dp) else it
+                            if (state.topMenuOpened || deleteState.note != null) it.blur(
+                                radius = 6.dp,
+                                edgeTreatment = BlurredEdgeTreatment.Unbounded
+                            ) else it
                         }
                 ) {
                     NoteTopBar(
@@ -197,7 +204,6 @@ fun NoteScreen(
                     delete = {
                         state.note?.id?.let { intent(MainIntent.MainScreenIntent.Delete(it)) }
                         intent(MainIntent.EditNote.OpenNoteTopMenu(false))
-                        intent(MainIntent.MainScreenIntent.CloseSheets)
                     },
                     pin = {
                         intent(
@@ -213,6 +219,14 @@ fun NoteScreen(
                     closeMenu = {
                         intent(MainIntent.EditNote.OpenNoteTopMenu(false))
                     }
+                )
+
+                DeleteConfirmationDialog(
+                    show = deleteState.note != null,
+                    noteTitle = deleteState.note?.title.orEmpty(),
+                    type = deleteState.note?.getType() ?: NoteType.TEXT,
+                    cancel = { intent(MainIntent.MainScreenIntent.Delete(null)) },
+                    confirm = { intent(MainIntent.MainScreenIntent.ConfirmDelete) }
                 )
             }
         }

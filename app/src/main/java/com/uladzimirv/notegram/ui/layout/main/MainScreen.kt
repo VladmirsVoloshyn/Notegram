@@ -31,6 +31,7 @@ import com.uladzimirv.notegram.ui.elements.item.MainTodoNoteGreedItem
 import com.uladzimirv.notegram.ui.elements.layer.AddNoteLayer
 import com.uladzimirv.notegram.ui.elements.layer.MainItemMenuLayer
 import com.uladzimirv.notegram.ui.elements.search_bar.TopSearchBar
+import com.uladzimirv.notegram.ui.layout.main.com.NoteType
 import com.uladzimirv.notegram.ui.model.TextNoteUI
 import com.uladzimirv.notegram.ui.model.TodoNoteUI
 import com.uladzimirv.notegram.ui.theme.backgroundPrimary
@@ -52,7 +53,11 @@ fun MainScreen(
                 .padding(innerPadding)
                 .padding(horizontal = 16.dp)
                 .let {
-                    if (state.main.isAddMenuOpened || state.main.selectedNote != null || state.scannerState.qrScannerResult != null) it.blur(
+                    if (state.main.isAddMenuOpened
+                        || state.main.selectedNote != null
+                        || state.scannerState.qrScannerResult != null
+                        || state.deleteState.note != null
+                    ) it.blur(
                         4.dp,
                         edgeTreatment = BlurredEdgeTreatment.Unbounded
                     )
@@ -162,7 +167,10 @@ fun MainScreen(
             }
         }
         AnimatedVisibility(
-            visible = !state.main.isSearchBarActive && state.main.selectedNote == null && state.scannerState.qrScannerResult == null,
+            visible = !state.main.isSearchBarActive
+                    && state.main.selectedNote == null
+                    && state.scannerState.qrScannerResult == null
+                    && state.deleteState.note == null,
             enter = fadeIn(),
             exit = fadeOut()
         ) {
@@ -207,7 +215,13 @@ fun MainScreen(
                     pin = { intent(MainIntent.MainScreenIntent.PinOrUnpin(it)) }
                 )
             }
-
         }
+        DeleteConfirmationDialog(
+            show = state.deleteState.note != null,
+            noteTitle = state.deleteState.note?.title.orEmpty(),
+            type = state.deleteState.note?.getType() ?: NoteType.TEXT,
+            cancel = { intent(MainIntent.MainScreenIntent.CloseSheets) },
+            confirm = { intent(MainIntent.MainScreenIntent.ConfirmDelete) }
+        )
     }
 }

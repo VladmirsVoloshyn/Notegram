@@ -37,8 +37,10 @@ class MainViewModel @Inject constructor(
     override val viewState: StateFlow<MainViewState>
 
     val notesFlow = notesManager.notesFlow.map { list ->
-        MainMiddleware.MainScreenMiddleware.Notes(list.sortedBy { it.createdAt }
-            .sortedBy { !it.pinned }.toPersistentList())
+        MainMiddleware.MainScreenMiddleware.Notes(
+            list.sortedBy { it.createdAt }
+                .sortedBy { !it.pinned }.toPersistentList()
+        )
     }
 
     init {
@@ -134,7 +136,13 @@ class MainViewModel @Inject constructor(
                     )
 
                     is MainIntent.MainScreenIntent.Delete -> {
-                        notesManager.deleteNote(id = intent.noteId)
+                        emit(MainMiddleware.MainScreenMiddleware.DeleteNote(intent.noteId))
+
+                    }
+
+                    is MainIntent.MainScreenIntent.ConfirmDelete -> {
+                        viewState.value.deleteState.note?.id?.let { notesManager.deleteNote(id = it) }
+                        emit(MainMiddleware.CloseSheets)
                     }
 
                     is MainIntent.MainScreenIntent.OpenQRScanner -> {

@@ -4,6 +4,7 @@ import com.uladzimirv.notegram.data.database.entity.TodoListItem
 import com.uladzimirv.notegram.data.database.entity.TodoNoteEntity
 import com.uladzimirv.notegram.domain.model.note.Note
 import com.uladzimirv.notegram.ui.layout.main.com.ColorPref
+import com.uladzimirv.notegram.ui.layout.main.com.NoteType
 import com.uladzimirv.notegram.ui.layout.main.com.toColorNotePref
 import com.uladzimirv.notegram.ui.model.NoteUI
 import com.uladzimirv.notegram.ui.model.TodoNoteUI
@@ -31,6 +32,8 @@ data class TodoListNote(
         list = todoList,
         selectedList = selectedTodoList
     )
+
+    override fun getType(): NoteType = NoteType.TODO
 
     companion object {
 

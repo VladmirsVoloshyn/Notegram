@@ -12,6 +12,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.uladzimirv.notegram.app_flow.main.contract.MainIntent
+import com.uladzimirv.notegram.ui.layout.main.DeleteConfirmationDialog
 import com.uladzimirv.notegram.ui.layout.note_ui.NoteScreen
 import com.uladzimirv.notegram.ui.layout.main.MainScreen
 import com.uladzimirv.notegram.ui.layout.qr_scan.ScanQrScreen
@@ -71,6 +72,7 @@ class MainActivity : ComponentActivity() {
                 itemMenuVisible = viewState.main.selectedNote != null,
                 searchVisible = viewState.main.isSearchBarActive,
                 hasQRData = viewState.scannerState.qrScannerResult != null,
+                hasDeletion = viewState.deleteState.note != null,
                 intent = intent
             )
 
@@ -80,6 +82,7 @@ class MainActivity : ComponentActivity() {
             )
             NoteScreen(
                 state = viewState.noteState,
+                deleteState = viewState.deleteState,
                 intent = intent
             )
             ScanQrScreen(
@@ -96,10 +99,11 @@ class MainActivity : ComponentActivity() {
         itemMenuVisible: Boolean,
         searchVisible: Boolean,
         hasQRData: Boolean,
+        hasDeletion: Boolean,
         intent: (MainIntent) -> Unit,
     ) {
         systemBackCallback?.remove()
-        if (addMenuVisible || itemMenuVisible || searchVisible || hasQRData) {
+        if (addMenuVisible || itemMenuVisible || searchVisible || hasQRData || hasDeletion) {
             systemBackCallback = object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
                     intent(MainIntent.MainScreenIntent.CloseSheets)

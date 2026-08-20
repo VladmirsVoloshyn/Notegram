@@ -3,6 +3,7 @@ package com.uladzimirv.notegram.domain.model.note.text
 import com.uladzimirv.notegram.data.database.entity.TextNoteEntity
 import com.uladzimirv.notegram.domain.model.note.Note
 import com.uladzimirv.notegram.ui.layout.main.com.ColorPref
+import com.uladzimirv.notegram.ui.layout.main.com.NoteType
 import com.uladzimirv.notegram.ui.layout.main.com.toColorNotePref
 import com.uladzimirv.notegram.ui.model.NoteUI
 import com.uladzimirv.notegram.ui.model.TextNoteUI
@@ -26,6 +27,8 @@ data class TextNote(
         pinned = pinned,
         colorPref = colorPref
     )
+
+    override fun getType(): NoteType = NoteType.TEXT
 
     companion object {
         fun empty(text: String = STRING_EMPTY, title: String = STRING_EMPTY): TextNote = TextNote(
