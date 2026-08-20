@@ -27,6 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -53,8 +54,10 @@ import com.uladzimirv.notegram.ui.elements.Anchor
 import com.uladzimirv.notegram.ui.elements.BaseBottomSheet
 import com.uladzimirv.notegram.ui.elements.Gap
 import com.uladzimirv.notegram.ui.elements.bottom_bar.NoteBottomBar
+import com.uladzimirv.notegram.ui.elements.layer.ActionColumn
 import com.uladzimirv.notegram.ui.elements.top_bar.NoteTopBar
 import com.uladzimirv.notegram.ui.layout.main.com.ColorPref
+import com.uladzimirv.notegram.ui.layout.main.com.MenuDestination
 import com.uladzimirv.notegram.ui.theme.backgroundPrimary
 import com.uladzimirv.notegram.ui.theme.buttonPrimary
 import com.uladzimirv.notegram.ui.theme.buttonSecondary
@@ -92,7 +95,10 @@ fun NoteScreen(
     BaseBottomSheet(
         showBottomSheet = state.show,
         backgroundColor = background,
-        onDismissRequest = { intent(MainIntent.MainScreenIntent.CloseSheets) },
+        onDismissRequest = {
+            intent(MainIntent.MainScreenIntent.CloseSheets)
+            intent(MainIntent.EditNote.OpenNoteTopMenu(false))
+        },
         sheetGesturesEnabled = false
     ) {
         Scaffold { paddingValues ->
@@ -109,18 +115,23 @@ fun NoteScreen(
                             enabled = true,
                             orientation = Orientation.Vertical
                         )
-                        .fillMaxSize()
+                        .fillMaxSize().let {
+                            if (state.topMenuOpened) it.blur(6.dp) else it
+                        }
                 ) {
                     NoteTopBar(
                         back = { intent(MainIntent.MainScreenIntent.CloseSheets) },
-                        delete = {
-                            intent(
-                                MainIntent.MainScreenIntent.Delete(
-                                    state.note?.id ?: STRING_EMPTY
-                                )
-                            )
-                            intent(MainIntent.MainScreenIntent.CloseSheets)
+                        onClick = {
+                            intent(MainIntent.EditNote.OpenNoteTopMenu(true))
                         }
+//                        delete = {
+//                            intent(
+//                                MainIntent.MainScreenIntent.Delete(
+//                                    state.note?.id ?: STRING_EMPTY
+//                                )
+//                            )
+//                            intent(MainIntent.MainScreenIntent.CloseSheets)
+//                        }
                     )
                     Gap(48)
                     TitleEdit(
@@ -178,8 +189,64 @@ fun NoteScreen(
                         selected = state.note?.colorPref ?: ColorPref.COMMON
                     )
                 }
+
+                NoteTopMenu(
+                    isLayerVisible = state.topMenuOpened,
+                    pinned = state.note?.pinned == true,
+                    shareText = state.note?.toUIModel()?.shareText().orEmpty(),
+                    delete = {
+                        state.note?.id?.let { intent(MainIntent.MainScreenIntent.Delete(it)) }
+                        intent(MainIntent.EditNote.OpenNoteTopMenu(false))
+                        intent(MainIntent.MainScreenIntent.CloseSheets)
+                    },
+                    pin = {
+                        intent(
+                            MainIntent.MainScreenIntent.PinOrUnpin(
+                                state.note?.id ?: STRING_EMPTY
+                            )
+                        )
+                        intent(MainIntent.EditNote.OpenNoteTopMenu(false))
+                    },
+                    share = {
+                        intent(MainIntent.EditNote.OpenNoteTopMenu(false))
+                    },
+                    closeMenu = {
+                        intent(MainIntent.EditNote.OpenNoteTopMenu(false))
+                    }
+                )
             }
         }
+    }
+}
+
+@Composable
+fun NoteTopMenu(
+    isLayerVisible: Boolean,
+    shareText: String,
+    pinned: Boolean,
+    delete: () -> Unit,
+    pin: () -> Unit,
+    share: () -> Unit,
+    closeMenu: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(end = 24.dp, top = 24.dp)
+            .let {
+                if (isLayerVisible) it.clickableNoRipple(onClick = closeMenu) else it
+            }
+    ) {
+        ActionColumn(
+            modifier = Modifier.align(Alignment.TopEnd),
+            isLayerVisible = isLayerVisible,
+            pinned = pinned,
+            menuDestination = MenuDestination.LEFT,
+            delete = delete,
+            onShareClicked = share,
+            shareText = shareText,
+            pin = pin
+        )
     }
 }
 

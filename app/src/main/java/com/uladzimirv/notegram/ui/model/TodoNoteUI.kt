@@ -11,5 +11,11 @@ data class TodoNoteUI(
     override val colorPref: ColorPref,
     val title: String,
     val list: ImmutableList<TodoListItem>,
-    val selectedList : ImmutableList<TodoListItem>
-) : NoteUI(id, colorPref, pinned)
+    val selectedList: ImmutableList<TodoListItem>
+) : NoteUI(id, colorPref, pinned) {
+    override fun shareText(): String = "${title}\n${
+        (list + selectedList).joinToString(
+            separator = "\n"
+        ) { "${if (it.selected) "+" else "-"} ${it.text}" }
+    }"
+}

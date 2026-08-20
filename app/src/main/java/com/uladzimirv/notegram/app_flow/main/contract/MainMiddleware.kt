@@ -295,6 +295,14 @@ interface MainMiddleware : MVIMiddleware<MainViewState> {
                     )
                 }
 
+                is OpenTopMenu -> {
+                    viewState.copy(
+                        noteState = viewState.noteState.copy(
+                            topMenuOpened = open
+                        )
+                    )
+                }
+
                 is ReorderTodo -> {
                     val note = viewState.noteState.note as? TodoListNote ?: return viewState
                     val newList =
@@ -320,6 +328,7 @@ interface MainMiddleware : MVIMiddleware<MainViewState> {
             }
         }
 
+        data class OpenTopMenu(val open: Boolean) : NoteScreen
         data class EditNoteTitle(val title: String) : NoteScreen
         data class EditNoteText(val text: String) : NoteScreen
         data class EditNoteColor(val colorPref: ColorPref) : NoteScreen

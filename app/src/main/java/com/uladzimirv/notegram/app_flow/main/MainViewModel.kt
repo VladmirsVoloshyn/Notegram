@@ -9,7 +9,6 @@ import com.uladzimirv.notegram.app_flow.main.contract.MainMiddleware.NoteScreen.
 import com.uladzimirv.notegram.app_flow.main.contract.MainViewState
 import com.uladzimirv.notegram.core.mvi.AbstractMVIViewModel
 import com.uladzimirv.notegram.domain.manager.NotesManager
-import com.uladzimirv.notegram.util.VEVO
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList
@@ -181,7 +180,10 @@ class MainViewModel @Inject constructor(
                                 text = it.text
                             )
                         )
+                    }
 
+                    is MainIntent.EditNote.OpenNoteTopMenu -> {
+                        emit(MainMiddleware.NoteScreen.OpenTopMenu(it.open))
                     }
 
                     is MainIntent.EditNote.ChangeColor -> {

@@ -30,6 +30,7 @@ sealed interface MainIntent : MviIntent {
     }
 
     interface EditNote : MainIntent {
+        data class OpenNoteTopMenu(val open: Boolean) : EditNote
         data class Title(val title: String) : EditNote
         data class Text(val text: String) : EditNote
         data class ChangeColor(val color: ColorPref) : EditNote
