@@ -26,6 +26,11 @@
     <!--todolist note -->
     <string name="s_add_item">Add item</string>
 
+    <!--delete-->
+    <string name="s_confirm_delete">Confirm</string>
+    <string name="s_confirm_delete_title">Are you sure you want to delete note? :</string>
+    <string name="s_cancel">Cancel</string>
+
     <!--qr scanner -->
     <string name="s_scan_result">Scanning result:</string>
     <string name="s_save_as_text_note">Save as text</string>

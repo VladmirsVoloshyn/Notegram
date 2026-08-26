@@ -116,6 +116,12 @@ interface MainMiddleware : MVIMiddleware<MainViewState> {
                     )
                 )
 
+                is DeleteNote -> viewState.copy(
+                    deleteState = viewState.deleteState.copy(
+                        note = viewState.main.notes.find { it.id == id }
+                    )
+                )
+
                 else -> viewState
             }
         }
@@ -146,6 +152,8 @@ interface MainMiddleware : MVIMiddleware<MainViewState> {
             MainScreenMiddleware
 
         data object CloseMenu : MainScreenMiddleware
+
+        data class DeleteNote(val id: NoteId?) : MainScreenMiddleware
 
     }
 
@@ -400,6 +408,9 @@ interface MainMiddleware : MVIMiddleware<MainViewState> {
                 scannerState = viewState.scannerState.copy(
                     show = false,
                     qrScannerResult = null
+                ),
+                deleteState = viewState.deleteState.copy(
+                    note = null
                 )
             )
         }

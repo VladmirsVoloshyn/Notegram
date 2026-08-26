@@ -15,7 +15,8 @@ sealed interface MainIntent : MviIntent {
         data class SearchQuery(val query: String) : MainScreenIntent
         data class OpenNote(val id: NoteId) : MainScreenIntent
         data class Add(val noteType: NoteType) : MainScreenIntent
-        data class Delete(val noteId: NoteId) : MainScreenIntent
+        data class Delete(val noteId: NoteId?) : MainScreenIntent
+        data object ConfirmDelete : MainScreenIntent
         data class PinOrUnpin(val noteId: NoteId) : MainScreenIntent
         data object CloseSheets : MainScreenIntent
         data class SelectNote(

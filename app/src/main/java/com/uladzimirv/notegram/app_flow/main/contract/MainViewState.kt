@@ -2,6 +2,7 @@ package com.uladzimirv.notegram.app_flow.main.contract
 
 import com.uladzimirv.notegram.core.mvi.MviViewState
 import com.uladzimirv.notegram.domain.model.note.Note
+import com.uladzimirv.notegram.domain.model.note.NoteId
 import com.uladzimirv.notegram.domain.model.note.text.TextNote
 import com.uladzimirv.notegram.ui.layout.main.com.ItemLayoutInfo
 import com.uladzimirv.notegram.ui.model.NoteUI
@@ -13,7 +14,8 @@ import kotlinx.collections.immutable.toPersistentList
 data class MainViewState(
     val main: MainScreenSubstate,
     val noteState: NoteSubState = NoteSubState(),
-    val scannerState: QRScannerState = QRScannerState()
+    val scannerState: QRScannerState = QRScannerState(),
+    val deleteState: DeleteState = DeleteState()
 ) : MviViewState {
 
     data class MainScreenSubstate(
@@ -36,6 +38,10 @@ data class MainViewState(
         val show: Boolean = false,
         val qrScannerResult: String? = null,
         val isResultIsLink: Boolean = false
+    )
+
+    data class DeleteState(
+        val note: Note? = null,
     )
 
     companion object {
