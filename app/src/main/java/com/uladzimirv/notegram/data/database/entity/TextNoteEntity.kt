@@ -13,5 +13,8 @@ data class TextNoteEntity(
     val title: String,
     val text: String,
     val pinned : Boolean,
-    val colorPref : String
+    val colorPref : String,
+    val status : String,
+    val deletedAt: Long,
+    val archivedAt: Long
 )

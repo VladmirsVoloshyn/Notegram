@@ -37,6 +37,7 @@ import com.uladzimirv.notegram.util.compsoe.clickableNoRipple
 
 @Composable
 fun DeleteConfirmationDialog(
+    isTotalDelete: Boolean,
     show: Boolean,
     noteTitle: String,
     type: NoteType,
@@ -69,8 +70,14 @@ fun DeleteConfirmationDialog(
                         )
                         .padding(16.dp)
                 ) {
+                    val res = remember(
+                        isTotalDelete
+                    ) {
+                        if (isTotalDelete) R.string.s_confirm_delete_title else
+                            R.string.s_confirm_trashbox_title
+                    }
                     Text(
-                        text = stringResource(R.string.s_confirm_delete_title),
+                        text = stringResource(res),
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold,
                         color = textPrimary

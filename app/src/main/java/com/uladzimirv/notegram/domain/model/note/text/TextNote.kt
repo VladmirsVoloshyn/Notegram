@@ -1,6 +1,8 @@
 package com.uladzimirv.notegram.domain.model.note.text
 
 import com.uladzimirv.notegram.data.database.entity.TextNoteEntity
+import com.uladzimirv.notegram.domain.model.com.FormalStatus
+import com.uladzimirv.notegram.domain.model.com.NoteStatus
 import com.uladzimirv.notegram.domain.model.note.Note
 import com.uladzimirv.notegram.ui.layout.main.com.ColorPref
 import com.uladzimirv.notegram.ui.layout.main.com.NoteType
@@ -17,8 +19,9 @@ data class TextNote(
     override val title: String,
     override val pinned: Boolean,
     override val colorPref: ColorPref,
+    override val status: NoteStatus,
     val text: String,
-) : Note(id, createdAt, updatedAd, title, pinned, colorPref) {
+) : Note(id, createdAt, updatedAd, title, pinned, colorPref, status) {
 
     override fun toUIModel(): NoteUI = TextNoteUI(
         id = id,
@@ -38,9 +41,9 @@ data class TextNote(
             title = title,
             text = text,
             pinned = false,
-            colorPref = ColorPref.COMMON
+            colorPref = ColorPref.COMMON,
+            status = NoteStatus.None()
         )
-
 
         fun TextNote.toEntity(): TextNoteEntity = TextNoteEntity(
             id = id,
@@ -49,7 +52,10 @@ data class TextNote(
             text = text,
             title = title,
             pinned = pinned,
-            colorPref = colorPref.stringId
+            colorPref = colorPref.stringId,
+            status = status.formal.status,
+            archivedAt = if (status is NoteStatus.Archived) status.archivedAt else 0,
+            deletedAt = if (status is NoteStatus.Deleted) status.deletedAt else 0,
         )
 
         fun TextNoteEntity.fromEntity(): TextNote = TextNote(
@@ -59,7 +65,18 @@ data class TextNote(
             text = text,
             title = title,
             pinned = pinned,
-            colorPref = colorPref.toColorNotePref()
+            colorPref = colorPref.toColorNotePref(),
+            status = when (this.status) {
+                FormalStatus.ARCHIVED.status -> {
+                    NoteStatus.Archived(this.archivedAt)
+                }
+
+                FormalStatus.DELETED.status -> {
+                    NoteStatus.Deleted(this.deletedAt)
+                }
+
+                else -> NoteStatus.None()
+            }
         )
     }
 

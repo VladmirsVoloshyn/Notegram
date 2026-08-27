@@ -15,24 +15,19 @@ import javax.inject.Singleton
 @Singleton
 class TodoNoteRepository @Inject constructor(
     private val todoNoteDao: TodoNoteDao
-) {
-    val notesFlow = todoNoteDao.getAllTextNotesAsFlow().map {
+) : NotesRepository<TodoListNote>() {
+
+    override val notesFlow = todoNoteDao.getAllTextNotesAsFlow().map {
         it.map { it.fromEntity() }
     }
 
     val scope = CoroutineScope(Dispatchers.IO)
 
     init {
-        //mockedAdd()
+        scope.launch { scanTrashbox() }
     }
 
-    fun mockedAdd() {
-        todoNotes.forEach {
-            addNote(it)
-        }
-    }
-
-    fun addNote(note: TodoListNote) {
+    override fun addNote(note: TodoListNote) {
         scope.launch {
             todoNoteDao.insertNote(
                 note = note.toEntity()
@@ -40,19 +35,10 @@ class TodoNoteRepository @Inject constructor(
         }
     }
 
-    fun pinOrUnpinNote(note: TodoListNote) {
-        scope.launch {
-            val new = note.copy(
-                pinned = !note.pinned
-            )
-            todoNoteDao.insertNote(new.toEntity())
-        }
-    }
-
-    fun deleteNote(id: NoteId) {
+    override fun deleteNote(noteId: NoteId) {
         scope.launch {
             todoNoteDao.deleteById(
-                itemId = id
+                itemId = noteId
             )
         }
     }

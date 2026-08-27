@@ -66,6 +66,11 @@ val borderSecondary: Color
         Theme.LIGHT -> borderLightSecondary
     }
 
+val borderTertiary : Color
+    @Composable
+    get() = when (getAppTheme()) {
+        Theme.LIGHT -> borderThinSecondary
+    }
 
 @Composable
 fun getAppTheme(): Theme {
@@ -83,7 +88,9 @@ val buttonLightPrimary = Color(0xFFCBCBCB)
 val dark = Color(0xFFA1A1A1)
 
 val borderDarkPrimary = Color(0xFFC4C4C4)
-val borderLightSecondary = Color(0xFFEAEAEA)
+val borderLightSecondary = Color(0xFFE7E7E7)
+val borderThinSecondary = Color(0xFFF6F6F6)
+
 
 val orange = Color(0xFFFF8770)
 val cyan = Color(0xFF7CD2D2)

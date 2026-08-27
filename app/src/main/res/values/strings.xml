@@ -29,6 +29,7 @@
     <!--delete-->
     <string name="s_confirm_delete">Confirm</string>
     <string name="s_confirm_delete_title">Are you sure you want to delete note? :</string>
+    <string name="s_confirm_trashbox_title">Move to trashbox? :</string>
     <string name="s_cancel">Cancel</string>
 
     <!--qr scanner -->
@@ -37,4 +38,22 @@
     <string name="s_link">Link</string>
     <string name="s_unable_open_link">Unable to open this type of content</string>
     <string name="s_share_qr_result">Share qr result</string>
+
+    <!--menu top main -->
+    <string name="s_main_menu_trashbox">Trashbox</string>
+    <string name="s_main_menu_archive">Archive</string>
+    <string name="s_main_menu_settings">Settings</string>
+
+    <!--trashbox -->
+    <string name="s_trashbox_clear">Clear trashbox</string>
+    <string name="s_restore">Restore</string>
+    <string name="s_delete_from_trashbox">Delete from trashbox</string>
+    <string name="s_empty_trashbox">Trashbox is empty</string>
+
+    <!--info tip -->
+    <string name="s_tip_title">Tip</string>
+    <string name="s_tip_trashbox_text">Notes in the Trash are kept for 10 days, after which they are permanently deleted. Please be careful.</string>
+
+    <!--palette -->
+    <string name="s_build_config_version_name">Version : %s</string>
 </resources>

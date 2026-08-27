@@ -42,6 +42,7 @@ import androidx.compose.ui.unit.dp
 import com.uladzimirv.notegram.R
 import com.uladzimirv.notegram.ui.elements.Anchor
 import com.uladzimirv.notegram.ui.elements.Gap
+import com.uladzimirv.notegram.ui.elements.logo.AppLogo
 import com.uladzimirv.notegram.ui.theme.backgroundSecondary
 import com.uladzimirv.notegram.ui.theme.borderPrimary
 import com.uladzimirv.notegram.ui.theme.borderSecondary
@@ -57,6 +58,7 @@ import kotlin.time.Duration.Companion.milliseconds
 fun TopSearchBar(
     enabled: Boolean,
     query: String,
+    menu: () -> Unit,
     onTextChanged: (String) -> Unit,
     isBarEnabled: (Boolean) -> Unit
 ) {
@@ -79,19 +81,31 @@ fun TopSearchBar(
         verticalAlignment = Alignment.CenterVertically
     ) {
         AnimatedVisibility(
+            visible = !enabled
+        ) {
+            Row() {
+                AppLogo(
+                    named = true
+                )
+                Gap(6)
+            }
+        }
+        AnimatedVisibility(
             visible = enabled
         ) {
             Row {
                 Icon(
-                    modifier = Modifier.clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = null,
-                        onClick = {
-                            focusManager.clearFocus(force = true)
-                            isBarEnabled(false)
-                            kb?.hide()
-                        }
-                    ).size(24.dp),
+                    modifier = Modifier
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null,
+                            onClick = {
+                                focusManager.clearFocus(force = true)
+                                isBarEnabled(false)
+                                kb?.hide()
+                            }
+                        )
+                        .size(24.dp),
                     painter = painterResource(id = R.drawable.ic_arrow_back),
                     contentDescription = null,
                     tint = buttonPrimary,
@@ -218,10 +232,9 @@ fun TopSearchBar(
                     modifier = Modifier
                         .size(24.dp)
                         .clickableNoRipple(
-                            onClick = {
-                            }
+                            onClick = menu
                         ),
-                    painter = painterResource(id = R.drawable.ic_settings),
+                    painter = painterResource(id = R.drawable.ic_menu_dots),
                     contentDescription = null,
                     tint = buttonPrimary,
                 )

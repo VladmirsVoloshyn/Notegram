@@ -1,7 +1,9 @@
 package com.uladzimirv.notegram.app_flow.main.contract
 
+import com.uladzimirv.notegram.app_flow.main.contract.MainViewState.*
 import com.uladzimirv.notegram.core.mvi.MVIMiddleware
 import com.uladzimirv.notegram.data.database.entity.TodoListItem
+import com.uladzimirv.notegram.domain.model.com.NoteStatus
 import com.uladzimirv.notegram.domain.model.note.Note
 import com.uladzimirv.notegram.domain.model.note.NoteId
 import com.uladzimirv.notegram.domain.model.note.text.TextNote
@@ -76,7 +78,12 @@ interface MainMiddleware : MVIMiddleware<MainViewState> {
                         ),
                         main = viewState.main.copy(
                             notes = notes,
-                            uiNotes = notes.map {
+                            uiNotes = notes.filter { it.status is NoteStatus.None }.map {
+                                it.toUIModel()
+                            }.toPersistentList()
+                        ),
+                        trashBoxState = viewState.trashBoxState.copy(
+                            trashBox = notes.filter { it.status is NoteStatus.Deleted }.map {
                                 it.toUIModel()
                             }.toPersistentList()
                         )
@@ -411,9 +418,75 @@ interface MainMiddleware : MVIMiddleware<MainViewState> {
                 ),
                 deleteState = viewState.deleteState.copy(
                     note = null
+                ),
+                topMenuState = viewState.topMenuState.copy(
+                    show = false
                 )
             )
         }
+    }
+
+    sealed interface TopMenu : MainMiddleware {
+
+        override fun reduce(viewState: MainViewState): MainViewState {
+            return when (this) {
+                is Show -> viewState.copy(
+                    topMenuState = viewState.topMenuState.copy(show = show)
+                )
+            }
+        }
+
+        data class Show(
+            val show: Boolean
+        ) : TopMenu
+    }
+
+    sealed interface Trashbox : MainMiddleware {
+        override fun reduce(viewState: MainViewState): MainViewState {
+            return when (this) {
+                is Show -> viewState.copy(
+                    trashBoxState = viewState.trashBoxState.copy(show = show)
+                )
+
+                is SelectNote -> {
+
+                    val note = viewState.trashBoxState.trashBox.find { it.id == noteId }
+                    if (note != null) {
+                        val info = SelectedNoteInfo(
+                            note = note,
+                            layoutInfo = itemLayoutInfo
+                        )
+                        viewState.copy(
+                            trashBoxState = viewState.trashBoxState.copy(
+                                selectedNote = info
+                            )
+                        )
+                    } else viewState
+                }
+
+                is RemoveFromTrashbox -> TODO()
+                is Restore -> TODO()
+                CloseSelectionMenu -> viewState.copy(
+                    trashBoxState = viewState.trashBoxState.copy(
+                        selectedNote = null
+                    )
+                )
+            }
+        }
+
+        data class Show(
+            val show: Boolean
+        ) : Trashbox
+
+        data object CloseSelectionMenu : Trashbox
+
+        data class SelectNote(
+            val noteId: NoteId,
+            val itemLayoutInfo: ItemLayoutInfo
+        ) : Trashbox
+
+        data class Restore(val noteId: NoteId) : Trashbox
+        data class RemoveFromTrashbox(val noteId: NoteId) : Trashbox
     }
 
     data object Stub : MainMiddleware {

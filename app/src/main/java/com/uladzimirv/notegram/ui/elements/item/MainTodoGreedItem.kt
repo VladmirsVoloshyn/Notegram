@@ -44,7 +44,6 @@ import com.uladzimirv.notegram.ui.theme.orange
 import com.uladzimirv.notegram.ui.theme.pink
 import com.uladzimirv.notegram.ui.theme.textPrimary
 import com.uladzimirv.notegram.ui.theme.textSecondary
-import com.uladzimirv.notegram.util.VEVO
 import com.uladzimirv.notegram.util.ifNotEmpty
 
 
