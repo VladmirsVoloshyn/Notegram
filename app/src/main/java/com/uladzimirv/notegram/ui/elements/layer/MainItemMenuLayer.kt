@@ -3,6 +3,7 @@ package com.uladzimirv.notegram.ui.elements.layer
 import android.annotation.SuppressLint
 import android.widget.Toast
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
@@ -16,7 +17,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.uladzimirv.notegram.R
-import com.uladzimirv.notegram.domain.model.note.NoteId
 import com.uladzimirv.notegram.ui.elements.Gap
 import com.uladzimirv.notegram.ui.elements.button.AddItem
 import com.uladzimirv.notegram.ui.elements.item.MainTextNoteGreedItem
@@ -31,14 +31,12 @@ import com.uladzimirv.notegram.util.intent.sharePlainText
 
 @SuppressLint("ConfigurationScreenWidthHeight")
 @Composable
-fun MainItemMenuLayer(
+fun GreedItemMenuLayer(
     note: NoteUI,
     layoutInfo: ItemLayoutInfo?,
     modifier: Modifier = Modifier,
-    isLayerVisible: Boolean,
     close: () -> Unit,
-    delete: (NoteId) -> Unit,
-    pin: (NoteId) -> Unit
+    actionsContent: @Composable BoxScope.(menuDestination : MenuDestination) -> Unit
 ) {
     val density = LocalDensity.current.density
     val configuration = LocalConfiguration.current.screenWidthDp
@@ -101,26 +99,13 @@ fun MainItemMenuLayer(
                 y = vertical
             )
         ) {
-            ActionColumn(
-                isLayerVisible = isLayerVisible,
-                pinned = note.pinned,
-                menuDestination = menuDestination,
-                delete = {
-                    delete(note.id)
-                    close()
-                },
-                shareText = note.shareText(),
-                pin = {
-                    pin(note.id)
-                    close()
-                }
-            )
+            actionsContent(menuDestination)
         }
     }
 }
 
 @Composable
-fun ActionColumn(
+fun MainMenuItemActionColumn(
     modifier: Modifier = Modifier,
     isLayerVisible: Boolean,
     pinned: Boolean,

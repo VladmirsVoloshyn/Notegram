@@ -7,8 +7,10 @@ import com.uladzimirv.notegram.app_flow.main.contract.MainMiddleware
 import com.uladzimirv.notegram.app_flow.main.contract.MainMiddleware.MainScreenMiddleware.ShowQR
 import com.uladzimirv.notegram.app_flow.main.contract.MainMiddleware.NoteScreen.EditNoteText
 import com.uladzimirv.notegram.app_flow.main.contract.MainViewState
+import com.uladzimirv.notegram.app_flow.main.flow_helper.proceed
 import com.uladzimirv.notegram.core.mvi.AbstractMVIViewModel
 import com.uladzimirv.notegram.domain.manager.NotesManager
+import com.uladzimirv.notegram.domain.model.com.NoteStatus
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList
@@ -137,11 +139,22 @@ class MainViewModel @Inject constructor(
 
                     is MainIntent.MainScreenIntent.Delete -> {
                         emit(MainMiddleware.MainScreenMiddleware.DeleteNote(intent.noteId))
-
                     }
 
                     is MainIntent.MainScreenIntent.ConfirmDelete -> {
-                        viewState.value.deleteState.note?.id?.let { notesManager.deleteNote(id = it) }
+                        val note = viewState.value.deleteState.note
+                        if (note?.status is NoteStatus.Deleted) {
+                            viewState.value.deleteState.note?.id?.let {
+                                notesManager.deleteNote(id = it)
+                            }
+                        } else {
+                            viewState.value.deleteState.note?.id?.let {
+                                notesManager.moveToTrashbox(
+                                    id = it
+                                )
+                            }
+                        }
+
                         emit(MainMiddleware.CloseSheets)
                     }
 
@@ -171,10 +184,10 @@ class MainViewModel @Inject constructor(
             }
         }
 
-        val noteEditFlow = filterIsInstance<MainIntent.EditNote>().flatMapLatest {
+        val noteEditFlow = filterIsInstance<MainIntent.EditNoteIntent>().flatMapLatest {
             flow {
                 when (it) {
-                    is MainIntent.EditNote.Title -> {
+                    is MainIntent.EditNoteIntent.Title -> {
                         emit(
                             MainMiddleware.NoteScreen.EditNoteTitle(
                                 title = it.title
@@ -182,7 +195,7 @@ class MainViewModel @Inject constructor(
                         )
                     }
 
-                    is MainIntent.EditNote.Text -> {
+                    is MainIntent.EditNoteIntent.Text -> {
                         emit(
                             EditNoteText(
                                 text = it.text
@@ -190,11 +203,11 @@ class MainViewModel @Inject constructor(
                         )
                     }
 
-                    is MainIntent.EditNote.OpenNoteTopMenu -> {
+                    is MainIntent.EditNoteIntent.OpenNoteTopMenu -> {
                         emit(MainMiddleware.NoteScreen.OpenTopMenu(it.open))
                     }
 
-                    is MainIntent.EditNote.ChangeColor -> {
+                    is MainIntent.EditNoteIntent.ChangeColor -> {
                         emit(
                             MainMiddleware.NoteScreen.EditNoteColor(
                                 it.color
@@ -202,7 +215,7 @@ class MainViewModel @Inject constructor(
                         )
                     }
 
-                    is MainIntent.EditNote.EditTodo -> {
+                    is MainIntent.EditNoteIntent.EditTodo -> {
                         emit(
                             MainMiddleware.NoteScreen.EditTodo(
                                 text = it.text,
@@ -211,7 +224,7 @@ class MainViewModel @Inject constructor(
                         )
                     }
 
-                    is MainIntent.EditNote.DeleteTodoItem -> {
+                    is MainIntent.EditNoteIntent.DeleteTodoItem -> {
                         emit(
                             MainMiddleware.NoteScreen.DeleteTodo(
                                 todoIdemId = it.id
@@ -219,7 +232,7 @@ class MainViewModel @Inject constructor(
                         )
                     }
 
-                    is MainIntent.EditNote.CheckTodoItem -> {
+                    is MainIntent.EditNoteIntent.CheckTodoItem -> {
                         emit(
                             MainMiddleware.NoteScreen.CheckTodo(
                                 todoIdemId = it.id
@@ -227,7 +240,7 @@ class MainViewModel @Inject constructor(
                         )
                     }
 
-                    is MainIntent.EditNote.Reorder -> {
+                    is MainIntent.EditNoteIntent.Reorder -> {
                         emit(
                             MainMiddleware.NoteScreen.ReorderTodo(
                                 id = it.id,
@@ -240,11 +253,51 @@ class MainViewModel @Inject constructor(
                 updateNote()
             }
         }
+
+        val topMenuFlow = filterIsInstance<MainIntent.TopMenuIntent>().map {
+            when (it) {
+                is MainIntent.TopMenuIntent.Show -> MainMiddleware.TopMenu.Show(it.show)
+                is MainIntent.TopMenuIntent.OpenTrashbox -> MainMiddleware.Trashbox.Show(it.open)
+                else -> MainMiddleware.Stub
+            }
+        }
+
+        val trashboxFlow = filterIsInstance<MainIntent.TrashBoxIntent>().map { intent ->
+            when (intent) {
+                is MainIntent.TrashBoxIntent.SelectNote -> MainMiddleware.Trashbox.SelectNote(
+                    intent.noteId,
+                    intent.itemLayoutInfo
+                )
+
+                MainIntent.TrashBoxIntent.CloseSelectionMenu -> MainMiddleware.Trashbox.CloseSelectionMenu
+
+                is MainIntent.TrashBoxIntent.Restore -> {
+                    viewState.value.trashBoxState.selectedNote?.let {
+                        notesManager.restoreNote(it.note.id)
+                    }
+                    MainMiddleware.Stub
+                }
+
+                is MainIntent.TrashBoxIntent.RemoveFromTrashbox -> {
+                    MainMiddleware.MainScreenMiddleware.DeleteNote(intent.noteId)
+                }
+
+                MainIntent.TrashBoxIntent.ClearTrashbox -> {
+                    notesManager.clearTrashbox()
+                    MainMiddleware.Stub
+                }
+
+                else -> MainMiddleware.Stub
+            }
+        }
+
         return merge(
             mainFlow,
             noteEditFlow,
             scannerFlow,
-            notesFlow
+            notesFlow,
+            topMenuFlow,
+            trashboxFlow
         )
     }
 

@@ -2,6 +2,8 @@ package com.uladzimirv.notegram.domain.model.note.todo
 
 import com.uladzimirv.notegram.data.database.entity.TodoListItem
 import com.uladzimirv.notegram.data.database.entity.TodoNoteEntity
+import com.uladzimirv.notegram.domain.model.com.FormalStatus
+import com.uladzimirv.notegram.domain.model.com.NoteStatus
 import com.uladzimirv.notegram.domain.model.note.Note
 import com.uladzimirv.notegram.ui.layout.main.com.ColorPref
 import com.uladzimirv.notegram.ui.layout.main.com.NoteType
@@ -20,9 +22,10 @@ data class TodoListNote(
     override val title: String,
     override val pinned: Boolean,
     override val colorPref: ColorPref,
+    override val status: NoteStatus,
     val todoList: ImmutableList<TodoListItem>,
     val selectedTodoList: ImmutableList<TodoListItem>
-) : Note(id, createdAt, updatedAd, title, pinned, colorPref) {
+) : Note(id, createdAt, updatedAd, title, pinned, colorPref, status) {
 
     override fun toUIModel(): NoteUI = TodoNoteUI(
         id = id,
@@ -49,9 +52,9 @@ data class TodoListNote(
                 pinned = false,
                 colorPref = ColorPref.COMMON,
                 todoList = list.filter { !it.selected }.toPersistentList(),
-                selectedTodoList = list.filter { it.selected }.toPersistentList()
+                selectedTodoList = list.filter { it.selected }.toPersistentList(),
+                status = NoteStatus.None()
             )
-
 
         fun TodoNoteEntity.fromEntity(): TodoListNote = TodoListNote(
             id = id,
@@ -61,7 +64,19 @@ data class TodoListNote(
             pinned = pinned,
             colorPref = colorPref.toColorNotePref(),
             todoList = list.filter { !it.selected }.toPersistentList(),
-            selectedTodoList = list.filter { it.selected }.toPersistentList()
+            selectedTodoList = list.filter { it.selected }.toPersistentList(),
+            status = when (this.status) {
+
+                FormalStatus.ARCHIVED.status -> {
+                    NoteStatus.Archived(this.archivedAt)
+                }
+
+                FormalStatus.DELETED.status -> {
+                    NoteStatus.Deleted(this.deletedAt)
+                }
+
+                else -> NoteStatus.None()
+            }
         )
 
         fun TodoListNote.toEntity(): TodoNoteEntity = TodoNoteEntity(
@@ -71,7 +86,10 @@ data class TodoListNote(
             title = title,
             pinned = pinned,
             colorPref = colorPref.stringId,
-            list = todoList + selectedTodoList
+            list = todoList + selectedTodoList,
+            archivedAt = if (status is NoteStatus.Archived) status.archivedAt else 0,
+            deletedAt = if (status is NoteStatus.Deleted) status.deletedAt else 0,
+            status = status.formal.status
         )
     }
 }

@@ -19,7 +19,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import com.uladzimirv.notegram.util.VEVO
 import com.uladzimirv.notegram.util.camera.QRCodeQualifier
 
 @Composable

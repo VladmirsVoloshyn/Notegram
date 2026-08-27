@@ -14,11 +14,15 @@ class TodoNoteEntity(
     val title: String,
     val pinned: Boolean,
     val colorPref: String,
-    val list: List<TodoListItem>
+    val list: List<TodoListItem>,
+    val status: String,
+    val deletedAt: Long,
+    val archivedAt: Long
 )
+
 @Immutable
 data class TodoListItem(
-    val id : String,
+    val id: String,
     val text: String,
     val selected: Boolean,
     val position: Int

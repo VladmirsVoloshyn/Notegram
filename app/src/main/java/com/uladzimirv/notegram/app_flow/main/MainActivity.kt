@@ -16,6 +16,7 @@ import com.uladzimirv.notegram.ui.layout.main.DeleteConfirmationDialog
 import com.uladzimirv.notegram.ui.layout.note_ui.NoteScreen
 import com.uladzimirv.notegram.ui.layout.main.MainScreen
 import com.uladzimirv.notegram.ui.layout.qr_scan.ScanQrScreen
+import com.uladzimirv.notegram.ui.layout.trashbox.TrashboxScreen
 import com.uladzimirv.notegram.util.compsoe.collectInLaunchedEffectWithLifecycle
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
@@ -73,6 +74,7 @@ class MainActivity : ComponentActivity() {
                 searchVisible = viewState.main.isSearchBarActive,
                 hasQRData = viewState.scannerState.qrScannerResult != null,
                 hasDeletion = viewState.deleteState.note != null,
+                topMenuOpened = viewState.topMenuState.show,
                 intent = intent
             )
 
@@ -89,6 +91,11 @@ class MainActivity : ComponentActivity() {
                 state = viewState.scannerState,
                 intent = intent
             )
+            TrashboxScreen(
+                state = viewState.trashBoxState,
+                deleteState = viewState.deleteState,
+                intent = intent
+            )
         }
     }
 
@@ -100,10 +107,11 @@ class MainActivity : ComponentActivity() {
         searchVisible: Boolean,
         hasQRData: Boolean,
         hasDeletion: Boolean,
+        topMenuOpened: Boolean,
         intent: (MainIntent) -> Unit,
     ) {
         systemBackCallback?.remove()
-        if (addMenuVisible || itemMenuVisible || searchVisible || hasQRData || hasDeletion) {
+        if (addMenuVisible || itemMenuVisible || searchVisible || hasQRData || hasDeletion || topMenuOpened) {
             systemBackCallback = object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
                     intent(MainIntent.MainScreenIntent.CloseSheets)

@@ -23,7 +23,7 @@ data class ItemLayoutInfo(
     }
 
     fun getY(density: Float, paddingReduction: Int): Float {
-        return position.top / density - paddingReduction
+        return (position.top / density) - paddingReduction
     }
 
 }

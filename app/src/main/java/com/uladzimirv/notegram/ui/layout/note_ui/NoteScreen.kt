@@ -22,9 +22,12 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.BlurredEdgeTreatment
@@ -55,7 +58,7 @@ import com.uladzimirv.notegram.ui.elements.Anchor
 import com.uladzimirv.notegram.ui.elements.BaseBottomSheet
 import com.uladzimirv.notegram.ui.elements.Gap
 import com.uladzimirv.notegram.ui.elements.bottom_bar.NoteBottomBar
-import com.uladzimirv.notegram.ui.elements.layer.ActionColumn
+import com.uladzimirv.notegram.ui.elements.layer.MainMenuItemActionColumn
 import com.uladzimirv.notegram.ui.elements.top_bar.NoteTopBar
 import com.uladzimirv.notegram.ui.layout.main.DeleteConfirmationDialog
 import com.uladzimirv.notegram.ui.layout.main.com.ColorPref
@@ -74,10 +77,13 @@ import com.uladzimirv.notegram.util.STRING_EMPTY
 import com.uladzimirv.notegram.util.compsoe.clickableNoRipple
 import com.uladzimirv.notegram.util.vibration.tickVibrate
 import kotlinx.collections.immutable.ImmutableList
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.burnoutcrew.reorderable.ReorderableItem
 import org.burnoutcrew.reorderable.detectReorderAfterLongPress
 import org.burnoutcrew.reorderable.rememberReorderableLazyListState
 import org.burnoutcrew.reorderable.reorderable
+import kotlin.time.Duration.Companion.milliseconds
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -95,13 +101,16 @@ fun NoteScreen(
             ColorPref.PINK -> pink
             null -> backgroundPrimary
         }
-
+    val sheetState: SheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = true,
+    )
     BaseBottomSheet(
+        sheetState = sheetState,
         showBottomSheet = state.show,
         backgroundColor = background,
         onDismissRequest = {
             intent(MainIntent.MainScreenIntent.CloseSheets)
-            intent(MainIntent.EditNote.OpenNoteTopMenu(false))
+            intent(MainIntent.EditNoteIntent.OpenNoteTopMenu(false))
         },
         sheetGesturesEnabled = false
     ) {
@@ -126,25 +135,24 @@ fun NoteScreen(
                             ) else it
                         }
                 ) {
+                    val scope = rememberCoroutineScope()
                     NoteTopBar(
-                        back = { intent(MainIntent.MainScreenIntent.CloseSheets) },
+                        back = {
+                            scope.launch {
+                                sheetState.hide()
+                                delay(100.milliseconds)
+                                intent(MainIntent.MainScreenIntent.CloseSheets)
+                            }
+                        },
                         onClick = {
-                            intent(MainIntent.EditNote.OpenNoteTopMenu(true))
+                            intent(MainIntent.EditNoteIntent.OpenNoteTopMenu(true))
                         }
-//                        delete = {
-//                            intent(
-//                                MainIntent.MainScreenIntent.Delete(
-//                                    state.note?.id ?: STRING_EMPTY
-//                                )
-//                            )
-//                            intent(MainIntent.MainScreenIntent.CloseSheets)
-//                        }
                     )
                     Gap(48)
                     TitleEdit(
                         title = state.note?.title.orEmpty(),
                     ) {
-                        intent(MainIntent.EditNote.Title(it))
+                        intent(MainIntent.EditNoteIntent.Title(it))
                     }
                     Gap(24)
                     when (state.note) {
@@ -153,7 +161,7 @@ fun NoteScreen(
                                 text = state.note.text,
                                 modifier = Modifier.weight(1f)
                             ) {
-                                intent(MainIntent.EditNote.Text(it))
+                                intent(MainIntent.EditNoteIntent.Text(it))
                             }
                         }
 
@@ -161,12 +169,12 @@ fun NoteScreen(
                             TodoEdit(
                                 modifier = Modifier.weight(1f),
                                 list = state.note.todoList,
-                                delete = { intent(MainIntent.EditNote.DeleteTodoItem(it)) },
-                                checkClick = { intent(MainIntent.EditNote.CheckTodoItem(it)) },
+                                delete = { intent(MainIntent.EditNoteIntent.DeleteTodoItem(it)) },
+                                checkClick = { intent(MainIntent.EditNoteIntent.CheckTodoItem(it)) },
                                 selectedList = state.note.selectedTodoList,
                                 reorder = { id, from, to ->
                                     intent(
-                                        MainIntent.EditNote.Reorder(
+                                        MainIntent.EditNoteIntent.Reorder(
                                             id = id,
                                             from = from,
                                             to = to
@@ -174,7 +182,7 @@ fun NoteScreen(
                                     )
                                 }
                             ) { text, id ->
-                                intent(MainIntent.EditNote.EditTodo(text, id))
+                                intent(MainIntent.EditNoteIntent.EditTodo(text, id))
                             }
                         }
                     }
@@ -192,7 +200,7 @@ fun NoteScreen(
                         },
                         pinned = state.note?.pinned == true,
                         colorMenuOpened = state.colorMenuOpened,
-                        changeColor = { intent(MainIntent.EditNote.ChangeColor(it)) },
+                        changeColor = { intent(MainIntent.EditNoteIntent.ChangeColor(it)) },
                         selected = state.note?.colorPref ?: ColorPref.COMMON
                     )
                 }
@@ -203,7 +211,7 @@ fun NoteScreen(
                     shareText = state.note?.toUIModel()?.shareText().orEmpty(),
                     delete = {
                         state.note?.id?.let { intent(MainIntent.MainScreenIntent.Delete(it)) }
-                        intent(MainIntent.EditNote.OpenNoteTopMenu(false))
+                        intent(MainIntent.EditNoteIntent.OpenNoteTopMenu(false))
                     },
                     pin = {
                         intent(
@@ -211,13 +219,13 @@ fun NoteScreen(
                                 state.note?.id ?: STRING_EMPTY
                             )
                         )
-                        intent(MainIntent.EditNote.OpenNoteTopMenu(false))
+                        intent(MainIntent.EditNoteIntent.OpenNoteTopMenu(false))
                     },
                     share = {
-                        intent(MainIntent.EditNote.OpenNoteTopMenu(false))
+                        intent(MainIntent.EditNoteIntent.OpenNoteTopMenu(false))
                     },
                     closeMenu = {
-                        intent(MainIntent.EditNote.OpenNoteTopMenu(false))
+                        intent(MainIntent.EditNoteIntent.OpenNoteTopMenu(false))
                     }
                 )
 
@@ -226,7 +234,8 @@ fun NoteScreen(
                     noteTitle = deleteState.note?.title.orEmpty(),
                     type = deleteState.note?.getType() ?: NoteType.TEXT,
                     cancel = { intent(MainIntent.MainScreenIntent.Delete(null)) },
-                    confirm = { intent(MainIntent.MainScreenIntent.ConfirmDelete) }
+                    confirm = { intent(MainIntent.MainScreenIntent.ConfirmDelete) },
+                    isTotalDelete = false
                 )
             }
         }
@@ -251,7 +260,7 @@ fun NoteTopMenu(
                 if (isLayerVisible) it.clickableNoRipple(onClick = closeMenu) else it
             }
     ) {
-        ActionColumn(
+        MainMenuItemActionColumn(
             modifier = Modifier.align(Alignment.TopEnd),
             isLayerVisible = isLayerVisible,
             pinned = pinned,

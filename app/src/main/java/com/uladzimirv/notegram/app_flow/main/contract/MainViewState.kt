@@ -15,7 +15,9 @@ data class MainViewState(
     val main: MainScreenSubstate,
     val noteState: NoteSubState = NoteSubState(),
     val scannerState: QRScannerState = QRScannerState(),
-    val deleteState: DeleteState = DeleteState()
+    val deleteState: DeleteState = DeleteState(),
+    val topMenuState: TopMenuState = TopMenuState(),
+    val trashBoxState: TrashBoxState = TrashBoxState()
 ) : MviViewState {
 
     data class MainScreenSubstate(
@@ -42,6 +44,16 @@ data class MainViewState(
 
     data class DeleteState(
         val note: Note? = null,
+    )
+
+    data class TopMenuState(
+        val show: Boolean = false
+    )
+
+    data class TrashBoxState(
+        val show: Boolean = false,
+        val trashBox: ImmutableList<NoteUI> = persistentListOf(),
+        val selectedNote: SelectedNoteInfo? = null
     )
 
     companion object {

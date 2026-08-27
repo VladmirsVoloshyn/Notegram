@@ -8,7 +8,6 @@ import com.uladzimirv.notegram.ui.layout.main.com.NoteType
 
 sealed interface MainIntent : MviIntent {
 
-    //MainScreen
     interface MainScreenIntent : MainIntent {
         data class OpenAddMenu(val open: Boolean) : MainScreenIntent
         data class OpenSearchBar(val open: Boolean) : MainScreenIntent
@@ -30,15 +29,15 @@ sealed interface MainIntent : MviIntent {
         data class OpenQRScanner(val open: Boolean) : MainScreenIntent
     }
 
-    interface EditNote : MainIntent {
-        data class OpenNoteTopMenu(val open: Boolean) : EditNote
-        data class Title(val title: String) : EditNote
-        data class Text(val text: String) : EditNote
-        data class ChangeColor(val color: ColorPref) : EditNote
-        data class EditTodo(val text: String, val todoIdemId: String? = null) : EditNote
-        data class DeleteTodoItem(val id: String) : EditNote
-        data class CheckTodoItem(val id: String) : EditNote
-        data class Reorder(val id: String, val from: Int, val to: Int) : EditNote
+    interface EditNoteIntent : MainIntent {
+        data class OpenNoteTopMenu(val open: Boolean) : EditNoteIntent
+        data class Title(val title: String) : EditNoteIntent
+        data class Text(val text: String) : EditNoteIntent
+        data class ChangeColor(val color: ColorPref) : EditNoteIntent
+        data class EditTodo(val text: String, val todoIdemId: String? = null) : EditNoteIntent
+        data class DeleteTodoItem(val id: String) : EditNoteIntent
+        data class CheckTodoItem(val id: String) : EditNoteIntent
+        data class Reorder(val id: String, val from: Int, val to: Int) : EditNoteIntent
     }
 
     interface QRScannerIntent : MainIntent {
@@ -48,5 +47,24 @@ sealed interface MainIntent : MviIntent {
         data class QrScannerResult(
             val result: String
         ) : QRScannerIntent
+    }
+
+    interface TopMenuIntent : MainIntent {
+        data class Show(val show: Boolean) : TopMenuIntent
+        data class OpenTrashbox(val open: Boolean) : TopMenuIntent
+
+    }
+
+    interface TrashBoxIntent : MainIntent {
+        data class SelectNote(
+            val noteId: NoteId,
+            val itemLayoutInfo: ItemLayoutInfo
+        ) : TrashBoxIntent
+
+        data object CloseSelectionMenu : TrashBoxIntent
+
+        data class Restore(val noteId: NoteId) : TrashBoxIntent
+        data class RemoveFromTrashbox(val noteId: NoteId) : TrashBoxIntent
+        object ClearTrashbox : TrashBoxIntent
     }
 }

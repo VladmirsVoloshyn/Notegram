@@ -2,6 +2,9 @@ package com.uladzimirv.notegram.domain.manager
 
 import com.uladzimirv.notegram.data.repo.TextNoteRepository
 import com.uladzimirv.notegram.data.repo.TodoNoteRepository
+import com.uladzimirv.notegram.data.repo.textNotes
+import com.uladzimirv.notegram.data.repo.todoNotes
+import com.uladzimirv.notegram.domain.model.com.NoteStatus
 import com.uladzimirv.notegram.domain.model.note.Note
 import com.uladzimirv.notegram.domain.model.note.NoteId
 import com.uladzimirv.notegram.domain.model.note.text.TextNote
@@ -9,6 +12,7 @@ import com.uladzimirv.notegram.domain.model.note.todo.TodoListNote
 import com.uladzimirv.notegram.util.STRING_EMPTY
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.firstOrNull
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -19,6 +23,10 @@ class NotesManager @Inject constructor(
 ) {
 
     private val filterQuery = MutableStateFlow(STRING_EMPTY)
+
+    init {
+        //mockedAdd()
+    }
 
     private val notes = combine(
         textNotesRepository.notesFlow,
@@ -40,11 +48,19 @@ class NotesManager @Inject constructor(
         }
     }
 
-    //TODO: turn logic to add
     fun pinOrUnpinNote(note: Note) {
         when (note) {
-            is TextNote -> textNotesRepository.pinOrUnpinNote(note)
-            is TodoListNote -> todoNoteRepository.pinOrUnpinNote(note)
+            is TextNote -> textNotesRepository.addNote(
+                note.copy(
+                    pinned = !note.pinned
+                )
+            )
+
+            is TodoListNote -> todoNoteRepository.addNote(
+                note.copy(
+                    pinned = !note.pinned
+                )
+            )
         }
     }
 
@@ -52,9 +68,62 @@ class NotesManager @Inject constructor(
         filterQuery.value = query
     }
 
-    //TODO
+    suspend fun restoreNote(id: NoteId) {
+        val note = notes.firstOrNull().orEmpty().find { it.id == id }
+        when (note) {
+            is TextNote -> textNotesRepository.addNote(
+                note.copy(
+                    status = NoteStatus.None()
+                )
+            )
+
+            is TodoListNote -> todoNoteRepository.addNote(
+                note.copy(
+                    status = NoteStatus.None()
+                )
+            )
+        }
+    }
+
+    suspend fun clearTrashbox() {
+        val note = notes.firstOrNull().orEmpty().filter { it.status is NoteStatus.Deleted }
+        note.forEach {
+            deleteNote(it.id)
+        }
+    }
+
     fun deleteNote(id: NoteId) {
         textNotesRepository.deleteNote(id)
         todoNoteRepository.deleteNote(id)
+    }
+
+    suspend fun moveToTrashbox(id: NoteId) {
+        val note = notes.firstOrNull().orEmpty().find { it.id == id }
+        when (note) {
+            is TextNote -> textNotesRepository.addNote(
+                note.copy(
+                    status = NoteStatus.Deleted(
+                        deletedAt = System.currentTimeMillis()
+                    )
+                )
+            )
+
+            is TodoListNote -> todoNoteRepository.addNote(
+                note.copy(
+                    status = NoteStatus.Deleted(
+                        deletedAt = System.currentTimeMillis()
+                    )
+                )
+            )
+        }
+    }
+
+    private fun mockedAdd(){
+        textNotes.forEach {
+            addNote(it)
+        }
+        todoNotes.forEach {
+            addNote(it)
+        }
     }
 }

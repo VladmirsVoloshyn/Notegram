@@ -1,6 +1,7 @@
 package com.uladzimirv.notegram.domain.model.note
 
 import androidx.compose.runtime.Immutable
+import com.uladzimirv.notegram.domain.model.com.NoteStatus
 import com.uladzimirv.notegram.ui.layout.main.com.ColorPref
 import com.uladzimirv.notegram.ui.layout.main.com.NoteType
 import com.uladzimirv.notegram.ui.model.NoteUI
@@ -12,7 +13,8 @@ abstract class Note(
     open val updatedAd: Long,
     open val title: String,
     open val pinned: Boolean,
-    open val colorPref: ColorPref
+    open val colorPref: ColorPref,
+    open val status: NoteStatus
 ) {
 
     abstract fun toUIModel(): NoteUI
