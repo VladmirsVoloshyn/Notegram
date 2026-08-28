@@ -64,16 +64,10 @@ import com.uladzimirv.notegram.ui.layout.main.DeleteConfirmationDialog
 import com.uladzimirv.notegram.ui.layout.main.com.ColorPref
 import com.uladzimirv.notegram.ui.layout.main.com.MenuDestination
 import com.uladzimirv.notegram.ui.layout.main.com.NoteType
-import com.uladzimirv.notegram.ui.theme.backgroundPrimary
-import com.uladzimirv.notegram.ui.theme.buttonPrimary
-import com.uladzimirv.notegram.ui.theme.buttonSecondary
-import com.uladzimirv.notegram.ui.theme.cyan
-import com.uladzimirv.notegram.ui.theme.glow
-import com.uladzimirv.notegram.ui.theme.orange
-import com.uladzimirv.notegram.ui.theme.pink
+import com.uladzimirv.notegram.ui.theme.NoteColorSchema
 import com.uladzimirv.notegram.ui.theme.textPrimary
-import com.uladzimirv.notegram.ui.theme.textSecondary
 import com.uladzimirv.notegram.util.STRING_EMPTY
+import com.uladzimirv.notegram.util.VEVO
 import com.uladzimirv.notegram.util.compsoe.clickableNoRipple
 import com.uladzimirv.notegram.util.vibration.tickVibrate
 import kotlinx.collections.immutable.ImmutableList
@@ -92,22 +86,14 @@ fun NoteScreen(
     deleteState: MainViewState.DeleteState,
     intent: (MainIntent) -> Unit
 ) {
-    val background =
-        when (state.note?.colorPref) {
-            ColorPref.COMMON -> backgroundPrimary
-            ColorPref.ORANGE -> orange
-            ColorPref.CYAN -> cyan
-            ColorPref.GLOW -> glow
-            ColorPref.PINK -> pink
-            null -> backgroundPrimary
-        }
+    val colorSchema = NoteColorSchema.fromPref(state.note?.colorPref)
     val sheetState: SheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true,
     )
     BaseBottomSheet(
         sheetState = sheetState,
         showBottomSheet = state.show,
-        backgroundColor = background,
+        backgroundColor = colorSchema.background,
         onDismissRequest = {
             intent(MainIntent.MainScreenIntent.CloseSheets)
             intent(MainIntent.EditNoteIntent.OpenNoteTopMenu(false))
@@ -121,7 +107,7 @@ fun NoteScreen(
                 val scroll = rememberScrollState()
                 Column(
                     modifier = Modifier
-                        .background(background)
+                        .background(colorSchema.background)
                         .padding(horizontal = 16.dp, vertical = 12.dp)
                         .scrollable(
                             state = scroll,
@@ -144,6 +130,7 @@ fun NoteScreen(
                                 intent(MainIntent.MainScreenIntent.CloseSheets)
                             }
                         },
+                        colorSchema = colorSchema,
                         onClick = {
                             intent(MainIntent.EditNoteIntent.OpenNoteTopMenu(true))
                         }
@@ -151,6 +138,7 @@ fun NoteScreen(
                     Gap(48)
                     TitleEdit(
                         title = state.note?.title.orEmpty(),
+                        colorSchema = colorSchema
                     ) {
                         intent(MainIntent.EditNoteIntent.Title(it))
                     }
@@ -159,7 +147,8 @@ fun NoteScreen(
                         is TextNote -> {
                             TextEdit(
                                 text = state.note.text,
-                                modifier = Modifier.weight(1f)
+                                modifier = Modifier.weight(1f),
+                                colorSchema = colorSchema
                             ) {
                                 intent(MainIntent.EditNoteIntent.Text(it))
                             }
@@ -172,6 +161,7 @@ fun NoteScreen(
                                 delete = { intent(MainIntent.EditNoteIntent.DeleteTodoItem(it)) },
                                 checkClick = { intent(MainIntent.EditNoteIntent.CheckTodoItem(it)) },
                                 selectedList = state.note.selectedTodoList,
+                                colorSchema = colorSchema,
                                 reorder = { id, from, to ->
                                     intent(
                                         MainIntent.EditNoteIntent.Reorder(
@@ -201,7 +191,8 @@ fun NoteScreen(
                         pinned = state.note?.pinned == true,
                         colorMenuOpened = state.colorMenuOpened,
                         changeColor = { intent(MainIntent.EditNoteIntent.ChangeColor(it)) },
-                        selected = state.note?.colorPref ?: ColorPref.COMMON
+                        selected = state.note?.colorPref ?: ColorPref.COMMON,
+                        colorSchema = colorSchema
                     )
                 }
 
@@ -226,6 +217,16 @@ fun NoteScreen(
                     },
                     closeMenu = {
                         intent(MainIntent.EditNoteIntent.OpenNoteTopMenu(false))
+                    },
+                    archive = {
+                        VEVO("ping")
+                        intent(
+                            MainIntent.MainScreenIntent.Archive(
+                                state.note?.id ?: STRING_EMPTY
+                            )
+                        )
+                        intent(MainIntent.EditNoteIntent.OpenNoteTopMenu(false))
+                        intent(MainIntent.MainScreenIntent.CloseSheets)
                     }
                 )
 
@@ -250,6 +251,7 @@ fun NoteTopMenu(
     delete: () -> Unit,
     pin: () -> Unit,
     share: () -> Unit,
+    archive: () -> Unit,
     closeMenu: () -> Unit
 ) {
     Box(
@@ -268,7 +270,8 @@ fun NoteTopMenu(
             delete = delete,
             onShareClicked = share,
             shareText = shareText,
-            pin = pin
+            pin = pin,
+            archive = archive
         )
     }
 }
@@ -276,6 +279,7 @@ fun NoteTopMenu(
 @Composable
 fun TitleEdit(
     title: String,
+    colorSchema: NoteColorSchema,
     modifier: Modifier = Modifier,
     onChange: (String) -> Unit,
 ) {
@@ -288,7 +292,7 @@ fun TitleEdit(
         },
         textStyle = TextStyle(
             fontSize = 32.sp,
-            color = textPrimary
+            color = colorSchema.accent
         ),
         modifier = modifier
             .focusRequester(focusRequester),
@@ -300,7 +304,7 @@ fun TitleEdit(
                 ) {
                     Text(
                         text = stringResource(R.string.s_title),
-                        color = textSecondary,
+                        color = colorSchema.dim,
                         fontSize = 32.sp
                     )
                 }
@@ -326,6 +330,7 @@ fun TitleEdit(
 fun TextEdit(
     text: String,
     modifier: Modifier = Modifier,
+    colorSchema: NoteColorSchema,
     onChange: (String) -> Unit
 ) {
     val focusRequester = remember { FocusRequester() }
@@ -337,11 +342,11 @@ fun TextEdit(
         },
         textStyle = TextStyle(
             fontSize = 16.sp,
-            color = textPrimary
+            color = colorSchema.accent
         ),
         modifier = modifier
             .focusRequester(focusRequester),
-        cursorBrush = SolidColor(textPrimary),
+        cursorBrush = SolidColor(colorSchema.accent),
         decorationBox = { innerTextField ->
             if (text.isEmpty()) {
                 Row(
@@ -349,7 +354,7 @@ fun TextEdit(
                 ) {
                     Text(
                         text = stringResource(R.string.s_text),
-                        color = textSecondary,
+                        color = colorSchema.dim,
                         fontSize = 16.sp
                     )
                 }
@@ -374,6 +379,7 @@ fun TextEdit(
 @Composable
 fun TodoEdit(
     modifier: Modifier,
+    colorSchema: NoteColorSchema,
     list: ImmutableList<TodoListItem>,
     selectedList: ImmutableList<TodoListItem>,
     delete: (id: String) -> Unit,
@@ -415,13 +421,16 @@ fun TodoEdit(
                     delete = delete,
                     checkClick = checkClick,
                     onChange = onChange,
-                    scale = sizeScale.value.value
+                    scale = sizeScale.value.value,
+                    colorSchema = colorSchema
                 )
             }
         }
         item {
             Gap(16)
-            AddItem {
+            AddItem(
+                colorSchema = colorSchema
+            ) {
                 onChange(STRING_EMPTY, null)
             }
             Gap(16)
@@ -436,7 +445,8 @@ fun TodoEdit(
                 selected = item.selected,
                 modifier = Modifier,
                 delete = delete,
-                checkClick = checkClick
+                checkClick = checkClick,
+                colorSchema = colorSchema
             )
         }
     }
@@ -446,6 +456,7 @@ fun TodoEdit(
 @Composable
 fun TodoListItemUI(
     modifier: Modifier,
+    colorSchema: NoteColorSchema,
     text: String,
     id: String,
     scale: Float,
@@ -477,7 +488,7 @@ fun TodoListItemUI(
             contentDescription = null,
             modifier = Modifier
                 .size(24.dp),
-            tint = buttonPrimary
+            tint = colorSchema.accent
         )
         Gap(16)
         Icon(
@@ -488,7 +499,7 @@ fun TodoListItemUI(
                 .clickableNoRipple {
                     checkClick(id)
                 },
-            tint = buttonPrimary
+            tint = colorSchema.accent
         )
         Gap(8)
         BasicTextField(
@@ -498,12 +509,12 @@ fun TodoListItemUI(
             },
             textStyle = TextStyle(
                 fontSize = 16.sp,
-                color = textPrimary
+                color = colorSchema.accent
             ),
             modifier = Modifier
                 .width(fieldWidth.dp)
                 .focusRequester(focusRequester),
-            cursorBrush = SolidColor(textPrimary),
+            cursorBrush = SolidColor(colorSchema.accent),
             decorationBox = { innerTextField ->
                 innerTextField()
             },
@@ -529,7 +540,7 @@ fun TodoListItemUI(
                 .clickableNoRipple {
                     delete(id)
                 },
-            tint = buttonPrimary
+            tint = colorSchema.accent
         )
     }
 }
@@ -538,6 +549,7 @@ fun TodoListItemUI(
 @Composable
 fun SelectedTodoListItemUI(
     modifier: Modifier,
+    colorSchema: NoteColorSchema,
     text: String,
     id: String,
     selected: Boolean,
@@ -577,7 +589,7 @@ fun SelectedTodoListItemUI(
                 .clickableNoRipple {
                     checkClick(id)
                 },
-            tint = buttonSecondary
+            tint = colorSchema.dim
         )
         Gap(8)
         BasicTextField(
@@ -587,12 +599,12 @@ fun SelectedTodoListItemUI(
             },
             textStyle = TextStyle(
                 fontSize = 16.sp,
-                color = textSecondary
+                color = colorSchema.dim
             ),
             modifier = Modifier
                 .width(fieldWidth.dp)
                 .focusRequester(focusRequester),
-            cursorBrush = SolidColor(textSecondary),
+            cursorBrush = SolidColor(colorSchema.dim),
             decorationBox = { innerTextField ->
                 innerTextField()
             },
@@ -618,13 +630,14 @@ fun SelectedTodoListItemUI(
                 .clickableNoRipple {
                     delete(id)
                 },
-            tint = buttonPrimary
+            tint = colorSchema.dim
         )
     }
 }
 
 @Composable
 fun AddItem(
+    colorSchema: NoteColorSchema,
     onClick: () -> Unit
 ) {
     Row(
@@ -636,12 +649,13 @@ fun AddItem(
             painter = painterResource(R.drawable.ic_add),
             contentDescription = null,
             modifier = Modifier.size(24.dp),
-            tint = buttonPrimary
+            tint = colorSchema.accent
         )
         Gap(12)
         Text(
             text = stringResource(R.string.s_add_item),
-            fontSize = 16.sp
+            fontSize = 16.sp,
+            color = colorSchema.accent
         )
     }
 }

@@ -84,8 +84,10 @@ fun TopSearchBar(
             visible = !enabled
         ) {
             Row() {
+                Gap(8)
                 AppLogo(
-                    named = true
+                    named = true,
+                    showIcon = false
                 )
                 Gap(6)
             }
@@ -223,11 +225,11 @@ fun TopSearchBar(
                 }
             }
         }
+
         AnimatedVisibility(
             visible = !enabled
         ) {
             Row {
-                Gap(12)
                 Icon(
                     modifier = Modifier
                         .size(24.dp)

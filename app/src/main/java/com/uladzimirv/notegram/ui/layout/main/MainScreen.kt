@@ -86,7 +86,7 @@ fun MainScreen(
                     if (isSearchBarVisible.value) it.padding(top = 12.dp)
                     else it
                 }
-                .padding(horizontal = 16.dp)
+                .padding(horizontal = 12.dp)
                 .let {
                     if (state.main.isAddMenuOpened
                         || state.main.selectedNote != null
@@ -247,7 +247,11 @@ fun MainScreen(
                                 intent(MainIntent.MainScreenIntent.PinOrUnpin(state.main.selectedNote.note.id))
                                 intent(MainIntent.MainScreenIntent.CloseSelectionMenu)
                             },
-                            shareText = state.main.selectedNote.note.shareText()
+                            shareText = state.main.selectedNote.note.shareText(),
+                            archive = {
+                                intent(MainIntent.MainScreenIntent.Archive(state.main.selectedNote.note.id))
+                                intent(MainIntent.MainScreenIntent.CloseSelectionMenu)
+                            }
                         )
                     }
                 )
@@ -267,7 +271,8 @@ fun MainScreen(
             show = state.topMenuState.show,
             dismiss = { intent(MainIntent.TopMenuIntent.Show(false)) },
             topPadding = innerPadding.calculateTopPadding(),
-            openTrashbox = { intent(MainIntent.TopMenuIntent.OpenTrashbox(true)) }
+            openTrashbox = { intent(MainIntent.TopMenuIntent.OpenTrashbox(true)) },
+            openArchive = { intent(MainIntent.TopMenuIntent.OpenArchive(true)) }
         )
     }
 }
@@ -292,8 +297,8 @@ fun NotesGreedList(
             LazyVerticalStaggeredGrid(
                 state = state,
                 columns = StaggeredGridCells.Fixed(2),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalItemSpacing = 12.dp
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalItemSpacing = 8.dp
             ) {
                 items(
                     items = list,

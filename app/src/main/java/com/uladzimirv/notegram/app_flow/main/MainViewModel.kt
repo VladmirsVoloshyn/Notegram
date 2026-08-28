@@ -7,10 +7,10 @@ import com.uladzimirv.notegram.app_flow.main.contract.MainMiddleware
 import com.uladzimirv.notegram.app_flow.main.contract.MainMiddleware.MainScreenMiddleware.ShowQR
 import com.uladzimirv.notegram.app_flow.main.contract.MainMiddleware.NoteScreen.EditNoteText
 import com.uladzimirv.notegram.app_flow.main.contract.MainViewState
-import com.uladzimirv.notegram.app_flow.main.flow_helper.proceed
 import com.uladzimirv.notegram.core.mvi.AbstractMVIViewModel
 import com.uladzimirv.notegram.domain.manager.NotesManager
 import com.uladzimirv.notegram.domain.model.com.NoteStatus
+import com.uladzimirv.notegram.util.VEVO
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList
@@ -141,6 +141,15 @@ class MainViewModel @Inject constructor(
                         emit(MainMiddleware.MainScreenMiddleware.DeleteNote(intent.noteId))
                     }
 
+                    is MainIntent.MainScreenIntent.Archive -> {
+                        VEVO("ping vm")
+                        //TODO:
+                        val noteId = viewState.value.main.selectedNote?.note?.id ?: viewState.value.noteState.note?.id
+                        noteId?.let {
+                            notesManager.archiveNote(it)
+                        }
+                    }
+
                     is MainIntent.MainScreenIntent.ConfirmDelete -> {
                         val note = viewState.value.deleteState.note
                         if (note?.status is NoteStatus.Deleted) {
@@ -258,6 +267,7 @@ class MainViewModel @Inject constructor(
             when (it) {
                 is MainIntent.TopMenuIntent.Show -> MainMiddleware.TopMenu.Show(it.show)
                 is MainIntent.TopMenuIntent.OpenTrashbox -> MainMiddleware.Trashbox.Show(it.open)
+                is MainIntent.TopMenuIntent.OpenArchive -> MainMiddleware.Archive.Show(it.open)
                 else -> MainMiddleware.Stub
             }
         }
@@ -291,13 +301,33 @@ class MainViewModel @Inject constructor(
             }
         }
 
+        val archiveFlow = filterIsInstance<MainIntent.ArchiveIntent>().map { intent ->
+            when (intent) {
+                is MainIntent.ArchiveIntent.SelectNote -> MainMiddleware.Archive.SelectNote(
+                    intent.noteId,
+                    intent.itemLayoutInfo
+                )
+
+                MainIntent.ArchiveIntent.CloseSelectionMenu -> MainMiddleware.Archive.CloseSelectionMenu
+
+                is MainIntent.ArchiveIntent.Restore -> {
+                    viewState.value.archiveState.selectedNote?.let {
+                        notesManager.restoreNote(it.note.id)
+                    }
+                    MainMiddleware.Stub
+                }
+                else -> MainMiddleware.Stub
+            }
+        }
+
         return merge(
             mainFlow,
             noteEditFlow,
             scannerFlow,
             notesFlow,
             topMenuFlow,
-            trashboxFlow
+            trashboxFlow,
+            archiveFlow
         )
     }
 

@@ -12,7 +12,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.uladzimirv.notegram.app_flow.main.contract.MainIntent
-import com.uladzimirv.notegram.ui.layout.main.DeleteConfirmationDialog
+import com.uladzimirv.notegram.ui.layout.archive.ArchiveScreen
 import com.uladzimirv.notegram.ui.layout.note_ui.NoteScreen
 import com.uladzimirv.notegram.ui.layout.main.MainScreen
 import com.uladzimirv.notegram.ui.layout.qr_scan.ScanQrScreen
@@ -93,6 +93,11 @@ class MainActivity : ComponentActivity() {
             )
             TrashboxScreen(
                 state = viewState.trashBoxState,
+                deleteState = viewState.deleteState,
+                intent = intent
+            )
+            ArchiveScreen(
+                state = viewState.archiveState,
                 deleteState = viewState.deleteState,
                 intent = intent
             )

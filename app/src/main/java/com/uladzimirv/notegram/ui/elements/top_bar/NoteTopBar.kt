@@ -12,12 +12,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.uladzimirv.notegram.R
 import com.uladzimirv.notegram.ui.elements.Anchor
+import com.uladzimirv.notegram.ui.theme.NoteColorSchema
 import com.uladzimirv.notegram.ui.theme.buttonPrimary
 
 @Composable
 fun NoteTopBar(
+    colorSchema: NoteColorSchema,
     back: () -> Unit,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     Row() {
         Icon(
@@ -30,7 +32,7 @@ fun NoteTopBar(
                 .size(24.dp),
             painter = painterResource(id = R.drawable.ic_arrow_back),
             contentDescription = null,
-            tint = buttonPrimary,
+            tint = colorSchema.accent,
         )
         Anchor()
         Icon(
@@ -43,7 +45,7 @@ fun NoteTopBar(
                 .size(24.dp),
             painter = painterResource(id = R.drawable.ic_menu_dots),
             contentDescription = null,
-            tint = buttonPrimary,
+            tint = colorSchema.accent,
         )
 
     }

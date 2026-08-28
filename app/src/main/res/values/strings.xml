@@ -50,9 +50,14 @@
     <string name="s_delete_from_trashbox">Delete from trashbox</string>
     <string name="s_empty_trashbox">Trashbox is empty</string>
 
+    <!--archive -->
+    <string name="s_delete_from_archive">Delete from archive</string>
+    <string name="s_empty_archive">Archive is empty</string>
+    <string name="s_tip_trashbox_text">Notes in the Trash are kept for 10 days, after which they are permanently deleted. Please be careful.</string>
+
     <!--info tip -->
     <string name="s_tip_title">Tip</string>
-    <string name="s_tip_trashbox_text">Notes in the Trash are kept for 10 days, after which they are permanently deleted. Please be careful.</string>
+    <string name="s_tip_archive_text">Notes in the archive are stored indefinitely. You can keep them here if you don\'t want to see them on the main screen.</string>
 
     <!--palette -->
     <string name="s_build_config_version_name">Version : %s</string>

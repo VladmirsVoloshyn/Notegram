@@ -34,6 +34,7 @@ import com.uladzimirv.notegram.ui.elements.Gap
 import com.uladzimirv.notegram.ui.layout.main.com.ColorPref
 import com.uladzimirv.notegram.ui.layout.main.com.ItemLayoutInfo
 import com.uladzimirv.notegram.ui.model.TodoNoteUI
+import com.uladzimirv.notegram.ui.theme.NoteColorSchema
 import com.uladzimirv.notegram.ui.theme.backgroundSecondary
 import com.uladzimirv.notegram.ui.theme.borderPrimary
 import com.uladzimirv.notegram.ui.theme.buttonPrimary
@@ -41,7 +42,7 @@ import com.uladzimirv.notegram.ui.theme.buttonSecondary
 import com.uladzimirv.notegram.ui.theme.cyan
 import com.uladzimirv.notegram.ui.theme.glow
 import com.uladzimirv.notegram.ui.theme.orange
-import com.uladzimirv.notegram.ui.theme.pink
+import com.uladzimirv.notegram.ui.theme.red
 import com.uladzimirv.notegram.ui.theme.textPrimary
 import com.uladzimirv.notegram.ui.theme.textSecondary
 import com.uladzimirv.notegram.util.ifNotEmpty
@@ -53,7 +54,7 @@ fun MainTodoNoteGreedItem(
     note: TodoNoteUI,
     onClick: (NoteId) -> Unit = {},
     layoutInfo: ItemLayoutInfo?,
-    onLongClick: (id: NoteId, li: ItemLayoutInfo) -> Unit = {it, it1 ->}
+    onLongClick: (id: NoteId, li: ItemLayoutInfo) -> Unit = { it, it1 -> }
 ) {
     val width = remember {
         mutableIntStateOf(0)
@@ -66,14 +67,7 @@ fun MainTodoNoteGreedItem(
         mutableStateOf(Rect.Zero)
     }
 
-    val background =
-        when (note.colorPref) {
-            ColorPref.COMMON -> backgroundSecondary
-            ColorPref.ORANGE -> orange
-            ColorPref.CYAN -> cyan
-            ColorPref.GLOW -> glow
-            ColorPref.PINK -> pink
-        }
+    val schema = NoteColorSchema.fromPref(note.colorPref)
 
     val density = LocalDensity.current.density
 
@@ -85,7 +79,7 @@ fun MainTodoNoteGreedItem(
                 color = borderPrimary,
                 shape = RoundedCornerShape(14.dp)
             )
-            .background(background)
+            .background(schema.background)
             .padding(8.dp)
             .onGloballyPositioned { lc ->
                 width.intValue = lc.size.width
@@ -120,6 +114,7 @@ fun MainTodoNoteGreedItem(
             Icon(
                 painter = painterResource(R.drawable.ic_pin_filled),
                 contentDescription = null,
+                tint = schema.accent,
                 modifier = Modifier
                     .size(14.dp)
                     .align(Alignment.TopEnd)
@@ -133,6 +128,7 @@ fun MainTodoNoteGreedItem(
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     maxLines = 3,
+                    color = schema.accent,
                     overflow = TextOverflow.Ellipsis,
                     modifier = modifier.padding(end = 18.dp)
                 )
@@ -144,7 +140,8 @@ fun MainTodoNoteGreedItem(
             repeat(if (list.size > 5) 5 else list.size) {
                 TodoListItemMainUI(
                     text = list[it].text,
-                    selected = list[it].selected
+                    selected = list[it].selected,
+                    schema = schema
                 )
                 Gap(6)
             }
@@ -161,18 +158,19 @@ fun MainTodoNoteGreedItem(
 @Composable
 fun TodoListItemMainUI(
     text: String,
-    selected: Boolean
+    selected: Boolean,
+    schema: NoteColorSchema
 ) {
     val checkBox = remember(selected) {
         if (selected) R.drawable.ic_checkbox_selected
         else R.drawable.ic_checkbox_unchecked
     }
 
-    val textColor = if (selected) textSecondary
-    else textPrimary
+    val textColor = if (selected) schema.dim
+    else schema.accent
 
-    val buttonColor = if (selected) buttonSecondary
-    else buttonPrimary
+    val buttonColor = if (selected) schema.dim
+    else schema.accent
 
     Row(
         verticalAlignment = Alignment.CenterVertically

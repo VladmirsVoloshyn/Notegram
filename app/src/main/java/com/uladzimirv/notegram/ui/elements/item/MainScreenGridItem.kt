@@ -33,12 +33,13 @@ import com.uladzimirv.notegram.ui.elements.Gap
 import com.uladzimirv.notegram.ui.layout.main.com.ColorPref
 import com.uladzimirv.notegram.ui.layout.main.com.ItemLayoutInfo
 import com.uladzimirv.notegram.ui.model.TextNoteUI
+import com.uladzimirv.notegram.ui.theme.NoteColorSchema
 import com.uladzimirv.notegram.ui.theme.backgroundSecondary
 import com.uladzimirv.notegram.ui.theme.borderPrimary
 import com.uladzimirv.notegram.ui.theme.cyan
 import com.uladzimirv.notegram.ui.theme.glow
 import com.uladzimirv.notegram.ui.theme.orange
-import com.uladzimirv.notegram.ui.theme.pink
+import com.uladzimirv.notegram.ui.theme.red
 import com.uladzimirv.notegram.util.ifNotEmpty
 
 @Composable
@@ -47,7 +48,7 @@ fun MainTextNoteGreedItem(
     note: TextNoteUI,
     onClick: (NoteId) -> Unit = {},
     layoutInfo: ItemLayoutInfo?,
-    onLongClick: (id: NoteId, li: ItemLayoutInfo) -> Unit = {it, it1 ->}
+    onLongClick: (id: NoteId, li: ItemLayoutInfo) -> Unit = { it, it1 -> }
 ) {
     val width = remember {
         mutableIntStateOf(0)
@@ -60,14 +61,7 @@ fun MainTextNoteGreedItem(
         mutableStateOf(Rect.Zero)
     }
 
-    val background =
-        when (note.colorPref) {
-            ColorPref.COMMON -> backgroundSecondary
-            ColorPref.ORANGE -> orange
-            ColorPref.CYAN -> cyan
-            ColorPref.GLOW -> glow
-            ColorPref.PINK -> pink
-        }
+    val schema = NoteColorSchema.fromPref(note.colorPref)
 
     val density = LocalDensity.current.density
 
@@ -79,7 +73,7 @@ fun MainTextNoteGreedItem(
                 color = borderPrimary,
                 shape = RoundedCornerShape(14.dp)
             )
-            .background(background)
+            .background(schema.background)
             .padding(8.dp)
             .onGloballyPositioned { lc ->
                 width.intValue = lc.size.width
@@ -114,6 +108,7 @@ fun MainTextNoteGreedItem(
             Icon(
                 painter = painterResource(R.drawable.ic_pin_filled),
                 contentDescription = null,
+                tint = schema.accent,
                 modifier = Modifier
                     .size(14.dp)
                     .align(Alignment.TopEnd)
@@ -123,6 +118,7 @@ fun MainTextNoteGreedItem(
             note.title.ifNotEmpty {
                 Text(
                     text = it,
+                    color = schema.accent,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     maxLines = 3,
@@ -134,6 +130,7 @@ fun MainTextNoteGreedItem(
             note.text.ifNotEmpty {
                 Text(
                     text = it,
+                    color = schema.accent,
                     fontSize = 14.sp,
                     maxLines = 15,
                     overflow = TextOverflow.Ellipsis,

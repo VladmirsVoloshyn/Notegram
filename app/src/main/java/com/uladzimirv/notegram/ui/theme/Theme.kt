@@ -66,7 +66,7 @@ val borderSecondary: Color
         Theme.LIGHT -> borderLightSecondary
     }
 
-val borderTertiary : Color
+val borderTertiary: Color
     @Composable
     get() = when (getAppTheme()) {
         Theme.LIGHT -> borderThinSecondary
@@ -85,16 +85,39 @@ val textSecondaryShadowGrey = Color(0xFFD2D2D2)
 
 val buttonBlackPrimary = Color(0xFF2D2D2D)
 val buttonLightPrimary = Color(0xFFCBCBCB)
-val dark = Color(0xFFA1A1A1)
 
 val borderDarkPrimary = Color(0xFFC4C4C4)
 val borderLightSecondary = Color(0xFFE7E7E7)
 val borderThinSecondary = Color(0xFFF6F6F6)
 
 
-val orange = Color(0xFFFF8770)
-val cyan = Color(0xFF7CD2D2)
-val glow = Color(0xFF6789FF)
-val pink = Color(0xFFE177A3)
+val pink = Color(0xFFFF6095)
+val pinkGray = Color(0xFFEAEAEA)
+val pinkGrayDim = Color(0xFFC4C4C4)
+
+val orange = Color(0xFFFF5E0F)
+val orangeGray = Color(0xFF2C2D2F)
+val orangeGrayDim = Color(0xFF3E3E3F)
+
+val yellow = Color(0xFFF1DD8D)
+val yellowBrown = Color(0xFF382500)
+val yellowBrownDim = Color(0xFF503408)
+
+val black = Color(0xFF000000)
+val blackAcid = Color(0xFF3BFF00)
+val blackAcidDim = Color(0xFFB9F1B1)
+
+val glow = Color(0xFFF2E9CC)
+val glowBlue = Color(0xFF1600A2)
+val glowBlueDim = Color(0xFF9693B4)
+
+val red = Color(0xFFA40E0E)
+val redYellow = Color(0xFFF9E07D)
+val redYellowDim = Color(0xFFEFE0D4)
+
+val cyan = Color(0xFF61D2D2)
+val blackCyan = Color(0xFF000000)
+val blackCyanDim = Color(0xFF818181)
+
 
 

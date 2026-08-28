@@ -86,6 +86,11 @@ interface MainMiddleware : MVIMiddleware<MainViewState> {
                             trashBox = notes.filter { it.status is NoteStatus.Deleted }.map {
                                 it.toUIModel()
                             }.toPersistentList()
+                        ),
+                        archiveState = viewState.archiveState.copy(
+                            archive = notes.filter { it.status is NoteStatus.Archived }.map {
+                                it.toUIModel()
+                            }.toPersistentList()
                         )
                     )
                 }
@@ -464,8 +469,6 @@ interface MainMiddleware : MVIMiddleware<MainViewState> {
                     } else viewState
                 }
 
-                is RemoveFromTrashbox -> TODO()
-                is Restore -> TODO()
                 CloseSelectionMenu -> viewState.copy(
                     trashBoxState = viewState.trashBoxState.copy(
                         selectedNote = null
@@ -484,9 +487,49 @@ interface MainMiddleware : MVIMiddleware<MainViewState> {
             val noteId: NoteId,
             val itemLayoutInfo: ItemLayoutInfo
         ) : Trashbox
+    }
 
-        data class Restore(val noteId: NoteId) : Trashbox
-        data class RemoveFromTrashbox(val noteId: NoteId) : Trashbox
+    sealed interface Archive : MainMiddleware {
+        override fun reduce(viewState: MainViewState): MainViewState {
+            return when (this) {
+                is Show -> viewState.copy(
+                    archiveState = viewState.archiveState.copy(show = show)
+                )
+
+                is SelectNote -> {
+
+                    val note = viewState.archiveState.archive.find { it.id == noteId }
+                    if (note != null) {
+                        val info = SelectedNoteInfo(
+                            note = note,
+                            layoutInfo = itemLayoutInfo
+                        )
+                        viewState.copy(
+                            archiveState = viewState.archiveState.copy(
+                                selectedNote = info
+                            )
+                        )
+                    } else viewState
+                }
+
+                CloseSelectionMenu -> viewState.copy(
+                    archiveState = viewState.archiveState.copy(
+                        selectedNote = null
+                    )
+                )
+            }
+        }
+
+        data class Show(
+            val show: Boolean
+        ) : Archive
+
+        data object CloseSelectionMenu : Archive
+
+        data class SelectNote(
+            val noteId: NoteId,
+            val itemLayoutInfo: ItemLayoutInfo
+        ) : Archive
     }
 
     data object Stub : MainMiddleware {

@@ -36,7 +36,7 @@ fun GreedItemMenuLayer(
     layoutInfo: ItemLayoutInfo?,
     modifier: Modifier = Modifier,
     close: () -> Unit,
-    actionsContent: @Composable BoxScope.(menuDestination : MenuDestination) -> Unit
+    actionsContent: @Composable BoxScope.(menuDestination: MenuDestination) -> Unit
 ) {
     val density = LocalDensity.current.density
     val configuration = LocalConfiguration.current.screenWidthDp
@@ -111,7 +111,8 @@ fun MainMenuItemActionColumn(
     pinned: Boolean,
     menuDestination: MenuDestination,
     shareText: String,
-    onShareClicked : () -> Unit = {},
+    onShareClicked: () -> Unit = {},
+    archive: () -> Unit,
     delete: () -> Unit,
     pin: () -> Unit
 ) {
@@ -127,6 +128,13 @@ fun MainMenuItemActionColumn(
         modifier = modifier,
         horizontalAlignment = alignment
     ) {
+        AddItem(
+            iconResId = R.drawable.ic_archive,
+            titleResId = R.string.s_main_menu_archive,
+            isVisible = isLayerVisible,
+            onClick = archive
+        )
+        Gap(6)
         AddItem(
             iconResId = R.drawable.ic_delete,
             titleResId = R.string.s_delete,

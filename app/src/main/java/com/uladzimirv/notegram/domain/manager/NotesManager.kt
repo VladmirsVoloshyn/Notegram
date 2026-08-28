@@ -10,9 +10,14 @@ import com.uladzimirv.notegram.domain.model.note.NoteId
 import com.uladzimirv.notegram.domain.model.note.text.TextNote
 import com.uladzimirv.notegram.domain.model.note.todo.TodoListNote
 import com.uladzimirv.notegram.util.STRING_EMPTY
+import com.uladzimirv.notegram.util.VEVO
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -27,6 +32,8 @@ class NotesManager @Inject constructor(
     init {
         //mockedAdd()
     }
+
+    val scope = CoroutineScope(Dispatchers.IO)
 
     private val notes = combine(
         textNotesRepository.notesFlow,
@@ -85,10 +92,36 @@ class NotesManager @Inject constructor(
         }
     }
 
-    suspend fun clearTrashbox() {
+    suspend fun clearTrashbox() = withContext(Dispatchers.IO) {
         val note = notes.firstOrNull().orEmpty().filter { it.status is NoteStatus.Deleted }
         note.forEach {
             deleteNote(it.id)
+        }
+    }
+
+
+    fun archiveNote(id: NoteId) {
+        scope.launch {
+            val note = notes.firstOrNull().orEmpty().find {
+                it.id == id
+            }
+            when (note) {
+                is TextNote -> textNotesRepository.addNote(
+                    note.copy(
+                        status = NoteStatus.Archived(
+                            archivedAt = System.currentTimeMillis()
+                        )
+                    )
+                )
+
+                is TodoListNote -> todoNoteRepository.addNote(
+                    note.copy(
+                        status = NoteStatus.Archived(
+                            archivedAt = System.currentTimeMillis()
+                        )
+                    )
+                )
+            }
         }
     }
 
@@ -97,7 +130,7 @@ class NotesManager @Inject constructor(
         todoNoteRepository.deleteNote(id)
     }
 
-    suspend fun moveToTrashbox(id: NoteId) {
+    suspend fun moveToTrashbox(id: NoteId) = withContext(Dispatchers.IO) {
         val note = notes.firstOrNull().orEmpty().find { it.id == id }
         when (note) {
             is TextNote -> textNotesRepository.addNote(
@@ -118,7 +151,7 @@ class NotesManager @Inject constructor(
         }
     }
 
-    private fun mockedAdd(){
+    private fun mockedAdd() {
         textNotes.forEach {
             addNote(it)
         }

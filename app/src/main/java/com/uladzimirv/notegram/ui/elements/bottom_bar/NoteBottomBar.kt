@@ -28,20 +28,26 @@ import androidx.compose.ui.unit.dp
 import com.uladzimirv.notegram.R
 import com.uladzimirv.notegram.ui.elements.Gap
 import com.uladzimirv.notegram.ui.layout.main.com.ColorPref
+import com.uladzimirv.notegram.ui.theme.NoteColorSchema
 import com.uladzimirv.notegram.ui.theme.backgroundContainerDarker
 import com.uladzimirv.notegram.ui.theme.backgroundPrimary
+import com.uladzimirv.notegram.ui.theme.black
+import com.uladzimirv.notegram.ui.theme.blackAcid
 import com.uladzimirv.notegram.ui.theme.borderPrimary
 import com.uladzimirv.notegram.ui.theme.buttonPrimary
 import com.uladzimirv.notegram.ui.theme.cyan
 import com.uladzimirv.notegram.ui.theme.glow
 import com.uladzimirv.notegram.ui.theme.orange
 import com.uladzimirv.notegram.ui.theme.pink
+import com.uladzimirv.notegram.ui.theme.red
+import com.uladzimirv.notegram.ui.theme.yellow
 import com.uladzimirv.notegram.util.compsoe.clickableNoRipple
 
 @Composable
 fun NoteBottomBar(
     pin: () -> Unit,
     pinned: Boolean,
+    colorSchema: NoteColorSchema,
     selected: ColorPref,
     palette: (Boolean) -> Unit,
     colorMenuOpened: Boolean,
@@ -71,22 +77,36 @@ fun NoteBottomBar(
         ) {
             Row(
                 modifier = Modifier
-                    .background(backgroundContainerDarker, CircleShape)
+                    .background(colorSchema.background, CircleShape)
                     .padding(6.dp)
 
             ) {
-                ColorContainer(
-                    selected = selected == ColorPref.CYAN,
-                    background = cyan
-                ) {
-                    changeColor(ColorPref.CYAN)
-                }
-                Gap(6)
                 ColorContainer(
                     selected = selected == ColorPref.PINK,
                     background = pink
                 ) {
                     changeColor(ColorPref.PINK)
+                }
+                Gap(6)
+                ColorContainer(
+                    selected = selected == ColorPref.ORANGE,
+                    background = orange
+                ) {
+                    changeColor(ColorPref.ORANGE)
+                }
+                Gap(6)
+                ColorContainer(
+                    selected = selected == ColorPref.YELLOW,
+                    background = yellow
+                ) {
+                    changeColor(ColorPref.YELLOW)
+                }
+                Gap(6)
+                ColorContainer(
+                    selected = selected == ColorPref.BLACK,
+                    background = black
+                ) {
+                    changeColor(ColorPref.BLACK)
                 }
                 Gap(6)
                 ColorContainer(
@@ -97,10 +117,17 @@ fun NoteBottomBar(
                 }
                 Gap(6)
                 ColorContainer(
-                    selected = selected == ColorPref.ORANGE,
-                    background = orange
+                    selected = selected == ColorPref.RED,
+                    background = red
                 ) {
-                    changeColor(ColorPref.ORANGE)
+                    changeColor(ColorPref.RED)
+                }
+                Gap(6)
+                ColorContainer(
+                    selected = selected == ColorPref.CYAN,
+                    background = cyan
+                ) {
+                    changeColor(ColorPref.CYAN)
                 }
                 Gap(6)
                 ColorContainer(
@@ -144,7 +171,7 @@ fun NoteBottomBar(
                     .size(24.dp),
                 painter = painterResource(id = pinResId),
                 contentDescription = null,
-                tint = buttonPrimary,
+                tint = colorSchema.accent,
             )
         }
         Gap(16)
@@ -160,7 +187,7 @@ fun NoteBottomBar(
                 .size(24.dp),
             painter = painterResource(resource),
             contentDescription = null,
-            tint = buttonPrimary,
+            tint = colorSchema.accent,
         )
     }
 }

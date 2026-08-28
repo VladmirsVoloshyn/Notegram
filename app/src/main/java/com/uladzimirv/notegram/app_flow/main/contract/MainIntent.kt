@@ -15,6 +15,7 @@ sealed interface MainIntent : MviIntent {
         data class OpenNote(val id: NoteId) : MainScreenIntent
         data class Add(val noteType: NoteType) : MainScreenIntent
         data class Delete(val noteId: NoteId?) : MainScreenIntent
+        data class Archive(val noteId: NoteId?) : MainScreenIntent
         data object ConfirmDelete : MainScreenIntent
         data class PinOrUnpin(val noteId: NoteId) : MainScreenIntent
         data object CloseSheets : MainScreenIntent
@@ -52,6 +53,7 @@ sealed interface MainIntent : MviIntent {
     interface TopMenuIntent : MainIntent {
         data class Show(val show: Boolean) : TopMenuIntent
         data class OpenTrashbox(val open: Boolean) : TopMenuIntent
+        data class OpenArchive(val open: Boolean) : TopMenuIntent
 
     }
 
@@ -62,9 +64,18 @@ sealed interface MainIntent : MviIntent {
         ) : TrashBoxIntent
 
         data object CloseSelectionMenu : TrashBoxIntent
-
         data class Restore(val noteId: NoteId) : TrashBoxIntent
         data class RemoveFromTrashbox(val noteId: NoteId) : TrashBoxIntent
         object ClearTrashbox : TrashBoxIntent
+    }
+
+    interface ArchiveIntent : MainIntent {
+        data class SelectNote(
+            val noteId: NoteId,
+            val itemLayoutInfo: ItemLayoutInfo
+        ) : ArchiveIntent
+        data object CloseSelectionMenu : ArchiveIntent
+        data class Restore(val noteId: NoteId) : ArchiveIntent
+        data class RemoveFromArchive(val noteId: NoteId) : ArchiveIntent
     }
 }
