@@ -2,7 +2,6 @@ package com.uladzimirv.notegram.app_flow.main.contract
 
 import com.uladzimirv.notegram.core.mvi.MviViewState
 import com.uladzimirv.notegram.domain.model.note.Note
-import com.uladzimirv.notegram.domain.model.note.NoteId
 import com.uladzimirv.notegram.domain.model.note.text.TextNote
 import com.uladzimirv.notegram.ui.layout.main.com.ItemLayoutInfo
 import com.uladzimirv.notegram.ui.model.NoteUI
@@ -17,7 +16,8 @@ data class MainViewState(
     val scannerState: QRScannerState = QRScannerState(),
     val deleteState: DeleteState = DeleteState(),
     val topMenuState: TopMenuState = TopMenuState(),
-    val trashBoxState: TrashBoxState = TrashBoxState()
+    val trashBoxState: TrashBoxState = TrashBoxState(),
+    val archiveState: ArchiveScreen = ArchiveScreen()
 ) : MviViewState {
 
     data class MainScreenSubstate(
@@ -53,6 +53,12 @@ data class MainViewState(
     data class TrashBoxState(
         val show: Boolean = false,
         val trashBox: ImmutableList<NoteUI> = persistentListOf(),
+        val selectedNote: SelectedNoteInfo? = null
+    )
+
+    data class ArchiveScreen(
+        val show: Boolean = false,
+        val archive: ImmutableList<NoteUI> = persistentListOf(),
         val selectedNote: SelectedNoteInfo? = null
     )
 

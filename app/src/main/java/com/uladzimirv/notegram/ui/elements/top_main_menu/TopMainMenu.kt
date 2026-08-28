@@ -39,6 +39,7 @@ fun TopMainMenu(
     show: Boolean,
     topPadding: Dp,
     openTrashbox: () -> Unit,
+    openArchive: () -> Unit,
     dismiss: () -> Unit
 ) {
     AnimatedVisibility(
@@ -88,7 +89,8 @@ fun TopMainMenu(
                         iconResId = R.drawable.ic_archive,
                         titleResId = R.string.s_main_menu_archive
                     ) {
-
+                        openArchive()
+                        dismiss()
                     }
                     Gap(8)
                     HorizontalDivider(
