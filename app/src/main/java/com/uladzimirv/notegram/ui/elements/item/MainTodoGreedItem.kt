@@ -31,20 +31,10 @@ import androidx.compose.ui.unit.sp
 import com.uladzimirv.notegram.R
 import com.uladzimirv.notegram.domain.model.note.NoteId
 import com.uladzimirv.notegram.ui.elements.Gap
-import com.uladzimirv.notegram.ui.layout.main.com.ColorPref
 import com.uladzimirv.notegram.ui.layout.main.com.ItemLayoutInfo
 import com.uladzimirv.notegram.ui.model.TodoNoteUI
+import com.uladzimirv.notegram.ui.theme.AppTheme.borderPrimary
 import com.uladzimirv.notegram.ui.theme.NoteColorSchema
-import com.uladzimirv.notegram.ui.theme.backgroundSecondary
-import com.uladzimirv.notegram.ui.theme.borderPrimary
-import com.uladzimirv.notegram.ui.theme.buttonPrimary
-import com.uladzimirv.notegram.ui.theme.buttonSecondary
-import com.uladzimirv.notegram.ui.theme.cyan
-import com.uladzimirv.notegram.ui.theme.glow
-import com.uladzimirv.notegram.ui.theme.orange
-import com.uladzimirv.notegram.ui.theme.red
-import com.uladzimirv.notegram.ui.theme.textPrimary
-import com.uladzimirv.notegram.ui.theme.textSecondary
 import com.uladzimirv.notegram.util.ifNotEmpty
 
 
@@ -72,42 +62,43 @@ fun MainTodoNoteGreedItem(
     val density = LocalDensity.current.density
 
     Box(
-        modifier = modifier
-            .clip(RoundedCornerShape(14.dp))
-            .border(
-                width = 1.dp,
-                color = borderPrimary,
-                shape = RoundedCornerShape(14.dp)
-            )
-            .background(schema.background)
-            .padding(8.dp)
-            .onGloballyPositioned { lc ->
-                width.intValue = lc.size.width
-                height.intValue = lc.size.height
-                pos.value = lc.boundsInRoot()
-            }
-            .let {
-                if (layoutInfo == null) it
-                else it.size(
-                    height = layoutInfo.getHeight(density).dp,
-                    width = layoutInfo.getWidth(density).dp
+        modifier = modifier.run {
+            clip(RoundedCornerShape(14.dp))
+                .border(
+                    width = 1.dp,
+                    color = borderPrimary,
+                    shape = RoundedCornerShape(14.dp)
                 )
-            }
-            .combinedClickable(
-                onClick = { onClick(note.id) },
-                onLongClick = {
-                    onLongClick(
-                        note.id,
-                        ItemLayoutInfo(
-                            width = width.intValue,
-                            height = height.intValue,
-                            position = pos.value
-                        )
+                .background(schema.background)
+                .padding(8.dp)
+                .onGloballyPositioned { lc ->
+                    width.intValue = lc.size.width
+                    height.intValue = lc.size.height
+                    pos.value = lc.boundsInRoot()
+                }
+                .let {
+                    if (layoutInfo == null) it
+                    else it.size(
+                        height = layoutInfo.getHeight(density).dp,
+                        width = layoutInfo.getWidth(density).dp
                     )
-                },
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null
-            )
+                }
+                .combinedClickable(
+                    onClick = { onClick(note.id) },
+                    onLongClick = {
+                        onLongClick(
+                            note.id,
+                            ItemLayoutInfo(
+                                width = width.intValue,
+                                height = height.intValue,
+                                position = pos.value
+                            )
+                        )
+                    },
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null
+                )
+        }
 
     ) {
         if (note.pinned) {

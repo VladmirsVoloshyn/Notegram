@@ -28,10 +28,10 @@ import com.uladzimirv.notegram.BuildConfig
 import com.uladzimirv.notegram.R
 import com.uladzimirv.notegram.ui.elements.Gap
 import com.uladzimirv.notegram.ui.elements.logo.AppLogo
-import com.uladzimirv.notegram.ui.theme.backgroundSecondary
-import com.uladzimirv.notegram.ui.theme.borderPrimary
-import com.uladzimirv.notegram.ui.theme.borderTertiary
-import com.uladzimirv.notegram.ui.theme.textSecondary
+import com.uladzimirv.notegram.ui.theme.AppTheme.backgroundSecondary
+import com.uladzimirv.notegram.ui.theme.AppTheme.borderPrimary
+import com.uladzimirv.notegram.ui.theme.AppTheme.borderTertiary
+import com.uladzimirv.notegram.ui.theme.AppTheme.textSecondary
 import com.uladzimirv.notegram.util.compsoe.clickableNoRipple
 
 @Composable
@@ -40,6 +40,7 @@ fun TopMainMenu(
     topPadding: Dp,
     openTrashbox: () -> Unit,
     openArchive: () -> Unit,
+    openSettings: () -> Unit,
     dismiss: () -> Unit
 ) {
     AnimatedVisibility(
@@ -113,7 +114,8 @@ fun TopMainMenu(
                         iconResId = R.drawable.ic_settings,
                         titleResId = R.string.s_main_menu_settings
                     ) {
-
+                        openSettings()
+                        dismiss()
                     }
                     Gap(8)
                     HorizontalDivider(

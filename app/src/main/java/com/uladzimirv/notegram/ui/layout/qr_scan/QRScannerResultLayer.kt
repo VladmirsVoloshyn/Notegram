@@ -36,9 +36,9 @@ import com.uladzimirv.notegram.ui.elements.Anchor
 import com.uladzimirv.notegram.ui.elements.Gap
 import com.uladzimirv.notegram.ui.elements.button.AddItem
 import com.uladzimirv.notegram.ui.elements.button.SingleIconButton
-import com.uladzimirv.notegram.ui.theme.backgroundSecondary
-import com.uladzimirv.notegram.ui.theme.borderPrimary
-import com.uladzimirv.notegram.ui.theme.textPrimary
+import com.uladzimirv.notegram.ui.theme.AppTheme.backgroundSecondary
+import com.uladzimirv.notegram.ui.theme.AppTheme.borderPrimary
+import com.uladzimirv.notegram.ui.theme.AppTheme.textPrimary
 import com.uladzimirv.notegram.util.compsoe.clickableNoRipple
 import com.uladzimirv.notegram.util.intent.openLinkInBrowser
 import com.uladzimirv.notegram.util.intent.sharePlainText

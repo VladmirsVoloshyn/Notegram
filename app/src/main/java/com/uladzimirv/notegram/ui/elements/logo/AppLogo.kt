@@ -19,7 +19,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.uladzimirv.notegram.ui.elements.Gap
-import com.uladzimirv.notegram.ui.theme.textPrimary
+import com.uladzimirv.notegram.ui.theme.AppTheme.textPrimary
 
 @Composable
 fun AppLogo(

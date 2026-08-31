@@ -82,6 +82,9 @@ dependencies {
     //collections
     implementation(libs.collections.reorderable)
 
+    //Shared preference
+    implementation(libs.androidx.security.crypto.ktx)
+
     //Camera
     implementation(libs.androidx.camera.core)
     implementation(libs.androidx.camera.lifecycle)

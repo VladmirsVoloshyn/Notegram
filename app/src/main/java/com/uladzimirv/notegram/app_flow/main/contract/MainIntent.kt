@@ -1,6 +1,7 @@
 package com.uladzimirv.notegram.app_flow.main.contract
 
 import com.uladzimirv.notegram.core.mvi.MviIntent
+import com.uladzimirv.notegram.data.preferences.PreferencesRepository
 import com.uladzimirv.notegram.domain.model.note.NoteId
 import com.uladzimirv.notegram.ui.layout.main.com.ColorPref
 import com.uladzimirv.notegram.ui.layout.main.com.ItemLayoutInfo
@@ -54,7 +55,7 @@ sealed interface MainIntent : MviIntent {
         data class Show(val show: Boolean) : TopMenuIntent
         data class OpenTrashbox(val open: Boolean) : TopMenuIntent
         data class OpenArchive(val open: Boolean) : TopMenuIntent
-
+        data class OpenSettings(val open: Boolean) : TopMenuIntent
     }
 
     interface TrashBoxIntent : MainIntent {
@@ -74,8 +75,15 @@ sealed interface MainIntent : MviIntent {
             val noteId: NoteId,
             val itemLayoutInfo: ItemLayoutInfo
         ) : ArchiveIntent
+
         data object CloseSelectionMenu : ArchiveIntent
         data class Restore(val noteId: NoteId) : ArchiveIntent
         data class RemoveFromArchive(val noteId: NoteId) : ArchiveIntent
+    }
+
+    interface SettingsIntent : MainIntent {
+        data class ChangeTheme(
+            val themePreference: PreferencesRepository.ThemePreference
+        ) : SettingsIntent
     }
 }

@@ -23,8 +23,8 @@ import androidx.compose.ui.unit.sp
 import com.uladzimirv.notegram.R
 import com.uladzimirv.notegram.ui.elements.Anchor
 import com.uladzimirv.notegram.ui.elements.Gap
-import com.uladzimirv.notegram.ui.theme.buttonPrimary
-import com.uladzimirv.notegram.ui.theme.buttonSecondary
+import com.uladzimirv.notegram.ui.theme.AppTheme.buttonPrimary
+import com.uladzimirv.notegram.ui.theme.AppTheme.buttonSecondary
 import com.uladzimirv.notegram.util.compsoe.clickableNoRipple
 
 @Composable

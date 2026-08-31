@@ -13,7 +13,6 @@ import androidx.compose.ui.unit.dp
 import com.uladzimirv.notegram.R
 import com.uladzimirv.notegram.ui.elements.Anchor
 import com.uladzimirv.notegram.ui.theme.NoteColorSchema
-import com.uladzimirv.notegram.ui.theme.buttonPrimary
 
 @Composable
 fun NoteTopBar(
@@ -21,7 +20,7 @@ fun NoteTopBar(
     back: () -> Unit,
     onClick: () -> Unit,
 ) {
-    Row() {
+    Row {
         Icon(
             modifier = Modifier
                 .clickable(

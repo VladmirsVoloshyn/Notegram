@@ -29,10 +29,10 @@ import com.uladzimirv.notegram.ui.elements.Anchor
 import com.uladzimirv.notegram.ui.elements.Gap
 import com.uladzimirv.notegram.ui.elements.button.AddItem
 import com.uladzimirv.notegram.ui.layout.main.com.NoteType
-import com.uladzimirv.notegram.ui.theme.backgroundSecondary
-import com.uladzimirv.notegram.ui.theme.borderPrimary
-import com.uladzimirv.notegram.ui.theme.buttonPrimary
-import com.uladzimirv.notegram.ui.theme.textPrimary
+import com.uladzimirv.notegram.ui.theme.AppTheme.backgroundSecondary
+import com.uladzimirv.notegram.ui.theme.AppTheme.borderPrimary
+import com.uladzimirv.notegram.ui.theme.AppTheme.buttonPrimary
+import com.uladzimirv.notegram.ui.theme.AppTheme.textPrimary
 import com.uladzimirv.notegram.util.compsoe.clickableNoRipple
 
 @Composable

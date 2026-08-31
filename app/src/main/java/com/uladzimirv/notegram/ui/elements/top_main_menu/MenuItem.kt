@@ -1,6 +1,5 @@
 package com.uladzimirv.notegram.ui.elements.top_main_menu
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,7 +16,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.uladzimirv.notegram.ui.elements.Gap
-import com.uladzimirv.notegram.ui.theme.buttonPrimary
+import com.uladzimirv.notegram.ui.theme.AppTheme.buttonPrimary
+import com.uladzimirv.notegram.ui.theme.AppTheme.textPrimary
 import com.uladzimirv.notegram.util.compsoe.clickableNoRipple
 
 @Composable
@@ -28,10 +28,13 @@ fun MainMenuItem(
     onClick: () -> Unit
 ) {
     Box(
-        modifier = modifier.padding(6.dp).clickableNoRipple(onClick = onClick)
+        modifier = modifier
+            .padding(6.dp)
+            .clickableNoRipple(onClick = onClick)
     ) {
-        Column(modifier = Modifier
-            .fillMaxWidth()
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -46,7 +49,8 @@ fun MainMenuItem(
                 Gap(16)
                 Text(
                     text = stringResource(titleResId),
-                    fontSize = 16.sp
+                    fontSize = 16.sp,
+                    color = textPrimary
                 )
             }
         }

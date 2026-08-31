@@ -19,7 +19,8 @@ import androidx.compose.ui.unit.sp
 import com.uladzimirv.notegram.R
 import com.uladzimirv.notegram.ui.elements.Anchor
 import com.uladzimirv.notegram.ui.elements.Gap
-import com.uladzimirv.notegram.ui.theme.buttonPrimary
+import com.uladzimirv.notegram.ui.theme.AppTheme.buttonPrimary
+import com.uladzimirv.notegram.ui.theme.AppTheme.textPrimary
 import com.uladzimirv.notegram.util.compsoe.clickableNoRipple
 
 @Composable
@@ -50,11 +51,13 @@ fun SubScreenTopBar(
                 Text(
                     text = stringResource(titleResId),
                     fontSize = 18.sp,
-                    fontWeight = FontWeight.SemiBold
+                    fontWeight = FontWeight.SemiBold,
+                    color = textPrimary
                 )
                 Anchor()
                 Icon(
                     painter = painterResource(R.drawable.ic_cross),
+                    tint = buttonPrimary,
                     contentDescription = null,
                     modifier = Modifier
                         .size(18.dp)

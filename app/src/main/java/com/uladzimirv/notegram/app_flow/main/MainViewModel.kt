@@ -9,6 +9,7 @@ import com.uladzimirv.notegram.app_flow.main.contract.MainMiddleware.NoteScreen.
 import com.uladzimirv.notegram.app_flow.main.contract.MainViewState
 import com.uladzimirv.notegram.core.mvi.AbstractMVIViewModel
 import com.uladzimirv.notegram.domain.manager.NotesManager
+import com.uladzimirv.notegram.domain.manager.ThemeManager
 import com.uladzimirv.notegram.domain.model.com.NoteStatus
 import com.uladzimirv.notegram.util.VEVO
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -32,7 +33,8 @@ import kotlin.time.Duration.Companion.milliseconds
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val notesManager: NotesManager
+    private val notesManager: NotesManager,
+    private val themeManager: ThemeManager
 ) :
     AbstractMVIViewModel<MainIntent, MainViewState, MainEvent>() {
 
@@ -43,6 +45,10 @@ class MainViewModel @Inject constructor(
             list.sortedBy { it.createdAt }
                 .sortedBy { !it.pinned }.toPersistentList()
         )
+    }
+
+    val themeFlow = themeManager.themeFlow.map {
+        MainMiddleware.Setting.Theme(it)
     }
 
     init {
@@ -144,7 +150,8 @@ class MainViewModel @Inject constructor(
                     is MainIntent.MainScreenIntent.Archive -> {
                         VEVO("ping vm")
                         //TODO:
-                        val noteId = viewState.value.main.selectedNote?.note?.id ?: viewState.value.noteState.note?.id
+                        val noteId = viewState.value.main.selectedNote?.note?.id
+                            ?: viewState.value.noteState.note?.id
                         noteId?.let {
                             notesManager.archiveNote(it)
                         }
@@ -268,6 +275,7 @@ class MainViewModel @Inject constructor(
                 is MainIntent.TopMenuIntent.Show -> MainMiddleware.TopMenu.Show(it.show)
                 is MainIntent.TopMenuIntent.OpenTrashbox -> MainMiddleware.Trashbox.Show(it.open)
                 is MainIntent.TopMenuIntent.OpenArchive -> MainMiddleware.Archive.Show(it.open)
+                is MainIntent.TopMenuIntent.OpenSettings -> MainMiddleware.Setting.Show(it.open)
                 else -> MainMiddleware.Stub
             }
         }
@@ -316,6 +324,18 @@ class MainViewModel @Inject constructor(
                     }
                     MainMiddleware.Stub
                 }
+
+                else -> MainMiddleware.Stub
+            }
+        }
+
+        val settingsFlow = filterIsInstance<MainIntent.SettingsIntent>().map {
+            return@map when (it) {
+                is MainIntent.SettingsIntent.ChangeTheme -> {
+                    themeManager.setTheme(it.themePreference)
+                    MainMiddleware.Stub
+                }
+
                 else -> MainMiddleware.Stub
             }
         }
@@ -327,7 +347,9 @@ class MainViewModel @Inject constructor(
             notesFlow,
             topMenuFlow,
             trashboxFlow,
-            archiveFlow
+            archiveFlow,
+            settingsFlow,
+            themeFlow
         )
     }
 

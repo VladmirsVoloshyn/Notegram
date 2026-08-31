@@ -30,16 +30,10 @@ import androidx.compose.ui.unit.sp
 import com.uladzimirv.notegram.R
 import com.uladzimirv.notegram.domain.model.note.NoteId
 import com.uladzimirv.notegram.ui.elements.Gap
-import com.uladzimirv.notegram.ui.layout.main.com.ColorPref
 import com.uladzimirv.notegram.ui.layout.main.com.ItemLayoutInfo
 import com.uladzimirv.notegram.ui.model.TextNoteUI
+import com.uladzimirv.notegram.ui.theme.AppTheme.borderPrimary
 import com.uladzimirv.notegram.ui.theme.NoteColorSchema
-import com.uladzimirv.notegram.ui.theme.backgroundSecondary
-import com.uladzimirv.notegram.ui.theme.borderPrimary
-import com.uladzimirv.notegram.ui.theme.cyan
-import com.uladzimirv.notegram.ui.theme.glow
-import com.uladzimirv.notegram.ui.theme.orange
-import com.uladzimirv.notegram.ui.theme.red
 import com.uladzimirv.notegram.util.ifNotEmpty
 
 @Composable

@@ -18,8 +18,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.uladzimirv.notegram.R
-import com.uladzimirv.notegram.ui.theme.backgroundSecondary
-import com.uladzimirv.notegram.ui.theme.buttonPrimary
+import com.uladzimirv.notegram.ui.theme.AppTheme.backgroundSecondary
+import com.uladzimirv.notegram.ui.theme.AppTheme.buttonPrimary
 
 @Composable
 fun FloatingButton(
@@ -30,12 +30,12 @@ fun FloatingButton(
     Box(
         modifier = modifier
             .padding(6.dp)
+            .shadow(elevation = 3.dp, shape = CircleShape)
     ) {
         Box(
             modifier = Modifier
                 .size(76.dp)
                 .background(buttonPrimary, CircleShape)
-                .shadow(elevation = 3.dp, shape = CircleShape)
                 .clickable(onClick = onClick)
         ) {
             val resId = remember(isClosed) {
