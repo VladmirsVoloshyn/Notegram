@@ -2,86 +2,118 @@ package com.uladzimirv.notegram.ui.theme
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import com.uladzimirv.notegram.data.preferences.PreferencesRepository
+import com.uladzimirv.notegram.data.preferences.PreferencesRepository.Companion.THEME_DARK
+import com.uladzimirv.notegram.data.preferences.PreferencesRepository.Companion.THEME_LIGHT
 
 enum class Theme {
     LIGHT,
-//    DARK,
-//    MINT,
-//    WINE
+    DARK,
 }
 
-val backgroundPrimary: Color
-    @Composable
-    get() = when (getAppTheme()) {
-        Theme.LIGHT -> backgroundMainGrayLight
+object AppTheme {
+
+    val backgroundPrimary: Color
+        @Composable
+        get() = when (getAppTheme()) {
+            Theme.LIGHT -> backgroundMainGrayLight
+            Theme.DARK -> backgroundMainDark
+        }
+
+    val backgroundSecondary: Color
+        @Composable
+        get() = when (getAppTheme()) {
+            Theme.LIGHT -> backgroundMainLight
+            Theme.DARK -> backgroundSecDark
+        }
+
+    val backgroundContainerDarker: Color
+        @Composable
+        get() = when (getAppTheme()) {
+            Theme.LIGHT -> backgroundMainLight
+            Theme.DARK -> backgroundMainLight
+        }
+
+    val textPrimary: Color
+        @Composable
+        get() = when (getAppTheme()) {
+            Theme.LIGHT -> textPrimaryBlack
+            Theme.DARK -> textPrimaryWhite
+        }
+
+    val textSecondary: Color
+        @Composable
+        get() = when (getAppTheme()) {
+            Theme.LIGHT -> textSecondaryShadowGrey
+            Theme.DARK -> textSecondaryGrey
+        }
+
+
+    val buttonPrimary: Color
+        @Composable
+        get() = when (getAppTheme()) {
+            Theme.LIGHT -> buttonBlackPrimary
+            Theme.DARK -> buttonLightPrimary
+        }
+
+    val buttonSecondary: Color
+        @Composable
+        get() = when (getAppTheme()) {
+            Theme.LIGHT -> buttonLightPrimary
+            Theme.DARK -> buttonBlackPrimary
+        }
+
+    val borderPrimary: Color
+        @Composable
+        get() = when (getAppTheme()) {
+            Theme.LIGHT -> borderDarkPrimary
+            Theme.DARK -> borderLightPrimary
+        }
+
+
+    val borderSecondary: Color
+        @Composable
+        get() = when (getAppTheme()) {
+            Theme.LIGHT -> borderLightSecondary
+            Theme.DARK -> borderDarkSecondary
+        }
+
+    val borderTertiary: Color
+        @Composable
+        get() = when (getAppTheme()) {
+            Theme.LIGHT -> borderThinSecondary
+            Theme.DARK -> borderThinSecondaryDark
+        }
+
+
+    private var preferencesRepository: PreferencesRepository? = null
+
+    fun init(preferencesRepo: PreferencesRepository) {
+        preferencesRepository = preferencesRepo
     }
 
-val backgroundSecondary: Color
     @Composable
-    get() = when (getAppTheme()) {
-        Theme.LIGHT -> backgroundMainLight
+    fun getAppTheme(): Theme {
+        return when (preferencesRepository?.theme?.value) {
+            THEME_LIGHT -> Theme.LIGHT
+            THEME_DARK -> Theme.DARK
+            else -> if (preferencesRepository?.getIsDarkTheme() == true) Theme.DARK else Theme.LIGHT
+        }
     }
-
-val backgroundContainerDarker: Color
-    @Composable
-    get() = when (getAppTheme()) {
-        Theme.LIGHT -> backgroundMainLight
-    }
-
-val textPrimary: Color
-    @Composable
-    get() = when (getAppTheme()) {
-        Theme.LIGHT -> textPrimaryBlack
-    }
-
-val textSecondary: Color
-    @Composable
-    get() = when (getAppTheme()) {
-        Theme.LIGHT -> textSecondaryShadowGrey
-    }
-
-
-val buttonPrimary: Color
-    @Composable
-    get() = when (getAppTheme()) {
-        Theme.LIGHT -> buttonBlackPrimary
-    }
-
-val buttonSecondary: Color
-    @Composable
-    get() = when (getAppTheme()) {
-        Theme.LIGHT -> buttonLightPrimary
-    }
-
-val borderPrimary: Color
-    @Composable
-    get() = when (getAppTheme()) {
-        Theme.LIGHT -> borderDarkPrimary
-    }
-
-
-val borderSecondary: Color
-    @Composable
-    get() = when (getAppTheme()) {
-        Theme.LIGHT -> borderLightSecondary
-    }
-
-val borderTertiary: Color
-    @Composable
-    get() = when (getAppTheme()) {
-        Theme.LIGHT -> borderThinSecondary
-    }
-
-@Composable
-fun getAppTheme(): Theme {
-    return Theme.LIGHT
 }
+
 
 val backgroundMainGrayLight = Color(0xFFEFEFEF)
 val backgroundMainLight = Color(0xFFFFFFFF)
 
+val backgroundMainDark = Color(0xFF181818)
+val backgroundSecDark = Color(0xFF2A2A2A)
+
 val textPrimaryBlack = Color(0xFF181818)
 val textSecondaryShadowGrey = Color(0xFFD2D2D2)
+
+val textPrimaryWhite = Color(0xFFEFEFEF)
+val textSecondaryGrey = Color(0xFFD9D9D9)
 
 val buttonBlackPrimary = Color(0xFF2D2D2D)
 val buttonLightPrimary = Color(0xFFCBCBCB)
@@ -89,6 +121,10 @@ val buttonLightPrimary = Color(0xFFCBCBCB)
 val borderDarkPrimary = Color(0xFFC4C4C4)
 val borderLightSecondary = Color(0xFFE7E7E7)
 val borderThinSecondary = Color(0xFFF6F6F6)
+
+val borderLightPrimary = Color(0xFF2C2C2C)
+val borderDarkSecondary = Color(0xFF414141)
+val borderThinSecondaryDark = Color(0xFF2F2F2F)
 
 
 val pink = Color(0xFFFF6095)

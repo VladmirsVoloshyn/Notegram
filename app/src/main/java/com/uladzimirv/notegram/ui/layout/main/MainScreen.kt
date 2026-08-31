@@ -53,8 +53,8 @@ import com.uladzimirv.notegram.ui.layout.main.com.NoteType
 import com.uladzimirv.notegram.ui.model.NoteUI
 import com.uladzimirv.notegram.ui.model.TextNoteUI
 import com.uladzimirv.notegram.ui.model.TodoNoteUI
-import com.uladzimirv.notegram.ui.theme.backgroundPrimary
-import com.uladzimirv.notegram.ui.theme.textSecondary
+import com.uladzimirv.notegram.ui.theme.AppTheme.backgroundPrimary
+import com.uladzimirv.notegram.ui.theme.AppTheme.textSecondary
 import com.uladzimirv.notegram.util.vibration.tickVibrate
 import kotlinx.collections.immutable.ImmutableList
 
@@ -82,10 +82,6 @@ fun MainScreen(
                         top = if (padding.value.toInt() > 0) padding else 0.dp
                     )
                 }
-                .let {
-                    if (isSearchBarVisible.value) it.padding(top = 12.dp)
-                    else it
-                }
                 .padding(horizontal = 12.dp)
                 .let {
                     if (state.main.isAddMenuOpened
@@ -102,10 +98,7 @@ fun MainScreen(
         ) {
 
             Column(
-                modifier = Modifier.let {
-                    if (isSearchBarVisible.value) it.padding(top = 12.dp)
-                    else it
-                }
+                modifier = Modifier
             ) {
                 AnimatedVisibility(
                     visible = isSearchBarVisible.value,
@@ -272,7 +265,8 @@ fun MainScreen(
             dismiss = { intent(MainIntent.TopMenuIntent.Show(false)) },
             topPadding = innerPadding.calculateTopPadding(),
             openTrashbox = { intent(MainIntent.TopMenuIntent.OpenTrashbox(true)) },
-            openArchive = { intent(MainIntent.TopMenuIntent.OpenArchive(true)) }
+            openArchive = { intent(MainIntent.TopMenuIntent.OpenArchive(true)) },
+            openSettings = { intent(MainIntent.TopMenuIntent.OpenSettings(true)) }
         )
     }
 }

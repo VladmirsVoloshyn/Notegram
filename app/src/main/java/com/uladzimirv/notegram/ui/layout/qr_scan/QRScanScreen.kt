@@ -18,7 +18,7 @@ import com.uladzimirv.notegram.app_flow.main.contract.MainViewState
 import com.uladzimirv.notegram.ui.elements.BaseBottomSheet
 import com.uladzimirv.notegram.ui.elements.camera.CameraCover
 import com.uladzimirv.notegram.ui.elements.camera.CameraXPreview
-import com.uladzimirv.notegram.ui.theme.backgroundPrimary
+import com.uladzimirv.notegram.ui.theme.AppTheme.backgroundPrimary
 import com.uladzimirv.notegram.util.vibration.clickVibrate
 
 @OptIn(ExperimentalMaterial3Api::class)

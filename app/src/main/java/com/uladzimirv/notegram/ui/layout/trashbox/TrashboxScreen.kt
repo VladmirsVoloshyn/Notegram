@@ -28,6 +28,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.BlurredEdgeTreatment
 import androidx.compose.ui.draw.blur
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -44,10 +45,10 @@ import com.uladzimirv.notegram.ui.elements.top_bar.SubScreenTopBar
 import com.uladzimirv.notegram.ui.layout.main.DeleteConfirmationDialog
 import com.uladzimirv.notegram.ui.layout.main.NotesGreedList
 import com.uladzimirv.notegram.ui.layout.main.com.NoteType
-import com.uladzimirv.notegram.ui.theme.backgroundPrimary
-import com.uladzimirv.notegram.ui.theme.buttonPrimary
-import com.uladzimirv.notegram.ui.theme.buttonSecondary
-import com.uladzimirv.notegram.ui.theme.textSecondary
+import com.uladzimirv.notegram.ui.theme.AppTheme.backgroundPrimary
+import com.uladzimirv.notegram.ui.theme.AppTheme.buttonPrimary
+import com.uladzimirv.notegram.ui.theme.AppTheme.buttonSecondary
+import com.uladzimirv.notegram.ui.theme.AppTheme.textSecondary
 import com.uladzimirv.notegram.util.compsoe.clickableNoRipple
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -81,15 +82,15 @@ fun TrashboxScreen(
         ) { paddingValues ->
             Box(
                 modifier = Modifier
+                    .background(backgroundPrimary)
+                    .padding(top = paddingValues.calculateTopPadding())
                     .fillMaxSize()
-                    .padding(paddingValues)
                     .let {
                         if (state.selectedNote == null &&
                             deleteState.note == null
                         ) it
                         else it.blur(6.dp, edgeTreatment = BlurredEdgeTreatment.Unbounded)
                     }
-                    .background(backgroundPrimary)
             ) {
                 if (state.trashBox.isEmpty()) {
                     Column(

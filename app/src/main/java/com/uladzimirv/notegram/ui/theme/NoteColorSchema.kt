@@ -5,6 +5,9 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import com.uladzimirv.notegram.ui.layout.main.com.ColorPref
+import com.uladzimirv.notegram.ui.theme.AppTheme.backgroundSecondary
+import com.uladzimirv.notegram.ui.theme.AppTheme.textPrimary
+import com.uladzimirv.notegram.ui.theme.AppTheme.textSecondary
 
 @Immutable
 class NoteColorSchema private constructor(

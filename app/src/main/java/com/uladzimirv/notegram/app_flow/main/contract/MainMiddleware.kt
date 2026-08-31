@@ -3,6 +3,7 @@ package com.uladzimirv.notegram.app_flow.main.contract
 import com.uladzimirv.notegram.app_flow.main.contract.MainViewState.*
 import com.uladzimirv.notegram.core.mvi.MVIMiddleware
 import com.uladzimirv.notegram.data.database.entity.TodoListItem
+import com.uladzimirv.notegram.data.preferences.PreferencesRepository
 import com.uladzimirv.notegram.domain.model.com.NoteStatus
 import com.uladzimirv.notegram.domain.model.note.Note
 import com.uladzimirv.notegram.domain.model.note.NoteId
@@ -14,6 +15,7 @@ import com.uladzimirv.notegram.ui.layout.main.com.NoteType
 import com.uladzimirv.notegram.util.HTTP
 import com.uladzimirv.notegram.util.HTTPS
 import com.uladzimirv.notegram.util.STRING_EMPTY
+import com.uladzimirv.notegram.util.VEVO
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toPersistentList
 import java.util.UUID
@@ -530,6 +532,31 @@ interface MainMiddleware : MVIMiddleware<MainViewState> {
             val noteId: NoteId,
             val itemLayoutInfo: ItemLayoutInfo
         ) : Archive
+    }
+
+    sealed interface Setting : MainMiddleware {
+        override fun reduce(viewState: MainViewState): MainViewState {
+            return when (this) {
+
+                is Show -> {
+                    viewState.copy(
+                        settingsScreenState = viewState.settingsScreenState.copy(show = show)
+                    )
+                }
+
+                is Theme -> viewState.copy(
+                    settingsScreenState = viewState.settingsScreenState.copy(
+                        theme = themePreference
+                    )
+                )
+            }
+        }
+
+        data class Theme(val themePreference: PreferencesRepository.ThemePreference) : Setting
+
+        data class Show(
+            val show: Boolean
+        ) : Setting
     }
 
     data object Stub : MainMiddleware {

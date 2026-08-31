@@ -1,6 +1,7 @@
 package com.uladzimirv.notegram.ui.layout.note_ui
 
 import android.annotation.SuppressLint
+import android.view.View
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
@@ -65,7 +66,6 @@ import com.uladzimirv.notegram.ui.layout.main.com.ColorPref
 import com.uladzimirv.notegram.ui.layout.main.com.MenuDestination
 import com.uladzimirv.notegram.ui.layout.main.com.NoteType
 import com.uladzimirv.notegram.ui.theme.NoteColorSchema
-import com.uladzimirv.notegram.ui.theme.textPrimary
 import com.uladzimirv.notegram.util.STRING_EMPTY
 import com.uladzimirv.notegram.util.VEVO
 import com.uladzimirv.notegram.util.compsoe.clickableNoRipple
@@ -296,7 +296,7 @@ fun TitleEdit(
         ),
         modifier = modifier
             .focusRequester(focusRequester),
-        cursorBrush = SolidColor(textPrimary),
+        cursorBrush = SolidColor(colorSchema.accent),
         decorationBox = { innerTextField ->
             if (title.isEmpty()) {
                 Row(
