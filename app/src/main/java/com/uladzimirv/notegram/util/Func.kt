@@ -8,5 +8,4 @@ fun VEVO(value: Any?) {
     } else {
         println("VEVO ${value.toString()}")
     }
-
 }

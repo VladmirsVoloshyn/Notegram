@@ -23,9 +23,10 @@ data class TodoListNote(
     override val pinned: Boolean,
     override val colorPref: ColorPref,
     override val status: NoteStatus,
+    override val locked: Boolean,
     val todoList: ImmutableList<TodoListItem>,
     val selectedTodoList: ImmutableList<TodoListItem>
-) : Note(id, createdAt, updatedAd, title, pinned, colorPref, status) {
+) : Note(id, createdAt, updatedAd, title, pinned, colorPref, status, locked) {
 
     override fun toUIModel(): NoteUI = TodoNoteUI(
         id = id,
@@ -33,7 +34,8 @@ data class TodoListNote(
         pinned = pinned,
         colorPref = colorPref,
         list = todoList,
-        selectedList = selectedTodoList
+        selectedList = selectedTodoList,
+        locked = locked
     )
 
     override fun getType(): NoteType = NoteType.TODO
@@ -53,7 +55,8 @@ data class TodoListNote(
                 colorPref = ColorPref.COMMON,
                 todoList = list.filter { !it.selected }.toPersistentList(),
                 selectedTodoList = list.filter { it.selected }.toPersistentList(),
-                status = NoteStatus.None()
+                status = NoteStatus.None(),
+                locked = false
             )
 
         fun TodoNoteEntity.fromEntity(): TodoListNote = TodoListNote(
@@ -65,6 +68,7 @@ data class TodoListNote(
             colorPref = colorPref.toColorNotePref(),
             todoList = list.filter { !it.selected }.toPersistentList(),
             selectedTodoList = list.filter { it.selected }.toPersistentList(),
+            locked = locked,
             status = when (this.status) {
 
                 FormalStatus.ARCHIVED.status -> {
@@ -85,6 +89,7 @@ data class TodoListNote(
             updatedAd = updatedAd,
             title = title,
             pinned = pinned,
+            locked = locked,
             colorPref = colorPref.stringId,
             list = todoList + selectedTodoList,
             archivedAt = if (status is NoteStatus.Archived) status.archivedAt else 0,

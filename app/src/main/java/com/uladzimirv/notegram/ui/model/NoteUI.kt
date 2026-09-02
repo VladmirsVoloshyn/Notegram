@@ -8,7 +8,8 @@ import com.uladzimirv.notegram.ui.layout.main.com.ColorPref
 abstract class NoteUI(
     open val id: NoteId,
     open val colorPref: ColorPref,
-    open val pinned: Boolean
+    open val pinned: Boolean,
+    open val locked: Boolean
 ) {
-    abstract fun shareText(): String
+    abstract fun summary(): String
 }

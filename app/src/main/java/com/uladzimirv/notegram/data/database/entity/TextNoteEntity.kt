@@ -16,5 +16,6 @@ data class TextNoteEntity(
     val colorPref : String,
     val status : String,
     val deletedAt: Long,
-    val archivedAt: Long
+    val archivedAt: Long,
+    val locked : Boolean
 )

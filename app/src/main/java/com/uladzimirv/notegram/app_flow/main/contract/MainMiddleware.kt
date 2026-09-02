@@ -12,10 +12,10 @@ import com.uladzimirv.notegram.domain.model.note.todo.TodoListNote
 import com.uladzimirv.notegram.ui.layout.main.com.ColorPref
 import com.uladzimirv.notegram.ui.layout.main.com.ItemLayoutInfo
 import com.uladzimirv.notegram.ui.layout.main.com.NoteType
+import com.uladzimirv.notegram.ui.theme.pink
 import com.uladzimirv.notegram.util.HTTP
 import com.uladzimirv.notegram.util.HTTPS
 import com.uladzimirv.notegram.util.STRING_EMPTY
-import com.uladzimirv.notegram.util.VEVO
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toPersistentList
 import java.util.UUID
@@ -136,6 +136,15 @@ interface MainMiddleware : MVIMiddleware<MainViewState> {
                     )
                 )
 
+                is CallPinCode -> {
+                    viewState.copy(
+                        pinCodeState = viewState.pinCodeState.copy(
+                            callPlace = PinCodeScreenState.PinCodeCallPlace.MAIN_UNLOCKER,
+                            purpose = purpose
+                        )
+                    )
+                }
+
                 else -> viewState
             }
         }
@@ -166,6 +175,9 @@ interface MainMiddleware : MVIMiddleware<MainViewState> {
             MainScreenMiddleware
 
         data object CloseMenu : MainScreenMiddleware
+
+        data class CallPinCode(val purpose: PinCodeScreenState.PinCodePurpose) :
+            MainScreenMiddleware
 
         data class DeleteNote(val id: NoteId?) : MainScreenMiddleware
 
@@ -549,6 +561,16 @@ interface MainMiddleware : MVIMiddleware<MainViewState> {
                         theme = themePreference
                     )
                 )
+
+                is ShowPinCode -> viewState.copy(
+                    pinCodeState = viewState.pinCodeState.copy(
+                        callPlace = if (show)
+                            PinCodeScreenState.PinCodeCallPlace.SETTINGS else
+                            PinCodeScreenState.PinCodeCallPlace.NONE,
+                        purpose = purpose,
+                        attempt = PinCodeScreenState.Attempt.ATTEMPT
+                    )
+                )
             }
         }
 
@@ -557,6 +579,47 @@ interface MainMiddleware : MVIMiddleware<MainViewState> {
         data class Show(
             val show: Boolean
         ) : Setting
+
+        data class ShowPinCode(
+            val show: Boolean,
+            val purpose: PinCodeScreenState.PinCodePurpose
+        ) : Setting
+    }
+
+    sealed interface PinCode : MainScreenMiddleware {
+        override fun reduce(viewState: MainViewState): MainViewState {
+            return when (this) {
+                is HasPinCode -> viewState.copy(
+                    settingsScreenState = viewState.settingsScreenState.copy(
+                        hasPinCode = hasPinCode
+                    )
+                )
+
+                is SetAttempt -> viewState.copy(
+                    pinCodeState = viewState.pinCodeState.copy(
+                        attempt = attempt
+                    )
+                )
+            }
+        }
+
+        data class SetAttempt(val attempt: PinCodeScreenState.Attempt) : PinCode
+
+        data class HasPinCode(val hasPinCode: Boolean) : PinCode
+    }
+
+    data class InfoDialog(
+        val purpose: InfoDialogState.InfoDialogPurpose = InfoDialogState.InfoDialogPurpose.NONE,
+        val show: Boolean
+    ) : MainScreenMiddleware {
+        override fun reduce(viewState: MainViewState): MainViewState {
+            return viewState.copy(
+                infoDialogState = viewState.infoDialogState.copy(
+                    purpose = purpose,
+                    show = show
+                )
+            )
+        }
     }
 
     data object Stub : MainMiddleware {

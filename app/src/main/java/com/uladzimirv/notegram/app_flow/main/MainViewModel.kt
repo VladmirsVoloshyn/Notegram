@@ -4,13 +4,16 @@ import androidx.lifecycle.viewModelScope
 import com.uladzimirv.notegram.app_flow.main.contract.MainEvent
 import com.uladzimirv.notegram.app_flow.main.contract.MainIntent
 import com.uladzimirv.notegram.app_flow.main.contract.MainMiddleware
+import com.uladzimirv.notegram.app_flow.main.contract.MainMiddleware.MainScreenMiddleware.CallPinCode
 import com.uladzimirv.notegram.app_flow.main.contract.MainMiddleware.MainScreenMiddleware.ShowQR
 import com.uladzimirv.notegram.app_flow.main.contract.MainMiddleware.NoteScreen.EditNoteText
 import com.uladzimirv.notegram.app_flow.main.contract.MainViewState
 import com.uladzimirv.notegram.core.mvi.AbstractMVIViewModel
 import com.uladzimirv.notegram.domain.manager.NotesManager
+import com.uladzimirv.notegram.domain.manager.PinCodeManager
 import com.uladzimirv.notegram.domain.manager.ThemeManager
 import com.uladzimirv.notegram.domain.model.com.NoteStatus
+import com.uladzimirv.notegram.util.STRING_EMPTY
 import com.uladzimirv.notegram.util.VEVO
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.persistentListOf
@@ -34,7 +37,8 @@ import kotlin.time.Duration.Companion.milliseconds
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val notesManager: NotesManager,
-    private val themeManager: ThemeManager
+    private val themeManager: ThemeManager,
+    private val pinCodeManager: PinCodeManager
 ) :
     AbstractMVIViewModel<MainIntent, MainViewState, MainEvent>() {
 
@@ -53,7 +57,8 @@ class MainViewModel @Inject constructor(
 
     init {
         val stateInitial = MainViewState.initial(
-            textNotes = persistentListOf()
+            textNotes = persistentListOf(),
+            hasPinCode = pinCodeManager.hasPinCode()
         )
         viewState = intentSharedFlow.throughMiddleware()
             .scan(stateInitial) { state, change -> change.reduce(state) }
@@ -96,6 +101,10 @@ class MainViewModel @Inject constructor(
                         notesManager.query(intent.query)
                     }
 
+                    is MainIntent.MainScreenIntent.CloseInfoDialog -> {
+                        emit(MainMiddleware.InfoDialog(show = false))
+                    }
+
                     is MainIntent.MainScreenIntent.OpenColorContainer -> {
                         emit(
                             MainMiddleware.MainScreenMiddleware.OpenColorContainer(
@@ -104,12 +113,68 @@ class MainViewModel @Inject constructor(
                         )
                     }
 
-                    is MainIntent.MainScreenIntent.OpenNote -> emit(
-                        MainMiddleware.MainScreenMiddleware.ShowNoteBottomSheet(
-                            show = true,
-                            id = intent.id
+                    is MainIntent.MainScreenIntent.AccessNote -> {
+                        emit(
+                            MainMiddleware.MainScreenMiddleware.ShowNoteBottomSheet(
+                                show = true,
+                                id = intent.noteId
+                            )
                         )
-                    )
+                    }
+
+                    is MainIntent.MainScreenIntent.UnlockNote -> {
+                        viewState.value.main.notes.find { it.id == intent.noteId }?.let {
+                            if (it.locked) {
+                                notesManager.lockOrUnlockNote(it)
+                            }
+                        }
+                    }
+
+                    is MainIntent.MainScreenIntent.LockOrUnlockNote -> {
+                        if (viewState.value.settingsScreenState.hasPinCode) {
+                            viewState.value.main.notes.find { it.id == intent.noteId }?.let {
+                                if (!it.locked) {
+                                    notesManager.lockOrUnlockNote(it)
+                                } else {
+                                    emit(
+                                        CallPinCode(
+                                            purpose = MainViewState.PinCodeScreenState.PinCodePurpose.Unlock(
+                                                intent.noteId
+                                            )
+                                        )
+                                    )
+                                }
+                            }
+                        } else {
+                            emit(
+                                MainMiddleware.InfoDialog(
+                                    purpose = MainViewState.InfoDialogState.InfoDialogPurpose.NO_PIN,
+                                    show = true
+                                )
+                            )
+                        }
+                    }
+
+                    is MainIntent.MainScreenIntent.OpenNote -> {
+                        viewState.value.main.notes.find { it.id == intent.id }?.let {
+                            if (it.locked) {
+                                emit(
+                                    CallPinCode(
+                                        purpose = MainViewState.PinCodeScreenState.PinCodePurpose.Access(
+                                            id = intent.id
+                                        )
+                                    )
+                                )
+                            } else {
+                                emit(
+                                    MainMiddleware.MainScreenMiddleware.ShowNoteBottomSheet(
+                                        show = true,
+                                        id = intent.id
+                                    )
+                                )
+                            }
+                        }
+                    }
 
                     is MainIntent.MainScreenIntent.PinOrUnpin -> {
                         viewState.value.main.notes.find { it.id == intent.noteId }?.let {
@@ -148,7 +213,6 @@ class MainViewModel @Inject constructor(
                     }
 
                     is MainIntent.MainScreenIntent.Archive -> {
-                        VEVO("ping vm")
                         //TODO:
                         val noteId = viewState.value.main.selectedNote?.note?.id
                             ?: viewState.value.noteState.note?.id
@@ -336,6 +400,41 @@ class MainViewModel @Inject constructor(
                     MainMiddleware.Stub
                 }
 
+                is MainIntent.SettingsIntent.ShowPinCode -> MainMiddleware.Setting.ShowPinCode(
+                    show = it.show,
+                    purpose = it.purpose,
+                )
+
+                else -> MainMiddleware.Stub
+            }
+        }
+
+        val pinCodeFlow = filterIsInstance<MainIntent.PinCodeIntent>().map {
+            when (it) {
+                is MainIntent.PinCodeIntent.SavePinCode -> {
+                    pinCodeManager.setPinCode(it.pin)
+                    MainMiddleware.PinCode.HasPinCode(true)
+                }
+
+                is MainIntent.PinCodeIntent.DeletePinCode -> {
+                    pinCodeManager.setPinCode(STRING_EMPTY)
+                    notesManager.unlockAll()
+                    MainMiddleware.PinCode.HasPinCode(false)
+                }
+
+                is MainIntent.PinCodeIntent.ProtectedAccess -> {
+                    val correct = pinCodeManager.comparePinCode(it.pin)
+                    if (correct) {
+                        MainMiddleware.PinCode.SetAttempt(MainViewState.PinCodeScreenState.Attempt.SUCCESS)
+                    } else {
+                        MainMiddleware.PinCode.SetAttempt(MainViewState.PinCodeScreenState.Attempt.WRONG)
+                    }
+                }
+
+                is MainIntent.PinCodeIntent.DropAttempt -> {
+                    MainMiddleware.PinCode.SetAttempt(MainViewState.PinCodeScreenState.Attempt.ATTEMPT)
+                }
+
                 else -> MainMiddleware.Stub
             }
         }
@@ -349,7 +448,8 @@ class MainViewModel @Inject constructor(
             trashboxFlow,
             archiveFlow,
             settingsFlow,
-            themeFlow
+            themeFlow,
+            pinCodeFlow
         )
     }
 

@@ -17,6 +17,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.BlurredEdgeTreatment
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.boundsInRoot
@@ -32,7 +34,9 @@ import com.uladzimirv.notegram.domain.model.note.NoteId
 import com.uladzimirv.notegram.ui.elements.Gap
 import com.uladzimirv.notegram.ui.layout.main.com.ItemLayoutInfo
 import com.uladzimirv.notegram.ui.model.TextNoteUI
+import com.uladzimirv.notegram.ui.theme.AppTheme
 import com.uladzimirv.notegram.ui.theme.AppTheme.borderPrimary
+import com.uladzimirv.notegram.ui.theme.AppTheme.textPrimary
 import com.uladzimirv.notegram.ui.theme.NoteColorSchema
 import com.uladzimirv.notegram.util.ifNotEmpty
 
@@ -54,9 +58,7 @@ fun MainTextNoteGreedItem(
     val pos = remember {
         mutableStateOf(Rect.Zero)
     }
-
     val schema = NoteColorSchema.fromPref(note.colorPref)
-
     val density = LocalDensity.current.density
 
     Box(
@@ -96,7 +98,6 @@ fun MainTextNoteGreedItem(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null
             )
-
     ) {
         if (note.pinned) {
             Icon(
@@ -108,7 +109,9 @@ fun MainTextNoteGreedItem(
                     .align(Alignment.TopEnd)
             )
         }
-        Column {
+        Column(
+            modifier = Modifier
+        ) {
             note.title.ifNotEmpty {
                 Text(
                     text = it,
@@ -123,6 +126,13 @@ fun MainTextNoteGreedItem(
             }
             note.text.ifNotEmpty {
                 Text(
+                    modifier = Modifier.let {
+                        if (note.locked) it.blur(
+                            radius = 5.dp,
+                            edgeTreatment = BlurredEdgeTreatment.Unbounded
+                        )
+                        else it
+                    },
                     text = it,
                     color = schema.accent,
                     fontSize = 14.sp,
@@ -131,5 +141,9 @@ fun MainTextNoteGreedItem(
                 )
             }
         }
+        LockIcon(
+            show = note.locked,
+            color = schema.accent
+        )
     }
 }

@@ -19,7 +19,13 @@ sealed interface MainIntent : MviIntent {
         data class Archive(val noteId: NoteId?) : MainScreenIntent
         data object ConfirmDelete : MainScreenIntent
         data class PinOrUnpin(val noteId: NoteId) : MainScreenIntent
+
+        data class LockOrUnlockNote(val noteId: NoteId) : MainScreenIntent
+        data class UnlockNote(val noteId: NoteId) : MainScreenIntent
+        data class AccessNote(val noteId: NoteId) : MainScreenIntent
+
         data object CloseSheets : MainScreenIntent
+
         data class SelectNote(
             val noteId: NoteId,
             val itemLayoutInfo: ItemLayoutInfo
@@ -29,6 +35,7 @@ sealed interface MainIntent : MviIntent {
 
         data class OpenColorContainer(val open: Boolean) : MainScreenIntent
         data class OpenQRScanner(val open: Boolean) : MainScreenIntent
+        data object CloseInfoDialog : MainScreenIntent
     }
 
     interface EditNoteIntent : MainIntent {
@@ -78,12 +85,25 @@ sealed interface MainIntent : MviIntent {
 
         data object CloseSelectionMenu : ArchiveIntent
         data class Restore(val noteId: NoteId) : ArchiveIntent
-        data class RemoveFromArchive(val noteId: NoteId) : ArchiveIntent
     }
 
     interface SettingsIntent : MainIntent {
         data class ChangeTheme(
             val themePreference: PreferencesRepository.ThemePreference
         ) : SettingsIntent
+
+        data class ShowPinCode(
+            val show: Boolean,
+            val purpose: MainViewState.PinCodeScreenState.PinCodePurpose
+        ) : SettingsIntent
+
+
+    }
+
+    interface PinCodeIntent : MainIntent {
+        data class SavePinCode(val pin: String) : PinCodeIntent
+        data object DeletePinCode : PinCodeIntent
+        data class ProtectedAccess(val pin: String) : PinCodeIntent
+        data object DropAttempt : PinCodeIntent
     }
 }
