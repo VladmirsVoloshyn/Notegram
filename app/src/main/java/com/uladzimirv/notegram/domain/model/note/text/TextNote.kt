@@ -20,15 +20,17 @@ data class TextNote(
     override val pinned: Boolean,
     override val colorPref: ColorPref,
     override val status: NoteStatus,
+    override val locked: Boolean,
     val text: String,
-) : Note(id, createdAt, updatedAd, title, pinned, colorPref, status) {
+) : Note(id, createdAt, updatedAd, title, pinned, colorPref, status, locked) {
 
     override fun toUIModel(): NoteUI = TextNoteUI(
         id = id,
         text = text,
         title = title,
         pinned = pinned,
-        colorPref = colorPref
+        colorPref = colorPref,
+        locked = locked
     )
 
     override fun getType(): NoteType = NoteType.TEXT
@@ -42,7 +44,8 @@ data class TextNote(
             text = text,
             pinned = false,
             colorPref = ColorPref.COMMON,
-            status = NoteStatus.None()
+            status = NoteStatus.None(),
+            locked = false
         )
 
         fun TextNote.toEntity(): TextNoteEntity = TextNoteEntity(
@@ -54,6 +57,7 @@ data class TextNote(
             pinned = pinned,
             colorPref = colorPref.stringId,
             status = status.formal.status,
+            locked = locked,
             archivedAt = if (status is NoteStatus.Archived) status.archivedAt else 0,
             deletedAt = if (status is NoteStatus.Deleted) status.deletedAt else 0,
         )
@@ -66,6 +70,7 @@ data class TextNote(
             title = title,
             pinned = pinned,
             colorPref = colorPref.toColorNotePref(),
+            locked = locked,
             status = when (this.status) {
                 FormalStatus.ARCHIVED.status -> {
                     NoteStatus.Archived(this.archivedAt)

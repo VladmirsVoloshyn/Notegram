@@ -14,7 +14,8 @@ abstract class Note(
     open val title: String,
     open val pinned: Boolean,
     open val colorPref: ColorPref,
-    open val status: NoteStatus
+    open val status: NoteStatus,
+    open val locked: Boolean
 ) {
 
     abstract fun toUIModel(): NoteUI

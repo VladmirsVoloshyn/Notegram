@@ -32,6 +32,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.BlurredEdgeTreatment
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -41,6 +42,7 @@ import com.uladzimirv.notegram.R
 import com.uladzimirv.notegram.app_flow.main.contract.MainIntent
 import com.uladzimirv.notegram.app_flow.main.contract.MainViewState
 import com.uladzimirv.notegram.ui.elements.Gap
+import com.uladzimirv.notegram.ui.elements.info_dialog.InfoDialog
 import com.uladzimirv.notegram.ui.elements.item.MainTextNoteGreedItem
 import com.uladzimirv.notegram.ui.elements.item.MainTodoNoteGreedItem
 import com.uladzimirv.notegram.ui.elements.layer.AddNoteLayer
@@ -50,11 +52,13 @@ import com.uladzimirv.notegram.ui.elements.search_bar.TopSearchBar
 import com.uladzimirv.notegram.ui.elements.top_main_menu.TopMainMenu
 import com.uladzimirv.notegram.ui.layout.main.com.ItemLayoutInfo
 import com.uladzimirv.notegram.ui.layout.main.com.NoteType
+import com.uladzimirv.notegram.ui.layout.pin_code.PinCodeScreen
 import com.uladzimirv.notegram.ui.model.NoteUI
 import com.uladzimirv.notegram.ui.model.TextNoteUI
 import com.uladzimirv.notegram.ui.model.TodoNoteUI
 import com.uladzimirv.notegram.ui.theme.AppTheme.backgroundPrimary
 import com.uladzimirv.notegram.ui.theme.AppTheme.textSecondary
+import com.uladzimirv.notegram.util.VEVO
 import com.uladzimirv.notegram.util.vibration.tickVibrate
 import kotlinx.collections.immutable.ImmutableList
 
@@ -90,26 +94,28 @@ fun MainScreen(
                         || state.deleteState.note != null
                         || state.topMenuState.show
                     ) it.blur(
-                        4.dp,
+                        radius = 4.dp,
                         edgeTreatment = BlurredEdgeTreatment.Unbounded
                     )
                     else it
                 }
         ) {
-
-            Column(
-                modifier = Modifier
-            ) {
-                AnimatedVisibility(
-                    visible = isSearchBarVisible.value,
-                    enter = expandVertically(
-                        expandFrom = Alignment.Top,
-                        animationSpec = tween(durationMillis = 100)
-                    ),
-                    exit = shrinkVertically(
-                        shrinkTowards = Alignment.Top,
-                        animationSpec = tween(durationMillis = 100)
-                    )
+            val height = remember(listState.scrollIndicatorState?.scrollOffset) {
+                50 - ((listState.scrollIndicatorState?.scrollOffset ?: 0) / 2)
+            }
+            val alpha = remember(listState.scrollIndicatorState?.scrollOffset) {
+                val hundAlpha = 1f
+                val perc = (80f / 100f)
+                val percs = (listState.scrollIndicatorState?.scrollOffset ?: 0) / perc
+                val aPerc = 1f / 100
+                hundAlpha - (aPerc * percs)
+            }
+            Column {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(height.dp)
+                        .alpha(alpha)
                 ) {
                     TopSearchBar(
                         enabled = state.main.isSearchBarActive,
@@ -179,7 +185,25 @@ fun MainScreen(
                     )
                 }
             }
+
+            val infoDialogDecorator = remember(state.infoDialogState.purpose) {
+                when (state.infoDialogState.purpose) {
+                    MainViewState.InfoDialogState.InfoDialogPurpose.NO_PIN -> R.string.s_tip_no_pin_code to R.string.s_tip_no_pin_code_text
+                    MainViewState.InfoDialogState.InfoDialogPurpose.NONE -> R.string.s_tip_no_pin_code to R.string.s_tip_no_pin_code_text
+                }
+            }
+            InfoDialog(
+                modifier = Modifier.align(Alignment.BottomCenter),
+                infoTextResId = infoDialogDecorator.second,
+                titleResId = infoDialogDecorator.first,
+                show = state.infoDialogState.show,
+                bottomPadding = 200
+            ) {
+                intent(MainIntent.MainScreenIntent.CloseInfoDialog)
+            }
         }
+
+
 
         AnimatedVisibility(
             visible = !state.main.isSearchBarActive
@@ -230,8 +254,14 @@ fun MainScreen(
                     actionsContent = { destination ->
                         MainMenuItemActionColumn(
                             isLayerVisible = true,
+                            ableToLockInPlace = true,
                             pinned = state.main.selectedNote.note.pinned,
                             menuDestination = destination,
+                            locked = state.main.selectedNote.note.locked,
+                            lock = {
+                                intent(MainIntent.MainScreenIntent.LockOrUnlockNote(state.main.selectedNote.note.id))
+                                intent(MainIntent.MainScreenIntent.CloseSelectionMenu)
+                            },
                             delete = {
                                 intent(MainIntent.MainScreenIntent.Delete(state.main.selectedNote.note.id))
                                 intent(MainIntent.MainScreenIntent.CloseSelectionMenu)
@@ -240,7 +270,7 @@ fun MainScreen(
                                 intent(MainIntent.MainScreenIntent.PinOrUnpin(state.main.selectedNote.note.id))
                                 intent(MainIntent.MainScreenIntent.CloseSelectionMenu)
                             },
-                            shareText = state.main.selectedNote.note.shareText(),
+                            shareText = state.main.selectedNote.note.summary(),
                             archive = {
                                 intent(MainIntent.MainScreenIntent.Archive(state.main.selectedNote.note.id))
                                 intent(MainIntent.MainScreenIntent.CloseSelectionMenu)
@@ -267,6 +297,34 @@ fun MainScreen(
             openTrashbox = { intent(MainIntent.TopMenuIntent.OpenTrashbox(true)) },
             openArchive = { intent(MainIntent.TopMenuIntent.OpenArchive(true)) },
             openSettings = { intent(MainIntent.TopMenuIntent.OpenSettings(true)) }
+        )
+
+        PinCodeScreen(
+            state = state.pinCodeState,
+            send = { intent(MainIntent.PinCodeIntent.ProtectedAccess(it)) },
+            drop = { intent(MainIntent.PinCodeIntent.DropAttempt) },
+            show = state.pinCodeState.callPlace == MainViewState.PinCodeScreenState.PinCodeCallPlace.MAIN_UNLOCKER,
+            onUnlock = {
+                when (state.pinCodeState.purpose) {
+                    is MainViewState.PinCodeScreenState.PinCodePurpose.Unlock -> {
+                        intent(MainIntent.MainScreenIntent.UnlockNote(state.pinCodeState.purpose.id))
+                    }
+
+                    is MainViewState.PinCodeScreenState.PinCodePurpose.Access -> {
+                        intent(MainIntent.MainScreenIntent.AccessNote(state.pinCodeState.purpose.id))
+                    }
+
+                    else -> {}
+                }
+            },
+            onDismissRequest = {
+                intent(
+                    MainIntent.SettingsIntent.ShowPinCode(
+                        show = false,
+                        purpose = MainViewState.PinCodeScreenState.PinCodePurpose.Close
+                    )
+                )
+            }
         )
     }
 }

@@ -18,6 +18,8 @@
     <string name="s_share">Share</string>
     <string name="s_pin">Pin</string>
     <string name="s_unpin">Unpin</string>
+    <string name="s_lock">Lock</string>
+    <string name="s_unlock">Unlock</string>
 
     <!--text note -->
     <string name="s_title">Title</string>
@@ -53,11 +55,14 @@
     <!--archive -->
     <string name="s_delete_from_archive">Delete from archive</string>
     <string name="s_empty_archive">Archive is empty</string>
-    <string name="s_tip_trashbox_text">Notes in the Trash are kept for 10 days, after which they are permanently deleted. Please be careful.</string>
+
 
     <!--info tip -->
     <string name="s_tip_title">Tip</string>
     <string name="s_tip_archive_text">Notes in the archive are stored indefinitely. You can keep them here if you don\'t want to see them on the main screen.</string>
+    <string name="s_tip_no_pin_code">PIN code is missing.</string>
+    <string name="s_tip_no_pin_code_text">Go to settings and set a PIN code.</string>
+    <string name="s_tip_trashbox_text">Notes in the Trash are kept for 10 days, after which they are permanently deleted. Please be careful.</string>
 
     <!--palette -->
     <string name="s_build_config_version_name">Version : %s</string>
@@ -67,4 +72,18 @@
     <string name="s_settings_theme_light">Light</string>
     <string name="s_settings_theme_dark">Dark</string>
     <string name="s_settings_theme_system">System</string>
+    <string name="s_settings_privacy">Privacy</string>
+    <string name="s_settings_lock">Lock</string>
+    <string name="s_settings_unlock">Unlock</string>
+    <string name="s_settings_create_pin_code">Create pin code</string>
+    <string name="s_settings_change_pin_code">Change pin code</string>
+    <string name="s_settings_delete_pin_code">Delete pin code</string>
+
+    <!--pin -->
+    <string name="s_pin_code_create">Create a new pin</string>
+    <string name="s_pin_code_repeat">Repeat pin</string>
+    <string name="s_pin_code_enter">Enter pin</string>
+    <string name="s_pin_code_create_complete">Pin code successfully created</string>
+    <string name="s_pin_code_create_error">Error creating pin code</string>
+    <string name="s_pin_code_enter_error">Wrong pin code</string>
 </resources>

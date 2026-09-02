@@ -71,6 +71,43 @@ class NotesManager @Inject constructor(
         }
     }
 
+    fun lockOrUnlockNote(note: Note) {
+        when (note) {
+            is TextNote -> textNotesRepository.addNote(
+                note.copy(
+                    locked = !note.locked
+                )
+            )
+
+            is TodoListNote -> todoNoteRepository.addNote(
+                note.copy(
+                    locked = !note.locked
+                )
+            )
+        }
+    }
+
+    fun unlockAll() {
+        scope.launch {
+            val note = notes.firstOrNull().orEmpty()
+            note.forEach {
+                when (it) {
+                    is TextNote -> textNotesRepository.addNote(
+                        it.copy(
+                            locked = false
+                        )
+                    )
+
+                    is TodoListNote -> todoNoteRepository.addNote(
+                        it.copy(
+                            locked = false
+                        )
+                    )
+                }
+            }
+        }
+    }
+
     fun query(query: String = STRING_EMPTY) {
         filterQuery.value = query
     }

@@ -118,6 +118,7 @@ class MainActivity : ComponentActivity() {
             )
             SettingsScreen(
                 state = viewState.settingsScreenState,
+                pinState = viewState.pinCodeState,
                 intent = intent
             )
         }

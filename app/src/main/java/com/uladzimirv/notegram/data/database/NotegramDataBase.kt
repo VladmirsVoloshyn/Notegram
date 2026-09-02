@@ -14,7 +14,7 @@ import com.uladzimirv.notegram.data.database.entity.TodoNoteEntity
         TextNoteEntity::class,
         TodoNoteEntity::class
     ],
-    version = 3,
+    version = 4,
     exportSchema = false
 )
 @TypeConverters(ListTodoTypeConverter::class)

@@ -17,7 +17,8 @@ class TodoNoteEntity(
     val list: List<TodoListItem>,
     val status: String,
     val deletedAt: Long,
-    val archivedAt: Long
+    val archivedAt: Long,
+    val locked: Boolean
 )
 
 @Immutable

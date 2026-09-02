@@ -15,7 +15,10 @@ class PreferencesRepository @Inject constructor(
     private val app: Application
 ) {
 
-    val theme = PreferenceString(key = "theme", def = THEME_SYSTEM, store = getStore())
+    private val preferences = getStore()
+
+    val theme = PreferenceString(key = "theme", def = THEME_SYSTEM, store = preferences)
+    val pinCode = PreferenceString("pin", "", store = preferences)
 
     private fun getStore(): SharedPreferences = try {
         createEncryptedSharedPreferences()

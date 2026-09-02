@@ -1,10 +1,14 @@
 package com.uladzimirv.notegram.ui.elements.item
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
@@ -18,8 +22,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.BlurredEdgeTreatment
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
@@ -99,7 +106,6 @@ fun MainTodoNoteGreedItem(
                     indication = null
                 )
         }
-
     ) {
         if (note.pinned) {
             Icon(
@@ -125,24 +131,61 @@ fun MainTodoNoteGreedItem(
                 )
                 if (note.list.isNotEmpty()) Gap(10)
             }
-            val list = remember(note.list, note.selectedList) {
-                note.list + note.selectedList
-            }
-            repeat(if (list.size > 5) 5 else list.size) {
-                TodoListItemMainUI(
-                    text = list[it].text,
-                    selected = list[it].selected,
-                    schema = schema
-                )
-                Gap(6)
-            }
-            if (list.size > 5) {
-                Text(
-                    text = "...",
-                    fontSize = 14.sp
-                )
+            Column(
+                modifier = Modifier.let {
+                    if (note.locked) it.blur(
+                        radius = 5.dp,
+                        edgeTreatment = BlurredEdgeTreatment.Unbounded
+                    )
+                    else it
+                }
+            ) {
+                val list = remember(note.list, note.selectedList) {
+                    note.list + note.selectedList
+                }
+                repeat(if (list.size > 5) 5 else list.size) {
+                    TodoListItemMainUI(
+                        text = list[it].text,
+                        selected = list[it].selected,
+                        schema = schema
+                    )
+                    Gap(6)
+                }
+                if (list.size > 5) {
+                    Text(
+                        text = "...",
+                        fontSize = 14.sp
+                    )
+                }
             }
         }
+        LockIcon(
+            show = note.locked,
+            color = schema.accent
+        )
+    }
+}
+
+@Composable
+fun BoxScope.LockIcon(
+    show: Boolean,
+    color: Color
+) {
+    AnimatedVisibility(
+        visible = show,
+        modifier = Modifier
+            .align(Alignment.Center),
+        enter = fadeIn(),
+        exit = fadeOut()
+    ) {
+        Icon(
+            painter = painterResource(R.drawable.ic_lock),
+            modifier = Modifier
+                .align(Alignment.Center)
+                .size(48.dp),
+            tint = color,
+            contentDescription = null
+        )
     }
 }
 

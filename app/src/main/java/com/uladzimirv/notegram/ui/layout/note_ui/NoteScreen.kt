@@ -1,7 +1,6 @@
 package com.uladzimirv.notegram.ui.layout.note_ui
 
 import android.annotation.SuppressLint
-import android.view.View
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
@@ -67,7 +66,6 @@ import com.uladzimirv.notegram.ui.layout.main.com.MenuDestination
 import com.uladzimirv.notegram.ui.layout.main.com.NoteType
 import com.uladzimirv.notegram.ui.theme.NoteColorSchema
 import com.uladzimirv.notegram.util.STRING_EMPTY
-import com.uladzimirv.notegram.util.VEVO
 import com.uladzimirv.notegram.util.compsoe.clickableNoRipple
 import com.uladzimirv.notegram.util.vibration.tickVibrate
 import kotlinx.collections.immutable.ImmutableList
@@ -199,7 +197,7 @@ fun NoteScreen(
                 NoteTopMenu(
                     isLayerVisible = state.topMenuOpened,
                     pinned = state.note?.pinned == true,
-                    shareText = state.note?.toUIModel()?.shareText().orEmpty(),
+                    shareText = state.note?.toUIModel()?.summary().orEmpty(),
                     delete = {
                         state.note?.id?.let { intent(MainIntent.MainScreenIntent.Delete(it)) }
                         intent(MainIntent.EditNoteIntent.OpenNoteTopMenu(false))
@@ -218,8 +216,9 @@ fun NoteScreen(
                     closeMenu = {
                         intent(MainIntent.EditNoteIntent.OpenNoteTopMenu(false))
                     },
+                    locked = state.note?.locked == true,
+                    lock = {},
                     archive = {
-                        VEVO("ping")
                         intent(
                             MainIntent.MainScreenIntent.Archive(
                                 state.note?.id ?: STRING_EMPTY
@@ -251,6 +250,8 @@ fun NoteTopMenu(
     delete: () -> Unit,
     pin: () -> Unit,
     share: () -> Unit,
+    locked: Boolean,
+    lock: () -> Unit,
     archive: () -> Unit,
     closeMenu: () -> Unit
 ) {
@@ -271,7 +272,10 @@ fun NoteTopMenu(
             onShareClicked = share,
             shareText = shareText,
             pin = pin,
-            archive = archive
+            archive = archive,
+            lock = lock,
+            ableToLockInPlace = false,
+            locked = locked
         )
     }
 }

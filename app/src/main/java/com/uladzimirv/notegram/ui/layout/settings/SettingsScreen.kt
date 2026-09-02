@@ -20,7 +20,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -32,12 +31,11 @@ import com.uladzimirv.notegram.data.preferences.PreferencesRepository
 import com.uladzimirv.notegram.ui.elements.BaseBottomSheet
 import com.uladzimirv.notegram.ui.elements.Gap
 import com.uladzimirv.notegram.ui.elements.top_bar.SubScreenTopBar
-import com.uladzimirv.notegram.ui.theme.AppTheme
+import com.uladzimirv.notegram.ui.layout.pin_code.PinCodeScreen
 import com.uladzimirv.notegram.ui.theme.AppTheme.backgroundPrimary
+import com.uladzimirv.notegram.ui.theme.AppTheme.backgroundSecondary
 import com.uladzimirv.notegram.ui.theme.AppTheme.buttonPrimary
 import com.uladzimirv.notegram.ui.theme.AppTheme.textPrimary
-import com.uladzimirv.notegram.ui.theme.textPrimaryBlack
-import com.uladzimirv.notegram.util.VEVO
 import com.uladzimirv.notegram.util.compsoe.clickableNoRipple
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -48,13 +46,14 @@ import kotlin.time.Duration.Companion.milliseconds
 @Composable
 fun SettingsScreen(
     state: MainViewState.SettingsScreenState,
+    pinState: MainViewState.PinCodeScreenState,
     intent: (MainIntent) -> Unit
 ) {
     val sheetState: SheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true,
     )
     BaseBottomSheet(
-        backgroundColor = backgroundPrimary,
+        backgroundColor = backgroundSecondary,
         sheetState = sheetState,
         showBottomSheet = state.show,
         onDismissRequest = {
@@ -71,7 +70,7 @@ fun SettingsScreen(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(paddingValues)
-                        .background(backgroundPrimary)
+                        .background(backgroundSecondary)
                 ) {
                     Column(
                         modifier = Modifier
@@ -95,10 +94,101 @@ fun SettingsScreen(
                         ) {
                             intent(MainIntent.SettingsIntent.ChangeTheme(it))
                         }
+                        Gap(16)
+                        PrivacySection(
+                            hasPinCode = state.hasPinCode,
+                            deletePinCode = {
+                                intent(
+                                    MainIntent.SettingsIntent.ShowPinCode(
+                                        show = true,
+                                        purpose = MainViewState.PinCodeScreenState.PinCodePurpose.DeletePinCode
+                                    )
+                                )
+                            },
+                            createPin = {
+                                intent(
+                                    MainIntent.SettingsIntent.ShowPinCode(
+                                        show = true,
+                                        purpose = MainViewState.PinCodeScreenState.PinCodePurpose.CreateNew(
+                                            state.hasPinCode
+                                        )
+                                    )
+                                )
+                            }
+                        )
                     }
                 }
             }
         }
+
+        PinCodeScreen(
+            state = pinState,
+            show = pinState.callPlace == MainViewState.PinCodeScreenState.PinCodeCallPlace.SETTINGS,
+            saveNew = { intent(MainIntent.PinCodeIntent.SavePinCode(it)) },
+            send = { intent(MainIntent.PinCodeIntent.ProtectedAccess(it)) },
+            drop = { intent(MainIntent.PinCodeIntent.DropAttempt) },
+            onUnlock = {
+                when (pinState.purpose) {
+                    is MainViewState.PinCodeScreenState.PinCodePurpose.CreateNew -> {
+                        intent(
+                            MainIntent.SettingsIntent.ShowPinCode(
+                                show = true,
+                                purpose = MainViewState.PinCodeScreenState.PinCodePurpose.CreateNew(
+                                    state.hasPinCode
+                                )
+                            )
+                        )
+                    }
+
+                    MainViewState.PinCodeScreenState.PinCodePurpose.DeletePinCode -> {
+                        intent(MainIntent.PinCodeIntent.DeletePinCode)
+                    }
+
+                    else -> {}
+                }
+            },
+            onDismissRequest = {
+                intent(
+                    MainIntent.SettingsIntent.ShowPinCode(
+                        show = false,
+                        purpose = MainViewState.PinCodeScreenState.PinCodePurpose.Close
+                    )
+                )
+            }
+        )
+    }
+}
+
+@Composable
+fun PrivacySection(
+    hasPinCode: Boolean,
+    createPin: () -> Unit,
+    deletePinCode: () -> Unit
+) {
+    Column {
+        SettingItem(
+            iconResId = R.drawable.ic_privacy,
+            titleResId = R.string.s_settings_privacy
+        ) {}
+        Gap(12)
+        Column(
+            modifier = Modifier.padding(horizontal = 16.dp)
+        ) {
+            if (!hasPinCode) {
+                SettingItem(
+                    iconResId = R.drawable.ic_lock,
+                    titleResId = R.string.s_settings_create_pin_code,
+                    onClick = createPin
+                )
+            } else {
+                SettingItem(
+                    iconResId = R.drawable.ic_unlock,
+                    titleResId = R.string.s_settings_delete_pin_code,
+                    onClick = deletePinCode
+                )
+            }
+        }
+
     }
 }
 
@@ -107,24 +197,11 @@ fun AppThemeSelector(
     theme: PreferencesRepository.ThemePreference,
     setTheme: (PreferencesRepository.ThemePreference) -> Unit
 ) {
-    Column() {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                painter = painterResource(R.drawable.ic_theme_palette),
-                contentDescription = null,
-                tint = buttonPrimary,
-                modifier = Modifier.size(18.dp)
-            )
-            Gap(6)
-            Text(
-                text = stringResource(R.string.s_settings_theme),
-                fontSize = 18.sp,
-                color = textPrimary
-            )
-        }
+    Column {
+        SettingItem(
+            iconResId = R.drawable.ic_theme_palette,
+            titleResId = R.string.s_settings_theme
+        ) {}
         Gap(18)
         Column() {
             SelectorRow(
@@ -149,6 +226,35 @@ fun AppThemeSelector(
                 setTheme(PreferencesRepository.ThemePreference.SYSTEM)
             }
         }
+    }
+}
+
+@Composable
+fun SettingItem(
+    iconResId: Int,
+    titleResId: Int,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickableNoRipple(
+                onClick = onClick
+            ),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            painter = painterResource(iconResId),
+            contentDescription = null,
+            tint = buttonPrimary,
+            modifier = Modifier.size(18.dp)
+        )
+        Gap(6)
+        Text(
+            text = stringResource(titleResId),
+            fontSize = 18.sp,
+            color = textPrimary
+        )
     }
 }
 

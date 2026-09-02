@@ -3,6 +3,7 @@ package com.uladzimirv.notegram.app_flow.main.contract
 import com.uladzimirv.notegram.core.mvi.MviViewState
 import com.uladzimirv.notegram.data.preferences.PreferencesRepository
 import com.uladzimirv.notegram.domain.model.note.Note
+import com.uladzimirv.notegram.domain.model.note.NoteId
 import com.uladzimirv.notegram.domain.model.note.text.TextNote
 import com.uladzimirv.notegram.ui.layout.main.com.ItemLayoutInfo
 import com.uladzimirv.notegram.ui.model.NoteUI
@@ -19,7 +20,9 @@ data class MainViewState(
     val topMenuState: TopMenuState = TopMenuState(),
     val trashBoxState: TrashBoxState = TrashBoxState(),
     val archiveState: ArchiveScreenState = ArchiveScreenState(),
-    val settingsScreenState: SettingsScreenState = SettingsScreenState()
+    val settingsScreenState: SettingsScreenState = SettingsScreenState(),
+    val pinCodeState: PinCodeScreenState = PinCodeScreenState(),
+    val infoDialogState: InfoDialogState = InfoDialogState()
 ) : MviViewState {
 
     data class MainScreenSubstate(
@@ -66,16 +69,58 @@ data class MainViewState(
 
     data class SettingsScreenState(
         val show: Boolean = false,
-        val theme: PreferencesRepository.ThemePreference = PreferencesRepository.ThemePreference.SYSTEM
+        val theme: PreferencesRepository.ThemePreference = PreferencesRepository.ThemePreference.SYSTEM,
+        val hasPinCode: Boolean = false
     )
 
+    data class PinCodeScreenState(
+        val callPlace: PinCodeCallPlace = PinCodeCallPlace.NONE,
+        val attempt: Attempt = Attempt.ATTEMPT,
+        val purpose: PinCodePurpose = PinCodePurpose.CreateNew(false)
+    ) {
+
+        enum class PinCodeCallPlace {
+            SETTINGS,
+            MAIN_UNLOCKER,
+            NONE
+        }
+
+        enum class Attempt {
+            ATTEMPT,
+            WRONG,
+            SUCCESS
+        }
+
+        sealed class PinCodePurpose {
+            data class CreateNew(val hasPinCode: Boolean) : PinCodePurpose()
+            data object DeletePinCode : PinCodePurpose()
+            data class Unlock(val id: NoteId) : PinCodePurpose()
+            data class Access(val id: NoteId) : PinCodePurpose()
+            data object Close : PinCodePurpose()
+        }
+
+    }
+
+    data class InfoDialogState(
+        val purpose: InfoDialogPurpose = InfoDialogPurpose.NONE,
+        val show: Boolean = false
+    ) {
+        enum class InfoDialogPurpose {
+            NO_PIN,
+            NONE
+        }
+    }
+
     companion object {
-        fun initial(textNotes: List<TextNote>): MainViewState {
+        fun initial(textNotes: List<TextNote>, hasPinCode: Boolean): MainViewState {
             val list = mutableListOf<Note>()
             list.addAll(textNotes)
             return MainViewState(
                 main = MainScreenSubstate(
                     notes = list.toPersistentList()
+                ),
+                settingsScreenState = SettingsScreenState(
+                    hasPinCode = hasPinCode
                 )
             )
         }

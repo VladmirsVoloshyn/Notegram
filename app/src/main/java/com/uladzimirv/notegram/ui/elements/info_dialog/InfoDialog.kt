@@ -31,7 +31,9 @@ import com.uladzimirv.notegram.util.compsoe.clickableNoRipple
 fun InfoDialog(
     modifier: Modifier = Modifier,
     infoTextResId: Int,
+    titleResId : Int = R.string.s_tip_title,
     show: Boolean,
+    bottomPadding : Int = 70,
     close: () -> Unit
 ) {
     AnimatedVisibility(
@@ -44,28 +46,28 @@ fun InfoDialog(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp)
-                .padding(bottom = 70.dp)
+                .padding(bottom = bottomPadding.dp)
                 .background(buttonPrimary, shape = RoundedCornerShape(12.dp))
 
         ) {
             Column(
                 modifier
                     .fillMaxWidth()
+                    .clickableNoRipple(onClick = close)
                     .padding(8.dp)
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = stringResource(R.string.s_tip_title),
+                        text = stringResource(titleResId),
                         color = buttonSecondary,
                         fontSize = 16.sp
                     )
                     Anchor()
                     Icon(
                         modifier = Modifier
-                            .size(18.dp)
-                            .clickableNoRipple(onClick = close),
+                            .size(18.dp),
                         painter = painterResource(R.drawable.ic_cross),
                         contentDescription = null,
                         tint = buttonSecondary

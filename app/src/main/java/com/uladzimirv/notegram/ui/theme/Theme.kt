@@ -155,5 +155,8 @@ val cyan = Color(0xFF61D2D2)
 val blackCyan = Color(0xFF000000)
 val blackCyanDim = Color(0xFF818181)
 
+val completeGreen = Color(0xFF87D97F)
+val errorRed = Color(0xFFDE5757)
+
 
 

@@ -108,9 +108,12 @@ fun GreedItemMenuLayer(
 fun MainMenuItemActionColumn(
     modifier: Modifier = Modifier,
     isLayerVisible: Boolean,
+    ableToLockInPlace: Boolean,
     pinned: Boolean,
     menuDestination: MenuDestination,
     shareText: String,
+    locked: Boolean,
+    lock: () -> Unit,
     onShareClicked: () -> Unit = {},
     archive: () -> Unit,
     delete: () -> Unit,
@@ -128,6 +131,19 @@ fun MainMenuItemActionColumn(
         modifier = modifier,
         horizontalAlignment = alignment
     ) {
+        if (ableToLockInPlace) {
+            val lockValuesPair = remember {
+                if (locked) R.drawable.ic_unlock to R.string.s_unlock
+                else R.drawable.ic_lock to R.string.s_lock
+            }
+            AddItem(
+                iconResId = lockValuesPair.first,
+                titleResId = lockValuesPair.second,
+                isVisible = isLayerVisible,
+                onClick = lock
+            )
+            Gap(6)
+        }
         AddItem(
             iconResId = R.drawable.ic_archive,
             titleResId = R.string.s_main_menu_archive,
@@ -161,13 +177,13 @@ fun MainMenuItemActionColumn(
             }
         }
         Gap(6)
-        val valuesPair = remember {
+        val pinValuesPair = remember {
             if (pinned) R.drawable.ic_pin_filled to R.string.s_unpin
             else R.drawable.ic_pin_unfilled to R.string.s_pin
         }
         AddItem(
-            iconResId = valuesPair.first,
-            titleResId = valuesPair.second,
+            iconResId = pinValuesPair.first,
+            titleResId = pinValuesPair.second,
             isVisible = isLayerVisible,
             onClick = pin
         )
