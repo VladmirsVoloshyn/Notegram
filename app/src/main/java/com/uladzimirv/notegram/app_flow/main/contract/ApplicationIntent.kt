@@ -33,8 +33,6 @@ sealed interface ApplicationIntent : MviIntent {
         ) : MainScreenIntent
 
         data object CloseSelectionMenu : MainScreenIntent
-
-        data class OpenColorContainer(val open: Boolean) : MainScreenIntent
         data class OpenQRScanner(val open: Boolean) : MainScreenIntent
         data object CloseInfoDialog : MainScreenIntent
     }
@@ -47,6 +45,7 @@ sealed interface ApplicationIntent : MviIntent {
         data class OpenNoteTopMenu(val open: Boolean) : EditNoteIntent
         data class Title(val title: String) : EditNoteIntent
         data class Text(val text: String) : EditNoteIntent
+        data class ShowChangeColorMenu(val show: Boolean) : EditNoteIntent
         data class ChangeColor(val color: ColorPref) : EditNoteIntent
         data class EditTodo(val text: String, val todoIdemId: String? = null) : EditNoteIntent
         data class DeleteTodoItem(val id: String) : EditNoteIntent

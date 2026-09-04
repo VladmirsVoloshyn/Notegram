@@ -123,8 +123,8 @@ fun LabelEditBottomSheet(
                 ) {
                     LazyVerticalGrid(
                         columns = GridCells.Fixed(4),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         items(
                             items = LabelColorSchema.schemasList,
@@ -214,7 +214,7 @@ fun ColorGridItem(
         modifier = Modifier
             .background(color = labelColorSchema.background, shape = CircleShape)
             .border(width = 1.dp, color = labelColorSchema.accent, shape = CircleShape)
-            .size(48.dp)
+            .size(56.dp)
             .clickableNoRipple(onClick = select)
     ) {
         if (selected) {
@@ -225,6 +225,14 @@ fun ColorGridItem(
                 painter = painterResource(R.drawable.ic_selector),
                 contentDescription = null,
                 tint = labelColorSchema.accent
+            )
+        } else {
+            Text(
+                text = "Aa",
+                fontSize = 24.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = labelColorSchema.textColor,
+                modifier = Modifier.align(Alignment.Center)
             )
         }
     }

@@ -31,6 +31,7 @@ import com.uladzimirv.notegram.ui.elements.Gap
 import com.uladzimirv.notegram.ui.elements.empty_screen_state.EmptyScreenMessage
 import com.uladzimirv.notegram.ui.elements.layer.Layer
 import com.uladzimirv.notegram.ui.elements.text.HeaderText
+import com.uladzimirv.notegram.ui.elements.top_bar.BottomSheetSecondaryTopBar
 import com.uladzimirv.notegram.ui.elements.top_bar.SubScreenTopBar
 import com.uladzimirv.notegram.ui.layout.labels.LabelGridItem
 import com.uladzimirv.notegram.ui.model.LabelUI
@@ -70,30 +71,16 @@ fun AddLabelBottomSheet(
                 .padding(vertical = 24.dp)
                 .padding(horizontal = 16.dp)
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+            val scope = rememberCoroutineScope()
+            BottomSheetSecondaryTopBar(
+                titleResId = R.string.s_add_label,
             ) {
-                HeaderText(
-                    text = R.string.s_add_label,
-                )
-                val scope = rememberCoroutineScope()
-                Icon(
-                    modifier = Modifier
-                        .clickableNoRipple {
-                            scope.launch {
-                                sheetState.hide()
-                                delay(100.milliseconds)
-                                dismiss()
-                            }
-                        }
-                        .size(24.dp),
-                    tint = buttonPrimary,
-                    painter = painterResource(R.drawable.ic_cross),
-                    contentDescription = null
-                )
+                scope.launch {
+                    sheetState.hide()
+                    delay(100.milliseconds)
+                    dismiss()
+                }
             }
-
             Gap(16)
             if (labels.isNotEmpty()) {
                 LazyVerticalGrid(

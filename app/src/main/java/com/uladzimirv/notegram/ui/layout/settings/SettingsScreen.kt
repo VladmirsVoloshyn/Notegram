@@ -32,6 +32,7 @@ import com.uladzimirv.notegram.ui.elements.AppBottomSheet
 import com.uladzimirv.notegram.ui.elements.Gap
 import com.uladzimirv.notegram.ui.elements.top_bar.SubScreenTopBar
 import com.uladzimirv.notegram.ui.layout.pin_code.PinCodeScreen
+import com.uladzimirv.notegram.ui.theme.AppTheme.backgroundPrimary
 import com.uladzimirv.notegram.ui.theme.AppTheme.backgroundSecondary
 import com.uladzimirv.notegram.ui.theme.AppTheme.buttonPrimary
 import com.uladzimirv.notegram.ui.theme.AppTheme.textPrimary
@@ -52,7 +53,7 @@ fun SettingsScreen(
         skipPartiallyExpanded = true,
     )
     AppBottomSheet(
-        backgroundColor = backgroundSecondary,
+        backgroundColor = backgroundPrimary,
         sheetState = sheetState,
         showBottomSheet = state.show,
         onDismissRequest = {
@@ -69,7 +70,7 @@ fun SettingsScreen(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(paddingValues)
-                        .background(backgroundSecondary)
+                        .background(backgroundPrimary)
                 ) {
                     Column(
                         modifier = Modifier

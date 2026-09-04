@@ -5,6 +5,30 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import com.uladzimirv.notegram.ui.layout.main.com.ColorPref
+import com.uladzimirv.notegram.ui.layout.main.com.NoteSchema
+import com.uladzimirv.notegram.ui.layout.main.com.NoteSchema.black
+import com.uladzimirv.notegram.ui.layout.main.com.NoteSchema.blackAcid
+import com.uladzimirv.notegram.ui.layout.main.com.NoteSchema.blackAcidDim
+import com.uladzimirv.notegram.ui.layout.main.com.NoteSchema.blackCyan
+import com.uladzimirv.notegram.ui.layout.main.com.NoteSchema.cyan
+import com.uladzimirv.notegram.ui.layout.main.com.NoteSchema.glow
+import com.uladzimirv.notegram.ui.layout.main.com.NoteSchema.glowBlue
+import com.uladzimirv.notegram.ui.layout.main.com.NoteSchema.glowBlueDim
+import com.uladzimirv.notegram.ui.layout.main.com.NoteSchema.green
+import com.uladzimirv.notegram.ui.layout.main.com.NoteSchema.greenOrange
+import com.uladzimirv.notegram.ui.layout.main.com.NoteSchema.greenOrangeDim
+import com.uladzimirv.notegram.ui.layout.main.com.NoteSchema.orange
+import com.uladzimirv.notegram.ui.layout.main.com.NoteSchema.orangeGray
+import com.uladzimirv.notegram.ui.layout.main.com.NoteSchema.orangeGrayDim
+import com.uladzimirv.notegram.ui.layout.main.com.NoteSchema.pink
+import com.uladzimirv.notegram.ui.layout.main.com.NoteSchema.pinkGray
+import com.uladzimirv.notegram.ui.layout.main.com.NoteSchema.pinkGrayDim
+import com.uladzimirv.notegram.ui.layout.main.com.NoteSchema.red
+import com.uladzimirv.notegram.ui.layout.main.com.NoteSchema.redYellow
+import com.uladzimirv.notegram.ui.layout.main.com.NoteSchema.redYellowDim
+import com.uladzimirv.notegram.ui.layout.main.com.NoteSchema.yellow
+import com.uladzimirv.notegram.ui.layout.main.com.NoteSchema.yellowBrown
+import com.uladzimirv.notegram.ui.layout.main.com.NoteSchema.yellowBrownDim
 import com.uladzimirv.notegram.ui.theme.AppTheme.backgroundSecondary
 import com.uladzimirv.notegram.ui.theme.AppTheme.textPrimary
 import com.uladzimirv.notegram.ui.theme.AppTheme.textSecondary
@@ -39,7 +63,7 @@ class NoteColorSchema private constructor(
                     ColorPref.CYAN -> NoteColorSchema(
                         background = cyan,
                         accent = blackCyan,
-                        dim = blackCyanDim
+                        dim = NoteSchema.blackCyanDim
                     )
 
                     ColorPref.RED -> NoteColorSchema(
@@ -60,16 +84,22 @@ class NoteColorSchema private constructor(
                         dim = yellowBrownDim
                     )
 
-                    ColorPref.BLACK -> NoteColorSchema(
-                        background = black,
-                        accent = blackAcid,
-                        dim = blackAcidDim
-                    )
+//                    ColorPref.BLACK -> NoteColorSchema(
+//                        background = black,
+//                        accent = blackAcid,
+//                        dim = blackAcidDim
+//                    )
 
                     ColorPref.GLOW -> NoteColorSchema(
                         background = glow,
                         accent = glowBlue,
                         dim = glowBlueDim
+                    )
+
+                    ColorPref.GREEN -> NoteColorSchema(
+                        background = green,
+                        accent = greenOrange,
+                        dim = greenOrangeDim
                     )
 
                     else -> NoteColorSchema(

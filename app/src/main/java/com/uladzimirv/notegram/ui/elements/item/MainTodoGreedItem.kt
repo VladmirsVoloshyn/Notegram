@@ -157,12 +157,14 @@ fun MainTodoNoteGreedItem(
                         selected = list[it].selected,
                         schema = schema
                     )
-                    Gap(6)
+                    if (it != 9) Gap(8)
                 }
                 if (list.size > 5) {
                     Text(
                         text = "...",
-                        fontSize = 14.sp
+                        color = schema.accent,
+                        fontSize = 16.sp,
+                        modifier = Modifier.padding(start = 8.dp)
                     )
                 }
             }

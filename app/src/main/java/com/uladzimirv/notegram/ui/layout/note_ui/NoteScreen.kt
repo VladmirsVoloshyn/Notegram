@@ -1,44 +1,34 @@
 package com.uladzimirv.notegram.ui.layout.note_ui
 
 import android.annotation.SuppressLint
-import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.BlurredEdgeTreatment
-import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalConfiguration
@@ -46,11 +36,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -62,31 +54,24 @@ import com.uladzimirv.notegram.domain.model.label.LabelId
 import com.uladzimirv.notegram.domain.model.note.text.TextNote
 import com.uladzimirv.notegram.domain.model.note.todo.TodoListNote
 import com.uladzimirv.notegram.ui.elements.Anchor
-import com.uladzimirv.notegram.ui.elements.AppBottomSheet
 import com.uladzimirv.notegram.ui.elements.Gap
-import com.uladzimirv.notegram.ui.elements.bottom_bar.NoteBottomBar
 import com.uladzimirv.notegram.ui.elements.layer.MainMenuItemActionColumn
-import com.uladzimirv.notegram.ui.elements.top_bar.NoteTopBar
-import com.uladzimirv.notegram.ui.layout.main.DeleteConfirmationDialog
-import com.uladzimirv.notegram.ui.layout.main.com.ColorPref
 import com.uladzimirv.notegram.ui.layout.main.com.MenuDestination
-import com.uladzimirv.notegram.ui.layout.main.com.NoteType
-import com.uladzimirv.notegram.ui.layout.note_ui.add_label.AddLabelBottomSheet
-import com.uladzimirv.notegram.ui.layout.note_ui.label.LabelInfoLayer
 import com.uladzimirv.notegram.ui.model.LabelUI
 import com.uladzimirv.notegram.ui.theme.LabelColorSchema
 import com.uladzimirv.notegram.ui.theme.NoteColorSchema
 import com.uladzimirv.notegram.util.STRING_EMPTY
+import com.uladzimirv.notegram.util.VEVO
+import com.uladzimirv.notegram.util.compsoe.ScrollbarConfig
 import com.uladzimirv.notegram.util.compsoe.clickableNoRipple
+import com.uladzimirv.notegram.util.compsoe.verticalScrollWithScrollbar
 import com.uladzimirv.notegram.util.vibration.tickVibrate
 import kotlinx.collections.immutable.ImmutableList
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import org.burnoutcrew.reorderable.ReorderableItem
 import org.burnoutcrew.reorderable.detectReorderAfterLongPress
 import org.burnoutcrew.reorderable.rememberReorderableLazyListState
 import org.burnoutcrew.reorderable.reorderable
-import kotlin.time.Duration.Companion.milliseconds
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -95,234 +80,40 @@ fun NoteScreen(
     deleteState: ApplicationViewState.DeleteState,
     intent: (ApplicationIntent) -> Unit
 ) {
-    val colorSchema = NoteColorSchema.fromPref(state.note?.colorPref)
-    val sheetState: SheetState = rememberModalBottomSheetState(
-        skipPartiallyExpanded = true,
-    )
-    val context = LocalContext.current
-    AppBottomSheet(
-        sheetState = sheetState,
-        showBottomSheet = state.show,
-        backgroundColor = colorSchema.background,
-        onDismissRequest = {
-            intent(ApplicationIntent.MainScreenIntent.CloseSheets)
-            intent(ApplicationIntent.EditNoteIntent.OpenNoteTopMenu(false))
-            intent(ApplicationIntent.EditNoteIntent.SelectLabel(STRING_EMPTY))
-        },
-        sheetGesturesEnabled = false
-    ) {
-        Scaffold { paddingValues ->
-            Box(
-                modifier = Modifier.padding(top = paddingValues.calculateTopPadding())
-            ) {
-                val scroll = rememberScrollState()
-                Column(
-                    modifier = Modifier
-                        .background(colorSchema.background)
-                        .padding(horizontal = 16.dp, vertical = 12.dp)
-                        .fillMaxSize()
-                        .let {
-                            if (state.topMenuOpened
-                                || deleteState.note != null
-                                || state.selectedLabel != null
-                            ) it.blur(
-                                radius = 6.dp,
-                                edgeTreatment = BlurredEdgeTreatment.Unbounded
-                            ) else it
-                        }
-                        .verticalScroll(
-                            state = scroll,
-                            enabled = true
-                        )
-                ) {
-                    val scope = rememberCoroutineScope()
-                    NoteTopBar(
-                        back = {
-                            scope.launch {
-                                sheetState.hide()
-                                delay(100.milliseconds)
-                                intent(ApplicationIntent.MainScreenIntent.CloseSheets)
-                                intent(ApplicationIntent.EditNoteIntent.SelectLabel(STRING_EMPTY))
-                            }
-                        },
-                        colorSchema = colorSchema,
-                        onClick = {
-                            intent(ApplicationIntent.EditNoteIntent.OpenNoteTopMenu(true))
-                        }
-                    )
-                    Gap(10)
-                    Box(
-                        modifier = Modifier
-                            .wrapContentHeight()
-                            .animateContentSize()
-                            .fillMaxWidth()
-                    ) {
-                        LazyRow(
-                            modifier = Modifier
-                                .fillMaxWidth(),
-                            state = rememberLazyListState()
-                        ) {
-                            items(
-                                items = state.note?.labels?.toList().orEmpty()
-                            ) {
-                                NoteLabel(
-                                    modifier = Modifier,
-                                    labelUI = it.toUIModel()
-                                ) {
-                                    intent(ApplicationIntent.EditNoteIntent.SelectLabel(it))
-                                    context.tickVibrate()
-                                }
-                            }
-                        }
-                    }
-                    Gap(10)
-                    TitleEdit(
-                        title = state.note?.title.orEmpty(),
-                        colorSchema = colorSchema
-                    ) {
-                        intent(ApplicationIntent.EditNoteIntent.Title(it))
-                    }
-                    Gap(24)
-                    when (state.note) {
-                        is TextNote -> {
-                            TextEdit(
-                                text = state.note.text,
-                                colorSchema = colorSchema
-                            ) {
-                                intent(ApplicationIntent.EditNoteIntent.Text(it))
-                            }
-                        }
-
-                        is TodoListNote -> {
-                            TodoEdit(
-                                modifier = Modifier.weight(1f),
-                                list = state.note.todoList,
-                                delete = { intent(ApplicationIntent.EditNoteIntent.DeleteTodoItem(it)) },
-                                checkClick = {
-                                    intent(
-                                        ApplicationIntent.EditNoteIntent.CheckTodoItem(
-                                            it
-                                        )
-                                    )
-                                },
-                                selectedList = state.note.selectedTodoList,
-                                colorSchema = colorSchema,
-                                reorder = { id, from, to ->
-                                    intent(
-                                        ApplicationIntent.EditNoteIntent.Reorder(
-                                            id = id,
-                                            from = from,
-                                            to = to
-                                        )
-                                    )
-                                }
-                            ) { text, id ->
-                                intent(ApplicationIntent.EditNoteIntent.EditTodo(text, id))
-                            }
-                        }
-                    }
-                    Gap(100)
-                }
-
-                NoteBottomBar(
-                    modifier = Modifier.align(Alignment.BottomCenter).let {
-                        if (state.topMenuOpened
-                            || deleteState.note != null
-                            || state.selectedLabel != null
-                        ) it.blur(
-                            radius = 6.dp,
-                            edgeTreatment = BlurredEdgeTreatment.Unbounded
-                        ) else it
-                    },
-                    pin = {
-                        intent(
-                            ApplicationIntent.MainScreenIntent.PinOrUnpin(
-                                state.note?.id ?: STRING_EMPTY
-                            )
-                        )
-                    },
-                    palette = {
-                        intent(ApplicationIntent.MainScreenIntent.OpenColorContainer(it))
-                    },
-                    showLabels = {
-                        intent(ApplicationIntent.EditNoteIntent.ShowAddLabelMenu(true))
-                    },
-                    pinned = state.note?.pinned == true,
-                    colorMenuOpened = state.colorMenuOpened,
-                    changeColor = { intent(ApplicationIntent.EditNoteIntent.ChangeColor(it)) },
-                    selected = state.note?.colorPref ?: ColorPref.COMMON,
-                    colorSchema = colorSchema
-                )
-
-                NoteTopMenu(
-                    isLayerVisible = state.topMenuOpened,
-                    pinned = state.note?.pinned == true,
-                    shareText = state.note?.toUIModel()?.summary().orEmpty(),
-                    delete = {
-                        state.note?.id?.let { intent(ApplicationIntent.MainScreenIntent.Delete(it)) }
-                        intent(ApplicationIntent.EditNoteIntent.OpenNoteTopMenu(false))
-                    },
-                    pin = {
-                        intent(
-                            ApplicationIntent.MainScreenIntent.PinOrUnpin(
-                                state.note?.id ?: STRING_EMPTY
-                            )
-                        )
-                        intent(ApplicationIntent.EditNoteIntent.OpenNoteTopMenu(false))
-                    },
-                    share = {
-                        intent(ApplicationIntent.EditNoteIntent.OpenNoteTopMenu(false))
-                    },
-                    closeMenu = {
-                        intent(ApplicationIntent.EditNoteIntent.OpenNoteTopMenu(false))
-                    },
-                    locked = state.note?.locked == true,
-                    lock = {},
-                    archive = {
-                        intent(
-                            ApplicationIntent.MainScreenIntent.Archive(
-                                state.note?.id ?: STRING_EMPTY
-                            )
-                        )
-                        intent(ApplicationIntent.EditNoteIntent.OpenNoteTopMenu(false))
-                        intent(ApplicationIntent.MainScreenIntent.CloseSheets)
-                    }
-                )
-
-                DeleteConfirmationDialog(
-                    show = deleteState.note != null,
-                    noteTitle = deleteState.note?.title.orEmpty(),
-                    type = deleteState.note?.getType() ?: NoteType.TEXT,
-                    cancel = { intent(ApplicationIntent.MainScreenIntent.Delete(null)) },
-                    confirm = { intent(ApplicationIntent.MainScreenIntent.ConfirmDelete) },
-                    isTotalDelete = false
-                )
-
-                LabelInfoLayer(
-                    label = state.selectedLabel,
-                    closeLayer = { intent(ApplicationIntent.EditNoteIntent.SelectLabel(STRING_EMPTY)) }
-                ) {
-                    intent(ApplicationIntent.EditNoteIntent.RemoveLabel(it))
-                    intent(ApplicationIntent.EditNoteIntent.SelectLabel(STRING_EMPTY))
-                }
-            }
+    when (state.note) {
+        is TodoListNote -> {
+            TodoNoteScreen(
+                colorMenuOpened = state.colorMenuOpened,
+                topMenuOpened = state.topMenuOpened,
+                selectedLabel = state.selectedLabel,
+                showAddLabelSheet = state.showAddLabelSheet,
+                unaddedLabels = state.unaddedLabels,
+                show = state.show,
+                note = state.note,
+                shouldBlur = state.topMenuOpened
+                        || deleteState.note != null
+                        || state.selectedLabel != null,
+                deleteState = deleteState,
+                intent = intent
+            )
         }
-        AddLabelBottomSheet(
-            show = state.showAddLabelSheet,
-            labels = state.unaddedLabels,
-            addLabel = { labelId ->
-                state.note?.id?.let {
-                    intent(
-                        ApplicationIntent.EditNoteIntent.AddLabel(
-                            labelId = labelId
-                        )
-                    )
-                }
-            },
-            dismiss = {
-                intent(ApplicationIntent.EditNoteIntent.ShowAddLabelMenu(false))
-            }
-        )
+
+        is TextNote -> {
+            TextNoteScreen(
+                colorMenuOpened = state.colorMenuOpened,
+                topMenuOpened = state.topMenuOpened,
+                selectedLabel = state.selectedLabel,
+                showAddLabelSheet = state.showAddLabelSheet,
+                unaddedLabels = state.unaddedLabels,
+                show = state.show,
+                note = state.note,
+                shouldBlur = state.topMenuOpened
+                        || deleteState.note != null
+                        || state.selectedLabel != null,
+                deleteState = deleteState,
+                intent = intent
+            )
+        }
     }
 }
 
@@ -423,17 +214,22 @@ fun TextEdit(
 ) {
     val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
+
     BasicTextField(
         value = text,
         onValueChange = { tfv ->
-            onChange(tfv)
+            onChange(text)
         },
         textStyle = TextStyle(
             fontSize = 16.sp,
             color = colorSchema.accent
         ),
         modifier = modifier
-            .focusRequester(focusRequester),
+            .padding(horizontal = 16.dp)
+            .focusRequester(focusRequester)
+            .onFocusChanged { focusState ->
+                VEVO("focus changed $focusState")
+            },
         cursorBrush = SolidColor(colorSchema.accent),
         decorationBox = { innerTextField ->
             if (text.isEmpty()) {
@@ -473,21 +269,31 @@ fun TodoEdit(
     delete: (id: String) -> Unit,
     checkClick: (id: String) -> Unit,
     reorder: (id: String, from: Int, to: Int) -> Unit,
+    onScroll: (offset: Int) -> Unit,
     onChange: (text: String, id: String?) -> Unit,
 ) {
+
+    val listState = rememberLazyListState()
+
+    LaunchedEffect(listState.scrollIndicatorState?.scrollOffset) {
+        onScroll(listState.scrollIndicatorState?.scrollOffset ?: 0)
+    }
+
     val reorderState = rememberReorderableLazyListState(
+        listState = listState,
         onMove = { from, to ->
             (from.key as? String)?.let { reorder(it, from.index, to.index) }
         }
     )
 
     val content = LocalContext.current
-
     LazyColumn(
         state = reorderState.listState,
         modifier = modifier
+            .fillMaxSize()
+            .padding(horizontal = 12.dp)
             .reorderable(reorderState)
-            .detectReorderAfterLongPress(reorderState),
+            .detectReorderAfterLongPress(reorderState)
     ) {
         items(
             items = list,
@@ -536,6 +342,9 @@ fun TodoEdit(
                 checkClick = checkClick,
                 colorSchema = colorSchema
             )
+        }
+        item {
+            Gap(100)
         }
     }
 }

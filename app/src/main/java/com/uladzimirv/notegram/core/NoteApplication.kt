@@ -18,7 +18,7 @@ class NoteApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        // mockManager.mock()
+        //mockManager.mock()
         AppTheme.init(preferencesRepository)
     }
 }

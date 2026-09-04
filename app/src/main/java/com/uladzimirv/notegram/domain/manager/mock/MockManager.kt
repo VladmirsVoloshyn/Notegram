@@ -9,6 +9,7 @@ import com.uladzimirv.notegram.domain.model.label.NoteLabel.Companion.fromEntity
 import com.uladzimirv.notegram.domain.model.note.Note
 import com.uladzimirv.notegram.domain.model.note.text.TextNote
 import com.uladzimirv.notegram.domain.model.note.todo.TodoListNote
+import com.uladzimirv.notegram.domain.model.note.todo.TodoListNote.Companion.toEntity
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -20,8 +21,9 @@ class MockManager @Inject constructor(
 ) {
 
     fun mock(){
-        mockedAdd()
-        mockedAddLabel()
+//        mockedAdd()
+//        mockedAddLabel()
+        addNote(bigTodoItem)
     }
 
 

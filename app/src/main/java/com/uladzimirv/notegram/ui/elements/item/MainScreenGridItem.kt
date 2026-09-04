@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -40,23 +39,15 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.uladzimirv.notegram.R
-import com.uladzimirv.notegram.app_flow.main.contract.ApplicationIntent
 import com.uladzimirv.notegram.domain.model.note.NoteId
 import com.uladzimirv.notegram.ui.elements.Gap
-import com.uladzimirv.notegram.ui.layout.labels.LabelGridItem
 import com.uladzimirv.notegram.ui.layout.main.com.ItemLayoutInfo
 import com.uladzimirv.notegram.ui.model.LabelUI
 import com.uladzimirv.notegram.ui.model.TextNoteUI
-import com.uladzimirv.notegram.ui.theme.AppTheme
 import com.uladzimirv.notegram.ui.theme.AppTheme.borderPrimary
-import com.uladzimirv.notegram.ui.theme.AppTheme.textPrimary
 import com.uladzimirv.notegram.ui.theme.LabelColorSchema
 import com.uladzimirv.notegram.ui.theme.NoteColorSchema
-import com.uladzimirv.notegram.ui.theme.blueL
-import com.uladzimirv.notegram.ui.theme.red
-import com.uladzimirv.notegram.util.compsoe.clickableNoRipple
 import com.uladzimirv.notegram.util.ifNotEmpty
-import kotlin.random.Random
 
 @Composable
 fun MainTextNoteGreedItem(
