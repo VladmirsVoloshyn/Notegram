@@ -25,6 +25,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.uladzimirv.notegram.R
+import com.uladzimirv.notegram.domain.model.note.Note
 import com.uladzimirv.notegram.ui.elements.Anchor
 import com.uladzimirv.notegram.ui.elements.Gap
 import com.uladzimirv.notegram.ui.elements.button.AddItem
@@ -90,9 +91,9 @@ fun DeleteConfirmationDialog(
                             when (type) {
                                 NoteType.TEXT -> R.drawable.ic_text_add
                                 NoteType.TODO -> R.drawable.ic_todo_list
+                                NoteType.LABEL,
                                 NoteType.QR,
                                 NoteType.VOICE -> null
-
                             }
                         }
                         resource?.let {

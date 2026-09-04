@@ -18,9 +18,6 @@ interface TodoNoteDao {
     @Query("SELECT * FROM $TODO_NOTE_TABLE_NAME")
     fun getAllTextNotesAsFlow(): Flow<List<TodoNoteEntity>>
 
-    @Query("SELECT * FROM $TODO_NOTE_TABLE_NAME")
-    fun getAllTextNotesAsList(): List<TodoNoteEntity>
-
     @Query("DELETE FROM $TODO_NOTE_TABLE_NAME WHERE id = :itemId")
     suspend fun deleteById(itemId: NoteId): Int
 

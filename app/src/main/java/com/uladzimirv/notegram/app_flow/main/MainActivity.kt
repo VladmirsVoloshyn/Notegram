@@ -1,10 +1,8 @@
 package com.uladzimirv.notegram.app_flow.main
 
-import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
-import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
@@ -13,19 +11,17 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
-import androidx.compose.ui.graphics.toArgb
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.uladzimirv.notegram.app_flow.main.contract.MainIntent
+import com.uladzimirv.notegram.app_flow.main.contract.ApplicationIntent
 import com.uladzimirv.notegram.data.preferences.PreferencesRepository
 import com.uladzimirv.notegram.ui.layout.archive.ArchiveScreen
+import com.uladzimirv.notegram.ui.layout.labels.LabelsScreen
 import com.uladzimirv.notegram.ui.layout.note_ui.NoteScreen
 import com.uladzimirv.notegram.ui.layout.main.MainScreen
 import com.uladzimirv.notegram.ui.layout.qr_scan.ScanQrScreen
 import com.uladzimirv.notegram.ui.layout.settings.SettingsScreen
 import com.uladzimirv.notegram.ui.layout.trashbox.TrashboxScreen
-import com.uladzimirv.notegram.ui.theme.AppTheme
-import com.uladzimirv.notegram.ui.theme.pink
 import com.uladzimirv.notegram.util.compsoe.collectInLaunchedEffectWithLifecycle
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
@@ -55,7 +51,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            val intentChannel = remember { Channel<MainIntent>(Channel.UNLIMITED) }
+            val intentChannel = remember { Channel<ApplicationIntent>(Channel.UNLIMITED) }
 
             LaunchedEffect(Unit) {
                 withContext(Dispatchers.Main.immediate) {
@@ -66,7 +62,7 @@ class MainActivity : ComponentActivity() {
             }
 
             val intent = remember {
-                { intent: MainIntent ->
+                { intent: ApplicationIntent ->
                     intentChannel.trySend(intent).getOrThrow()
                 }
             }
@@ -92,11 +88,14 @@ class MainActivity : ComponentActivity() {
                     state = viewState,
                     intent = intent
                 )
-
                 ConfigureSystemBars(
                     isDarkMode = viewState.settingsScreenState.theme == PreferencesRepository.ThemePreference.DARK
                 )
             }
+            LabelsScreen(
+                state = viewState.labelsState,
+                intent = intent
+            )
             NoteScreen(
                 state = viewState.noteState,
                 deleteState = viewState.deleteState,
@@ -141,13 +140,13 @@ class MainActivity : ComponentActivity() {
         hasQRData: Boolean,
         hasDeletion: Boolean,
         topMenuOpened: Boolean,
-        intent: (MainIntent) -> Unit,
+        intent: (ApplicationIntent) -> Unit,
     ) {
         systemBackCallback?.remove()
         if (addMenuVisible || itemMenuVisible || searchVisible || hasQRData || hasDeletion || topMenuOpened) {
             systemBackCallback = object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
-                    intent(MainIntent.MainScreenIntent.CloseSheets)
+                    intent(ApplicationIntent.MainScreenIntent.CloseSheets)
                 }
             }
             systemBackCallback?.let { callback ->

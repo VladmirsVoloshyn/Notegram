@@ -19,9 +19,6 @@ interface TextNoteDao {
     @Query("SELECT * FROM $TEXT_NOTE_TABLE_NAME")
     fun getAllTextNotesAsFlow(): Flow<List<TextNoteEntity>>
 
-    @Query("SELECT * FROM $TEXT_NOTE_TABLE_NAME")
-    fun getAllTextNotesAsList(): List<TextNoteEntity>
-
     @Query("DELETE FROM $TEXT_NOTE_TABLE_NAME WHERE id = :itemId")
     suspend fun deleteById(itemId: NoteId): Int
 

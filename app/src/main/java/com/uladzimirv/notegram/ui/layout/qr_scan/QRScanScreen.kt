@@ -13,9 +13,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import com.uladzimirv.notegram.app_flow.main.contract.MainIntent
-import com.uladzimirv.notegram.app_flow.main.contract.MainViewState
-import com.uladzimirv.notegram.ui.elements.BaseBottomSheet
+import com.uladzimirv.notegram.app_flow.main.contract.ApplicationIntent
+import com.uladzimirv.notegram.app_flow.main.contract.ApplicationViewState
+import com.uladzimirv.notegram.ui.elements.AppBottomSheet
 import com.uladzimirv.notegram.ui.elements.camera.CameraCover
 import com.uladzimirv.notegram.ui.elements.camera.CameraXPreview
 import com.uladzimirv.notegram.ui.theme.AppTheme.backgroundPrimary
@@ -24,8 +24,8 @@ import com.uladzimirv.notegram.util.vibration.clickVibrate
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun ScanQrScreen(
-    state: MainViewState.QRScannerState,
-    intent: (MainIntent) -> Unit
+    state: ApplicationViewState.QRScannerState,
+    intent: (ApplicationIntent) -> Unit
 ) {
 
     val shape = remember {
@@ -41,14 +41,14 @@ internal fun ScanQrScreen(
         result = state.qrScannerResult.orEmpty(),
         showLayer = state.qrScannerResult != null,
         isResultIsLink = state.isResultIsLink,
-        delete = { intent(MainIntent.QRScannerIntent.DeleteResult) },
-        saveAsText = { intent(MainIntent.QRScannerIntent.SaveAsTextNote) }
+        delete = { intent(ApplicationIntent.QRScannerIntent.DeleteResult) },
+        saveAsText = { intent(ApplicationIntent.QRScannerIntent.SaveAsTextNote) }
     )
 
-    BaseBottomSheet(
+    AppBottomSheet(
         showBottomSheet = state.show,
         backgroundColor = Color.Transparent,
-        onDismissRequest = { intent(MainIntent.MainScreenIntent.OpenQRScanner(false)) }
+        onDismissRequest = { intent(ApplicationIntent.MainScreenIntent.OpenQRScanner(false)) }
     ) {
         Column(
             modifier = Modifier
@@ -62,8 +62,8 @@ internal fun ScanQrScreen(
                 CameraXPreview(
                     flashOn = false,
                     onQrCodeScanned = {
-                        intent(MainIntent.QRScannerIntent.QrScannerResult(it))
-                        intent(MainIntent.MainScreenIntent.OpenQRScanner(false))
+                        intent(ApplicationIntent.QRScannerIntent.QrScannerResult(it))
+                        intent(ApplicationIntent.MainScreenIntent.OpenQRScanner(false))
                         context.clickVibrate()
                     },
                 )

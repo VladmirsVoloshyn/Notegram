@@ -1,6 +1,5 @@
 package com.uladzimirv.notegram.ui.layout.archive
 
-import android.view.View
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -29,15 +28,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.BlurredEdgeTreatment
 import androidx.compose.ui.draw.blur
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.uladzimirv.notegram.R
-import com.uladzimirv.notegram.app_flow.main.contract.MainIntent
-import com.uladzimirv.notegram.app_flow.main.contract.MainViewState
-import com.uladzimirv.notegram.ui.elements.BaseBottomSheet
+import com.uladzimirv.notegram.app_flow.main.contract.ApplicationIntent
+import com.uladzimirv.notegram.app_flow.main.contract.ApplicationViewState
+import com.uladzimirv.notegram.ui.elements.AppBottomSheet
 import com.uladzimirv.notegram.ui.elements.Gap
 import com.uladzimirv.notegram.ui.elements.button.AddItem
 import com.uladzimirv.notegram.ui.elements.info_dialog.InfoDialog
@@ -47,8 +45,8 @@ import com.uladzimirv.notegram.ui.layout.main.DeleteConfirmationDialog
 import com.uladzimirv.notegram.ui.layout.main.NotesGreedList
 import com.uladzimirv.notegram.ui.layout.main.com.MenuDestination
 import com.uladzimirv.notegram.ui.layout.main.com.NoteType
-import com.uladzimirv.notegram.ui.theme.AppTheme
 import com.uladzimirv.notegram.ui.theme.AppTheme.backgroundPrimary
+import com.uladzimirv.notegram.ui.theme.AppTheme.backgroundSecondary
 import com.uladzimirv.notegram.ui.theme.AppTheme.buttonPrimary
 import com.uladzimirv.notegram.ui.theme.AppTheme.buttonSecondary
 import com.uladzimirv.notegram.ui.theme.AppTheme.textSecondary
@@ -60,9 +58,9 @@ import kotlin.time.Duration.Companion.milliseconds
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ArchiveScreen(
-    state: MainViewState.ArchiveScreenState,
-    deleteState: MainViewState.DeleteState,
-    intent: (MainIntent) -> Unit
+    state: ApplicationViewState.ArchiveScreenState,
+    deleteState: ApplicationViewState.DeleteState,
+    intent: (ApplicationIntent) -> Unit
 ) {
     val showTip = remember {
         mutableStateOf(false)
@@ -70,11 +68,12 @@ fun ArchiveScreen(
     val sheetState: SheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true,
     )
-    BaseBottomSheet(
+    AppBottomSheet(
+        backgroundColor = backgroundSecondary,
         sheetState = sheetState,
         showBottomSheet = state.show,
         onDismissRequest = {
-            intent(MainIntent.TopMenuIntent.OpenArchive(false))
+            intent(ApplicationIntent.TopMenuIntent.OpenArchive(false))
             showTip.value = false
         },
         sheetGesturesEnabled = false
@@ -85,7 +84,7 @@ fun ArchiveScreen(
         ) { paddingValues ->
             Box(
                 modifier = Modifier
-                    .background(backgroundPrimary)
+                    .background(backgroundSecondary)
                     .padding(top = paddingValues.calculateTopPadding())
                     .fillMaxSize()
                     .let {
@@ -127,7 +126,7 @@ fun ArchiveScreen(
                         scope.launch {
                             sheetState.hide()
                             delay(100.milliseconds)
-                            intent(MainIntent.TopMenuIntent.OpenArchive(false))
+                            intent(ApplicationIntent.TopMenuIntent.OpenArchive(false))
                         }
                     }
                     Gap(16)
@@ -135,7 +134,7 @@ fun ArchiveScreen(
                         list = state.archive,
                         onClick = {},
                         onLongClick = { id, li ->
-                            intent(MainIntent.ArchiveIntent.SelectNote(id, li))
+                            intent(ApplicationIntent.ArchiveIntent.SelectNote(id, li))
                         }
                     )
                 }
@@ -166,22 +165,22 @@ fun ArchiveScreen(
                     TrashboxGreedItemMenuLayer(
                         note = note.note,
                         layoutInfo = note.layoutInfo,
-                        close = { intent(MainIntent.ArchiveIntent.CloseSelectionMenu) },
+                        close = { intent(ApplicationIntent.ArchiveIntent.CloseSelectionMenu) },
                         actionsContent = { destination ->
                             ArchiveActionColumn(
                                 isLayerVisible = true,
                                 menuDestination = destination,
                                 removeFromTrashbox = {
                                     intent(
-                                        MainIntent.MainScreenIntent.Delete(
+                                        ApplicationIntent.MainScreenIntent.Delete(
                                             note.note.id
                                         )
                                     )
-                                    intent(MainIntent.ArchiveIntent.CloseSelectionMenu)
+                                    intent(ApplicationIntent.ArchiveIntent.CloseSelectionMenu)
                                 },
                                 restore = {
-                                    intent(MainIntent.ArchiveIntent.Restore(note.note.id))
-                                    intent(MainIntent.ArchiveIntent.CloseSelectionMenu)
+                                    intent(ApplicationIntent.ArchiveIntent.Restore(note.note.id))
+                                    intent(ApplicationIntent.ArchiveIntent.CloseSelectionMenu)
                                 }
                             )
                         }
@@ -194,8 +193,8 @@ fun ArchiveScreen(
                 show = deleteState.note != null,
                 noteTitle = deleteState.note?.title.orEmpty(),
                 type = deleteState.note?.getType() ?: NoteType.TEXT,
-                cancel = { intent(MainIntent.MainScreenIntent.CloseSheets) },
-                confirm = { intent(MainIntent.MainScreenIntent.ConfirmDelete) }
+                cancel = { intent(ApplicationIntent.MainScreenIntent.CloseSheets) },
+                confirm = { intent(ApplicationIntent.MainScreenIntent.ConfirmDelete) }
             )
         }
     }

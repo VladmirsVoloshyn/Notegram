@@ -2,14 +2,16 @@ package com.uladzimirv.notegram.app_flow.main.contract
 
 import com.uladzimirv.notegram.core.mvi.MviIntent
 import com.uladzimirv.notegram.data.preferences.PreferencesRepository
+import com.uladzimirv.notegram.domain.model.label.LabelId
 import com.uladzimirv.notegram.domain.model.note.NoteId
 import com.uladzimirv.notegram.ui.layout.main.com.ColorPref
 import com.uladzimirv.notegram.ui.layout.main.com.ItemLayoutInfo
+import com.uladzimirv.notegram.ui.layout.main.com.LabelColorPref
 import com.uladzimirv.notegram.ui.layout.main.com.NoteType
 
-sealed interface MainIntent : MviIntent {
+sealed interface ApplicationIntent : MviIntent {
 
-    interface MainScreenIntent : MainIntent {
+    sealed interface MainScreenIntent : ApplicationIntent {
         data class OpenAddMenu(val open: Boolean) : MainScreenIntent
         data class OpenSearchBar(val open: Boolean) : MainScreenIntent
         data class SearchQuery(val query: String) : MainScreenIntent
@@ -19,7 +21,6 @@ sealed interface MainIntent : MviIntent {
         data class Archive(val noteId: NoteId?) : MainScreenIntent
         data object ConfirmDelete : MainScreenIntent
         data class PinOrUnpin(val noteId: NoteId) : MainScreenIntent
-
         data class LockOrUnlockNote(val noteId: NoteId) : MainScreenIntent
         data class UnlockNote(val noteId: NoteId) : MainScreenIntent
         data class AccessNote(val noteId: NoteId) : MainScreenIntent
@@ -38,7 +39,11 @@ sealed interface MainIntent : MviIntent {
         data object CloseInfoDialog : MainScreenIntent
     }
 
-    interface EditNoteIntent : MainIntent {
+    sealed interface EditNoteIntent : ApplicationIntent {
+        data class SelectLabel(val labelId: LabelId) : EditNoteIntent
+        data class AddLabel(val labelId: LabelId) : EditNoteIntent
+        data class RemoveLabel(val labelId: LabelId) : EditNoteIntent
+        data class ShowAddLabelMenu(val show: Boolean) : EditNoteIntent
         data class OpenNoteTopMenu(val open: Boolean) : EditNoteIntent
         data class Title(val title: String) : EditNoteIntent
         data class Text(val text: String) : EditNoteIntent
@@ -49,7 +54,7 @@ sealed interface MainIntent : MviIntent {
         data class Reorder(val id: String, val from: Int, val to: Int) : EditNoteIntent
     }
 
-    interface QRScannerIntent : MainIntent {
+    sealed interface QRScannerIntent : ApplicationIntent {
         data object SaveAsTextNote : QRScannerIntent
         data object DeleteResult : QRScannerIntent
 
@@ -58,14 +63,15 @@ sealed interface MainIntent : MviIntent {
         ) : QRScannerIntent
     }
 
-    interface TopMenuIntent : MainIntent {
+    sealed interface TopMenuIntent : ApplicationIntent {
         data class Show(val show: Boolean) : TopMenuIntent
         data class OpenTrashbox(val open: Boolean) : TopMenuIntent
         data class OpenArchive(val open: Boolean) : TopMenuIntent
         data class OpenSettings(val open: Boolean) : TopMenuIntent
+        data class OpenLabels(val open: Boolean) : TopMenuIntent
     }
 
-    interface TrashBoxIntent : MainIntent {
+    sealed interface TrashBoxIntent : ApplicationIntent {
         data class SelectNote(
             val noteId: NoteId,
             val itemLayoutInfo: ItemLayoutInfo
@@ -77,7 +83,7 @@ sealed interface MainIntent : MviIntent {
         object ClearTrashbox : TrashBoxIntent
     }
 
-    interface ArchiveIntent : MainIntent {
+    sealed interface ArchiveIntent : ApplicationIntent {
         data class SelectNote(
             val noteId: NoteId,
             val itemLayoutInfo: ItemLayoutInfo
@@ -87,23 +93,30 @@ sealed interface MainIntent : MviIntent {
         data class Restore(val noteId: NoteId) : ArchiveIntent
     }
 
-    interface SettingsIntent : MainIntent {
+    sealed interface SettingsIntent : ApplicationIntent {
         data class ChangeTheme(
             val themePreference: PreferencesRepository.ThemePreference
         ) : SettingsIntent
 
         data class ShowPinCode(
             val show: Boolean,
-            val purpose: MainViewState.PinCodeScreenState.PinCodePurpose
+            val purpose: ApplicationViewState.PinCodeScreenState.PinCodePurpose
         ) : SettingsIntent
-
-
     }
 
-    interface PinCodeIntent : MainIntent {
+    sealed interface PinCodeIntent : ApplicationIntent {
         data class SavePinCode(val pin: String) : PinCodeIntent
         data object DeletePinCode : PinCodeIntent
         data class ProtectedAccess(val pin: String) : PinCodeIntent
         data object DropAttempt : PinCodeIntent
+    }
+
+    sealed interface LabelIntent : ApplicationIntent {
+        data object AddLabel : LabelIntent
+        data object DropLabel : LabelIntent
+        data class SelectLabel(val id: LabelId) : LabelIntent
+        data class EditColorPref(val pref: LabelColorPref) : LabelIntent
+        data class EditName(val value: String) : LabelIntent
+        data class DeleteLabel(val id: LabelId) : LabelIntent
     }
 }

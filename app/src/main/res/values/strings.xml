@@ -86,4 +86,15 @@
     <string name="s_pin_code_create_complete">Pin code successfully created</string>
     <string name="s_pin_code_create_error">Error creating pin code</string>
     <string name="s_pin_code_enter_error">Wrong pin code</string>
+
+    <!--Label -->
+    <string name="s_label">Label</string>
+    <string name="s_labels">Labels</string>
+    <string name="s_add_label">Add label</string>
+    <string name="s_no_labels">There are no labels here yet.</string>
+    <string name="s_all_labels_added">All possible labels have been added.</string>
+    <string name="s_remove_label">Remove label</string>
+    <string name="s_edit_label">Edit label</string>
+
+
 </resources>

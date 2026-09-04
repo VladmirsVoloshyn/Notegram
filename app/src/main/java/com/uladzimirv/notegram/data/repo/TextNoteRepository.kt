@@ -1,5 +1,6 @@
 package com.uladzimirv.notegram.data.repo
 
+import com.uladzimirv.notegram.data.database.dao.LabelsDao
 import com.uladzimirv.notegram.data.database.dao.TextNoteDao
 import com.uladzimirv.notegram.domain.model.com.NoteStatus
 import com.uladzimirv.notegram.domain.model.note.NoteId
@@ -9,7 +10,9 @@ import com.uladzimirv.notegram.domain.model.note.text.TextNote.Companion.toEntit
 import com.uladzimirv.notegram.util.VEVO
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -17,12 +20,17 @@ import javax.inject.Singleton
 
 @Singleton
 class TextNoteRepository @Inject constructor(
-    private val textNoteDao: TextNoteDao
+    private val textNoteDao: TextNoteDao,
+    labelsDao: LabelsDao
 ) : NotesRepository<TextNote>() {
 
-    override val notesFlow = textNoteDao.getAllTextNotesAsFlow().map {
-        it.map { it.fromEntity() }
-    }
+    override val notesFlow =
+        combine(
+            textNoteDao.getAllTextNotesAsFlow(),
+            labelsDao.getAllLabelsAsFlow()
+        ) { notes, labels ->
+            notes.map { it.fromEntity(labels.toSet()) }
+        }.flowOn(Dispatchers.IO)
 
     val scope = CoroutineScope(Dispatchers.IO)
 
