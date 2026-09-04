@@ -96,5 +96,7 @@
     <string name="s_remove_label">Remove label</string>
     <string name="s_edit_label">Edit label</string>
 
+    <!--color -->
+    <string name="s_select_color">Select color</string>
 
 </resources>

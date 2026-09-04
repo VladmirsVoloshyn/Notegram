@@ -68,7 +68,7 @@ fun TrashboxScreen(
         skipPartiallyExpanded = true,
     )
     AppBottomSheet(
-        backgroundColor = backgroundSecondary,
+        backgroundColor = backgroundPrimary,
         sheetState = sheetState,
         showBottomSheet = state.show,
         onDismissRequest = {
@@ -83,7 +83,7 @@ fun TrashboxScreen(
         ) { paddingValues ->
             Box(
                 modifier = Modifier
-                    .background(backgroundSecondary)
+                    .background(backgroundPrimary)
                     .padding(top = paddingValues.calculateTopPadding())
                     .fillMaxSize()
                     .let {

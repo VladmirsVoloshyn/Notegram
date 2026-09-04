@@ -150,38 +150,136 @@ val textNotes = listOf(
     ),
 )
 
-val todoNotes = listOf(
-    TodoListNote.empty(
-        title = "Note 1",
-        createdAt = 1788443520438,
-        list = listOf(
-            TodoListItem(
-                text = "SomeText",
-                selected = false,
-                position = 0,
-                id = UUID.randomUUID().toString()
-            ),
-            TodoListItem(
-                text = "SomeTextSomeText",
-                selected = false,
-                position = 1,
-                id = UUID.randomUUID().toString()
-            ),
-            TodoListItem(
-                text = "SomeText1",
-                selected = false,
-                position = 2,
-                id = UUID.randomUUID().toString()
-            ),
-            TodoListItem(
-                text = "SomeText2",
-                selected = false,
-                position = 3,
-                id = UUID.randomUUID().toString()
-            )
+val bigTodoItem = TodoListNote.empty(
+    title = "Note 1",
+    createdAt = 1788443520438,
+    list = listOf(
+        TodoListItem(
+            text = "SomeText",
+            selected = false,
+            position = 0,
+            id = UUID.randomUUID().toString()
         ),
-        colorPref = ColorPref.entries.random()
+        TodoListItem(
+            text = "SomeTextSomeText",
+            selected = false,
+            position = 1,
+            id = UUID.randomUUID().toString()
+        ),
+        TodoListItem(
+            text = "SomeText1",
+            selected = false,
+            position = 2,
+            id = UUID.randomUUID().toString()
+        ),
+        TodoListItem(
+            text = "SomeText2",
+            selected = false,
+            position = 3,
+            id = UUID.randomUUID().toString()
+        ),
+        TodoListItem(
+            text = "SomeText2",
+            selected = false,
+            position = 3,
+            id = UUID.randomUUID().toString()
+        ),
+        TodoListItem(
+            text = "SomeText2",
+            selected = false,
+            position = 3,
+            id = UUID.randomUUID().toString()
+        ),
+        TodoListItem(
+            text = "SomeText2",
+            selected = false,
+            position = 3,
+            id = UUID.randomUUID().toString()
+        ),
+        TodoListItem(
+            text = "SomeText2",
+            selected = false,
+            position = 3,
+            id = UUID.randomUUID().toString()
+        ),
+        TodoListItem(
+            text = "SomeText2",
+            selected = false,
+            position = 3,
+            id = UUID.randomUUID().toString()
+        ),
+        TodoListItem(
+            text = "SomeText2",
+            selected = false,
+            position = 3,
+            id = UUID.randomUUID().toString()
+        ),
+        TodoListItem(
+            text = "SomeText2",
+            selected = true,
+            position = 3,
+            id = UUID.randomUUID().toString()
+        ),
+        TodoListItem(
+            text = "SomeText2",
+            selected = true,
+            position = 3,
+            id = UUID.randomUUID().toString()
+        ),
+        TodoListItem(
+            text = "SomeText2",
+            selected = true,
+            position = 3,
+            id = UUID.randomUUID().toString()
+        ),
+        TodoListItem(
+            text = "SomeText2",
+            selected = true,
+            position = 3,
+            id = UUID.randomUUID().toString()
+        ),
+        TodoListItem(
+            text = "SomeText2",
+            selected = true,
+            position = 3,
+            id = UUID.randomUUID().toString()
+        ),
+        TodoListItem(
+            text = "SomeText2",
+            selected = true,
+            position = 3,
+            id = UUID.randomUUID().toString()
+        ),
+        TodoListItem(
+            text = "SomeText2",
+            selected = true,
+            position = 3,
+            id = UUID.randomUUID().toString()
+        ),
+        TodoListItem(
+            text = "SomeText2",
+            selected = true,
+            position = 3,
+            id = UUID.randomUUID().toString()
+        ),
+        TodoListItem(
+            text = "SomeText2",
+            selected = true,
+            position = 3,
+            id = UUID.randomUUID().toString()
+        ),
+        TodoListItem(
+            text = "SomeText2",
+            selected = true,
+            position = 3,
+            id = UUID.randomUUID().toString()
+        )
     ),
+    colorPref = ColorPref.entries.random()
+)
+
+val todoNotes = listOf(
+    bigTodoItem,
     TodoListNote.empty(
         title = "Note 2",
         createdAt = 1788443520439,

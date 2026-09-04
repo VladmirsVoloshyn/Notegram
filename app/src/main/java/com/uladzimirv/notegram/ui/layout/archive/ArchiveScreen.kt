@@ -69,7 +69,7 @@ fun ArchiveScreen(
         skipPartiallyExpanded = true,
     )
     AppBottomSheet(
-        backgroundColor = backgroundSecondary,
+        backgroundColor = backgroundPrimary,
         sheetState = sheetState,
         showBottomSheet = state.show,
         onDismissRequest = {
@@ -84,7 +84,7 @@ fun ArchiveScreen(
         ) { paddingValues ->
             Box(
                 modifier = Modifier
-                    .background(backgroundSecondary)
+                    .background(backgroundPrimary)
                     .padding(top = paddingValues.calculateTopPadding())
                     .fillMaxSize()
                     .let {

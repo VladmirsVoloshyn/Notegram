@@ -269,9 +269,16 @@ sealed interface NoteScreenMiddleware : ApplicationMiddleware {
                     )
                 )
             }
+
+            is ShowColorsMenu -> viewState.copy(
+                noteState = viewState.noteState.copy(
+                    colorMenuOpened = show
+                )
+            )
         }
     }
 
+    data class ShowColorsMenu(val show: Boolean) : NoteScreenMiddleware
     data class OpenAddLabelMenu(val open: Boolean) : NoteScreenMiddleware
     data class OpenTopMenu(val open: Boolean) : NoteScreenMiddleware
     data class SelectLabel(val id: LabelId) : NoteScreenMiddleware

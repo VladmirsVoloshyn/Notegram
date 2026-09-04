@@ -38,6 +38,7 @@ import com.uladzimirv.notegram.ui.elements.button.FloatingButton
 import com.uladzimirv.notegram.ui.elements.layer.Layer
 import com.uladzimirv.notegram.ui.elements.top_bar.SubScreenTopBar
 import com.uladzimirv.notegram.ui.model.LabelUI
+import com.uladzimirv.notegram.ui.theme.AppTheme.backgroundPrimary
 import com.uladzimirv.notegram.ui.theme.AppTheme.backgroundSecondary
 import com.uladzimirv.notegram.ui.theme.AppTheme.textPrimary
 import com.uladzimirv.notegram.ui.theme.AppTheme.textSecondary
@@ -57,7 +58,7 @@ fun LabelsScreen(
         skipPartiallyExpanded = true,
     )
     AppBottomSheet(
-        backgroundColor = backgroundSecondary,
+        backgroundColor = backgroundPrimary,
         sheetState = sheetState,
         showBottomSheet = state.show,
         onDismissRequest = {
@@ -72,7 +73,7 @@ fun LabelsScreen(
         ) { paddingValues ->
             Box(
                 modifier = Modifier
-                    .background(backgroundSecondary)
+                    .background(backgroundPrimary)
                     .padding(top = paddingValues.calculateTopPadding())
                     .fillMaxSize()
             ) {

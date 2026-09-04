@@ -17,12 +17,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.SecondaryScrollableTabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalClipboard
@@ -36,6 +38,7 @@ import com.uladzimirv.notegram.ui.elements.Anchor
 import com.uladzimirv.notegram.ui.elements.Gap
 import com.uladzimirv.notegram.ui.elements.button.AddItem
 import com.uladzimirv.notegram.ui.elements.button.SingleIconButton
+import com.uladzimirv.notegram.ui.elements.top_bar.BottomSheetSecondaryTopBar
 import com.uladzimirv.notegram.ui.theme.AppTheme.backgroundSecondary
 import com.uladzimirv.notegram.ui.theme.AppTheme.borderPrimary
 import com.uladzimirv.notegram.ui.theme.AppTheme.textPrimary
@@ -82,20 +85,22 @@ fun QrScannerResultLayer(
                             color = borderPrimary,
                             shape = RoundedCornerShape(16.dp)
                         )
-                        .padding(16.dp)
+                        .padding(18.dp)
                 ) {
-                    Text(
-                        text = stringResource(R.string.s_scan_result),
-                        fontSize = 16.sp,
-                        color = textPrimary
-                    )
-                    Gap(8)
+                    BottomSheetSecondaryTopBar(
+                        titleResId = R.string.s_scan_result
+                    ) {
+                        delete()
+                    }
+                    Gap(12)
                     QRCodeImage(
                         text = result
                     )
-                    Gap(8)
+                    Gap(12)
                     Text(
-                        text = result
+                        text = result,
+                        color = textPrimary,
+                        fontSize = 18.sp
                     )
                     Gap(16)
                     Column {
@@ -191,6 +196,7 @@ fun QRCodeImage(
                 contentDescription = null,
                 modifier = Modifier
                     .size(250.dp)
+                    .clip(RoundedCornerShape(12.dp))
                     .align(Alignment.Center)
             )
         } else {

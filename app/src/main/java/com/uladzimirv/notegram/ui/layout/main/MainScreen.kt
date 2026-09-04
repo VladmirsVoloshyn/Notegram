@@ -19,6 +19,9 @@ import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -98,15 +101,16 @@ fun MainScreen(
                 }
         ) {
             val height = remember(listState.scrollIndicatorState?.scrollOffset) {
-                50 - ((listState.scrollIndicatorState?.scrollOffset ?: 0) / 2)
+                50 - ((listState.scrollIndicatorState?.scrollOffset ?: 0) / 8)
             }
             val alpha = remember(listState.scrollIndicatorState?.scrollOffset) {
                 val hundAlpha = 1f
                 val perc = (80f / 100f)
-                val percs = (listState.scrollIndicatorState?.scrollOffset ?: 0) / perc
+                val percs = ((listState.scrollIndicatorState?.scrollOffset ?: 0) / perc) / 2
                 val aPerc = 1f / 100
                 hundAlpha - (aPerc * percs)
             }
+
             Column {
                 Box(
                     modifier = Modifier

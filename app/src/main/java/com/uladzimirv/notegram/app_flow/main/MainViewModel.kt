@@ -9,6 +9,7 @@ import com.uladzimirv.notegram.app_flow.main.contract.middleware.ArchiveMiddlewa
 import com.uladzimirv.notegram.app_flow.main.contract.middleware.LabelsMiddleware
 import com.uladzimirv.notegram.app_flow.main.contract.middleware.MainScreenMiddleware
 import com.uladzimirv.notegram.app_flow.main.contract.middleware.NoteScreenMiddleware
+import com.uladzimirv.notegram.app_flow.main.contract.middleware.NoteScreenMiddleware.*
 import com.uladzimirv.notegram.app_flow.main.contract.middleware.PinCodeMiddleware
 import com.uladzimirv.notegram.app_flow.main.contract.middleware.QRScannerMiddleware
 import com.uladzimirv.notegram.app_flow.main.contract.middleware.SettingsMiddleware
@@ -98,19 +99,20 @@ class MainViewModel @Inject constructor(
         val settingsFlow = settings()
         val pinCodeFlow = pinCode()
         val labelsFlow = labels()
+
         return merge(
             mainFlow,
             labelsFlow,
-            labels,
             noteEditFlow,
             scannerFlow,
-            notesFlow,
             topMenuFlow,
             trashboxFlow,
             archiveFlow,
             settingsFlow,
+            pinCodeFlow,
+            notesFlow,
             themeFlow,
-            pinCodeFlow
+            labels
         )
     }
 
@@ -140,28 +142,28 @@ class MainViewModel @Inject constructor(
                 when (it) {
                     is ApplicationIntent.EditNoteIntent.ShowAddLabelMenu -> {
                         emit(
-                            NoteScreenMiddleware.OpenAddLabelMenu(
+                            OpenAddLabelMenu(
                                 open = it.show
                             )
                         )
                     }
 
                     is ApplicationIntent.EditNoteIntent.SelectLabel -> {
-                        emit(NoteScreenMiddleware.SelectLabel(it.labelId))
+                        emit(SelectLabel(it.labelId))
                     }
 
                     is ApplicationIntent.EditNoteIntent.RemoveLabel -> {
-                        emit(NoteScreenMiddleware.RemoveLabel(it.labelId))
+                        emit(RemoveLabel(it.labelId))
                     }
 
 
                     is ApplicationIntent.EditNoteIntent.AddLabel -> {
-                        emit(NoteScreenMiddleware.AddLabelToNote(it.labelId))
+                        emit(AddLabelToNote(it.labelId))
                     }
 
                     is ApplicationIntent.EditNoteIntent.Title -> {
                         emit(
-                            NoteScreenMiddleware.EditNoteTitle(
+                            EditNoteTitle(
                                 title = it.title
                             )
                         )
@@ -169,19 +171,19 @@ class MainViewModel @Inject constructor(
 
                     is ApplicationIntent.EditNoteIntent.Text -> {
                         emit(
-                            NoteScreenMiddleware.EditNoteText(
+                            EditNoteText(
                                 text = it.text
                             )
                         )
                     }
 
                     is ApplicationIntent.EditNoteIntent.OpenNoteTopMenu -> {
-                        emit(NoteScreenMiddleware.OpenTopMenu(it.open))
+                        emit(OpenTopMenu(it.open))
                     }
 
                     is ApplicationIntent.EditNoteIntent.ChangeColor -> {
                         emit(
-                            NoteScreenMiddleware.EditNoteColor(
+                            EditNoteColor(
                                 it.color
                             )
                         )
@@ -189,7 +191,7 @@ class MainViewModel @Inject constructor(
 
                     is ApplicationIntent.EditNoteIntent.EditTodo -> {
                         emit(
-                            NoteScreenMiddleware.EditTodo(
+                            EditTodo(
                                 text = it.text,
                                 todoIdemId = it.todoIdemId
                             )
@@ -198,7 +200,7 @@ class MainViewModel @Inject constructor(
 
                     is ApplicationIntent.EditNoteIntent.DeleteTodoItem -> {
                         emit(
-                            NoteScreenMiddleware.DeleteTodo(
+                            DeleteTodo(
                                 todoIdemId = it.id
                             )
                         )
@@ -206,7 +208,7 @@ class MainViewModel @Inject constructor(
 
                     is ApplicationIntent.EditNoteIntent.CheckTodoItem -> {
                         emit(
-                            NoteScreenMiddleware.CheckTodo(
+                            CheckTodo(
                                 todoIdemId = it.id
                             )
                         )
@@ -214,15 +216,26 @@ class MainViewModel @Inject constructor(
 
                     is ApplicationIntent.EditNoteIntent.Reorder -> {
                         emit(
-                            NoteScreenMiddleware.ReorderTodo(
+                            ReorderTodo(
                                 id = it.id,
                                 from = it.from,
                                 to = it.to
                             )
                         )
                     }
+
+                    is ApplicationIntent.EditNoteIntent.ShowChangeColorMenu -> emit(
+                        ShowColorsMenu(it.show)
+                    )
                 }
-                updateNote(if (it is ApplicationIntent.EditNoteIntent.AddLabel) 10 else 400)
+                updateNote(
+                    mills = when (it) {
+                        is ApplicationIntent.EditNoteIntent.AddLabel,
+                        is ApplicationIntent.EditNoteIntent.ChangeColor -> 10
+
+                        else -> 400
+                    }
+                )
             }
         }
 
@@ -260,14 +273,6 @@ class MainViewModel @Inject constructor(
 
                     is ApplicationIntent.MainScreenIntent.CloseInfoDialog -> {
                         emit(ApplicationMiddleware.InfoDialog(show = false))
-                    }
-
-                    is ApplicationIntent.MainScreenIntent.OpenColorContainer -> {
-                        emit(
-                            MainScreenMiddleware.OpenColorContainer(
-                                open = intent.open
-                            )
-                        )
                     }
 
                     is ApplicationIntent.MainScreenIntent.AccessNote -> {
