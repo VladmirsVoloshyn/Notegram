@@ -2,11 +2,8 @@ package com.uladzimirv.notegram.ui.layout.main
 
 import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -39,8 +36,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.uladzimirv.notegram.R
-import com.uladzimirv.notegram.app_flow.main.contract.MainIntent
-import com.uladzimirv.notegram.app_flow.main.contract.MainViewState
+import com.uladzimirv.notegram.app_flow.main.contract.ApplicationIntent
+import com.uladzimirv.notegram.app_flow.main.contract.ApplicationViewState
 import com.uladzimirv.notegram.ui.elements.Gap
 import com.uladzimirv.notegram.ui.elements.info_dialog.InfoDialog
 import com.uladzimirv.notegram.ui.elements.item.MainTextNoteGreedItem
@@ -58,15 +55,14 @@ import com.uladzimirv.notegram.ui.model.TextNoteUI
 import com.uladzimirv.notegram.ui.model.TodoNoteUI
 import com.uladzimirv.notegram.ui.theme.AppTheme.backgroundPrimary
 import com.uladzimirv.notegram.ui.theme.AppTheme.textSecondary
-import com.uladzimirv.notegram.util.VEVO
 import com.uladzimirv.notegram.util.vibration.tickVibrate
 import kotlinx.collections.immutable.ImmutableList
 
 @SuppressLint("FrequentlyChangingValue")
 @Composable
 fun MainScreen(
-    state: MainViewState,
-    intent: (MainIntent) -> Unit
+    state: ApplicationViewState,
+    intent: (ApplicationIntent) -> Unit
 ) {
     Scaffold(
         modifier = Modifier
@@ -76,6 +72,7 @@ fun MainScreen(
         val isSearchBarVisible = remember {
             mutableStateOf(true)
         }
+
         Box(
             modifier = Modifier.fillMaxSize()
                 .background(color = backgroundPrimary)
@@ -122,15 +119,15 @@ fun MainScreen(
                         query = state.main.query,
                         onTextChanged = {
                             intent(
-                                MainIntent.MainScreenIntent.SearchQuery(
+                                ApplicationIntent.MainScreenIntent.SearchQuery(
                                     query = it
                                 )
                             )
                         },
-                        menu = { intent(MainIntent.TopMenuIntent.Show(true)) },
+                        menu = { intent(ApplicationIntent.TopMenuIntent.Show(true)) },
                         isBarEnabled = {
                             intent(
-                                MainIntent.MainScreenIntent.OpenSearchBar(
+                                ApplicationIntent.MainScreenIntent.OpenSearchBar(
                                     open = it
                                 )
                             )
@@ -144,20 +141,21 @@ fun MainScreen(
                 LaunchedEffect(listState.scrollIndicatorState?.scrollOffset) {
                     isSearchBarVisible.value = listState.scrollIndicatorState?.scrollOffset == 0
                 }
+
                 if (state.main.uiNotes.isNotEmpty()) {
                     NotesGreedList(
                         state = listState,
                         list = state.main.uiNotes,
                         onClick = {
                             intent(
-                                MainIntent.MainScreenIntent.OpenNote(
+                                ApplicationIntent.MainScreenIntent.OpenNote(
                                     it
                                 )
                             )
                         },
                         onLongClick = { id, li ->
                             intent(
-                                MainIntent.MainScreenIntent.SelectNote(
+                                ApplicationIntent.MainScreenIntent.SelectNote(
                                     noteId = id,
                                     itemLayoutInfo = li
                                 )
@@ -188,8 +186,8 @@ fun MainScreen(
 
             val infoDialogDecorator = remember(state.infoDialogState.purpose) {
                 when (state.infoDialogState.purpose) {
-                    MainViewState.InfoDialogState.InfoDialogPurpose.NO_PIN -> R.string.s_tip_no_pin_code to R.string.s_tip_no_pin_code_text
-                    MainViewState.InfoDialogState.InfoDialogPurpose.NONE -> R.string.s_tip_no_pin_code to R.string.s_tip_no_pin_code_text
+                    ApplicationViewState.InfoDialogState.InfoDialogPurpose.NO_PIN -> R.string.s_tip_no_pin_code to R.string.s_tip_no_pin_code_text
+                    ApplicationViewState.InfoDialogState.InfoDialogPurpose.NONE -> R.string.s_tip_no_pin_code to R.string.s_tip_no_pin_code_text
                 }
             }
             InfoDialog(
@@ -199,7 +197,7 @@ fun MainScreen(
                 show = state.infoDialogState.show,
                 bottomPadding = 200
             ) {
-                intent(MainIntent.MainScreenIntent.CloseInfoDialog)
+                intent(ApplicationIntent.MainScreenIntent.CloseInfoDialog)
             }
         }
 
@@ -224,16 +222,22 @@ fun MainScreen(
                     modifier = Modifier.align(Alignment.BottomEnd),
                     isClosed = !state.main.isAddMenuOpened,
                     add = {
-                        intent(
-                            MainIntent.MainScreenIntent.Add(
-                                noteType = it
+                        if (it == NoteType.LABEL) {
+                            intent(ApplicationIntent.TopMenuIntent.OpenLabels(true))
+                            intent(ApplicationIntent.MainScreenIntent.CloseSheets)
+                            intent(ApplicationIntent.LabelIntent.AddLabel)
+                        } else {
+                            intent(
+                                ApplicationIntent.MainScreenIntent.Add(
+                                    noteType = it
+                                )
                             )
-                        )
+                        }
                     }
                 ) {
                     context.tickVibrate()
                     intent(
-                        MainIntent.MainScreenIntent.OpenAddMenu(
+                        ApplicationIntent.MainScreenIntent.OpenAddMenu(
                             open = !state.main.isAddMenuOpened
                         )
                     )
@@ -250,7 +254,7 @@ fun MainScreen(
                 GreedItemMenuLayer(
                     note = state.main.selectedNote.note,
                     layoutInfo = state.main.selectedNote.layoutInfo,
-                    close = { intent(MainIntent.MainScreenIntent.CloseSelectionMenu) },
+                    close = { intent(ApplicationIntent.MainScreenIntent.CloseSelectionMenu) },
                     actionsContent = { destination ->
                         MainMenuItemActionColumn(
                             isLayerVisible = true,
@@ -259,21 +263,21 @@ fun MainScreen(
                             menuDestination = destination,
                             locked = state.main.selectedNote.note.locked,
                             lock = {
-                                intent(MainIntent.MainScreenIntent.LockOrUnlockNote(state.main.selectedNote.note.id))
-                                intent(MainIntent.MainScreenIntent.CloseSelectionMenu)
+                                intent(ApplicationIntent.MainScreenIntent.LockOrUnlockNote(state.main.selectedNote.note.id))
+                                intent(ApplicationIntent.MainScreenIntent.CloseSelectionMenu)
                             },
                             delete = {
-                                intent(MainIntent.MainScreenIntent.Delete(state.main.selectedNote.note.id))
-                                intent(MainIntent.MainScreenIntent.CloseSelectionMenu)
+                                intent(ApplicationIntent.MainScreenIntent.Delete(state.main.selectedNote.note.id))
+                                intent(ApplicationIntent.MainScreenIntent.CloseSelectionMenu)
                             },
                             pin = {
-                                intent(MainIntent.MainScreenIntent.PinOrUnpin(state.main.selectedNote.note.id))
-                                intent(MainIntent.MainScreenIntent.CloseSelectionMenu)
+                                intent(ApplicationIntent.MainScreenIntent.PinOrUnpin(state.main.selectedNote.note.id))
+                                intent(ApplicationIntent.MainScreenIntent.CloseSelectionMenu)
                             },
                             shareText = state.main.selectedNote.note.summary(),
                             archive = {
-                                intent(MainIntent.MainScreenIntent.Archive(state.main.selectedNote.note.id))
-                                intent(MainIntent.MainScreenIntent.CloseSelectionMenu)
+                                intent(ApplicationIntent.MainScreenIntent.Archive(state.main.selectedNote.note.id))
+                                intent(ApplicationIntent.MainScreenIntent.CloseSelectionMenu)
                             }
                         )
                     }
@@ -285,33 +289,34 @@ fun MainScreen(
             show = state.deleteState.note != null,
             noteTitle = state.deleteState.note?.title.orEmpty(),
             type = state.deleteState.note?.getType() ?: NoteType.TEXT,
-            cancel = { intent(MainIntent.MainScreenIntent.CloseSheets) },
-            confirm = { intent(MainIntent.MainScreenIntent.ConfirmDelete) },
+            cancel = { intent(ApplicationIntent.MainScreenIntent.CloseSheets) },
+            confirm = { intent(ApplicationIntent.MainScreenIntent.ConfirmDelete) },
             isTotalDelete = false
         )
 
         TopMainMenu(
             show = state.topMenuState.show,
-            dismiss = { intent(MainIntent.TopMenuIntent.Show(false)) },
+            dismiss = { intent(ApplicationIntent.TopMenuIntent.Show(false)) },
             topPadding = innerPadding.calculateTopPadding(),
-            openTrashbox = { intent(MainIntent.TopMenuIntent.OpenTrashbox(true)) },
-            openArchive = { intent(MainIntent.TopMenuIntent.OpenArchive(true)) },
-            openSettings = { intent(MainIntent.TopMenuIntent.OpenSettings(true)) }
+            openTrashbox = { intent(ApplicationIntent.TopMenuIntent.OpenTrashbox(true)) },
+            openArchive = { intent(ApplicationIntent.TopMenuIntent.OpenArchive(true)) },
+            openSettings = { intent(ApplicationIntent.TopMenuIntent.OpenSettings(true)) },
+            openLabels = { intent(ApplicationIntent.TopMenuIntent.OpenLabels(true)) }
         )
 
         PinCodeScreen(
             state = state.pinCodeState,
-            send = { intent(MainIntent.PinCodeIntent.ProtectedAccess(it)) },
-            drop = { intent(MainIntent.PinCodeIntent.DropAttempt) },
-            show = state.pinCodeState.callPlace == MainViewState.PinCodeScreenState.PinCodeCallPlace.MAIN_UNLOCKER,
+            send = { intent(ApplicationIntent.PinCodeIntent.ProtectedAccess(it)) },
+            drop = { intent(ApplicationIntent.PinCodeIntent.DropAttempt) },
+            show = state.pinCodeState.callPlace == ApplicationViewState.PinCodeScreenState.PinCodeCallPlace.MAIN_UNLOCKER,
             onUnlock = {
                 when (state.pinCodeState.purpose) {
-                    is MainViewState.PinCodeScreenState.PinCodePurpose.Unlock -> {
-                        intent(MainIntent.MainScreenIntent.UnlockNote(state.pinCodeState.purpose.id))
+                    is ApplicationViewState.PinCodeScreenState.PinCodePurpose.Unlock -> {
+                        intent(ApplicationIntent.MainScreenIntent.UnlockNote(state.pinCodeState.purpose.id))
                     }
 
-                    is MainViewState.PinCodeScreenState.PinCodePurpose.Access -> {
-                        intent(MainIntent.MainScreenIntent.AccessNote(state.pinCodeState.purpose.id))
+                    is ApplicationViewState.PinCodeScreenState.PinCodePurpose.Access -> {
+                        intent(ApplicationIntent.MainScreenIntent.AccessNote(state.pinCodeState.purpose.id))
                     }
 
                     else -> {}
@@ -319,9 +324,9 @@ fun MainScreen(
             },
             onDismissRequest = {
                 intent(
-                    MainIntent.SettingsIntent.ShowPinCode(
+                    ApplicationIntent.SettingsIntent.ShowPinCode(
                         show = false,
-                        purpose = MainViewState.PinCodeScreenState.PinCodePurpose.Close
+                        purpose = ApplicationViewState.PinCodeScreenState.PinCodePurpose.Close
                     )
                 )
             }

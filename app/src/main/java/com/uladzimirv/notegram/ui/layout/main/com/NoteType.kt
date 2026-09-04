@@ -4,5 +4,6 @@ enum class NoteType {
     TEXT,
     VOICE,
     QR,
-    TODO
+    TODO,
+    LABEL
 }

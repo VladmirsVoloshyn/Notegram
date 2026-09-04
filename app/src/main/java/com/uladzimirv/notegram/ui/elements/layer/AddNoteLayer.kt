@@ -22,8 +22,8 @@ import com.uladzimirv.notegram.util.compsoe.clickableNoRipple
 fun AddNoteLayer(
     modifier: Modifier = Modifier,
     isClosed: Boolean,
-    add : (NoteType) -> Unit,
-    onAddClick: () -> Unit
+    add: (NoteType) -> Unit,
+    onAddClick: () -> Unit,
 ) {
     Box(
         modifier = modifier
@@ -47,15 +47,15 @@ fun AddNoteLayer(
                     ),
                 horizontalAlignment = Alignment.End
             ) {
-//                AddItem(
-//                    modifier = Modifier,
-//                    iconResId = R.drawable.ic_audio,
-//                    titleResId = R.string.s_audio,
-//                    isVisible = !isClosed,
-//                ) {
-//                    add(NoteType.VOICE)
-//                }
-//                Gap(6)
+                AddItem(
+                    modifier = Modifier,
+                    iconResId = R.drawable.ic_label_thin,
+                    titleResId = R.string.s_label,
+                    isVisible = !isClosed,
+                ) {
+                    add(NoteType.LABEL)
+                }
+                Gap(6)
                 AddItem(
                     modifier = Modifier,
                     iconResId = R.drawable.ic_todo_list,

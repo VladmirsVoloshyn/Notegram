@@ -2,20 +2,20 @@ package com.uladzimirv.notegram.domain.manager
 
 import com.uladzimirv.notegram.data.repo.TextNoteRepository
 import com.uladzimirv.notegram.data.repo.TodoNoteRepository
-import com.uladzimirv.notegram.data.repo.textNotes
-import com.uladzimirv.notegram.data.repo.todoNotes
 import com.uladzimirv.notegram.domain.model.com.NoteStatus
 import com.uladzimirv.notegram.domain.model.note.Note
 import com.uladzimirv.notegram.domain.model.note.NoteId
 import com.uladzimirv.notegram.domain.model.note.text.TextNote
 import com.uladzimirv.notegram.domain.model.note.todo.TodoListNote
 import com.uladzimirv.notegram.util.STRING_EMPTY
-import com.uladzimirv.notegram.util.VEVO
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -26,12 +26,7 @@ class NotesManager @Inject constructor(
     private val textNotesRepository: TextNoteRepository,
     private val todoNoteRepository: TodoNoteRepository
 ) {
-
     private val filterQuery = MutableStateFlow(STRING_EMPTY)
-
-    init {
-        //mockedAdd()
-    }
 
     val scope = CoroutineScope(Dispatchers.IO)
 
@@ -46,7 +41,11 @@ class NotesManager @Inject constructor(
         notes.filter {
             it.title.contains(query)
         }
-    }
+    }.stateIn(
+        scope,
+        started = SharingStarted.Eagerly,
+        initialValue = emptyList()
+    )
 
     fun addNote(note: Note) {
         when (note) {
@@ -188,12 +187,4 @@ class NotesManager @Inject constructor(
         }
     }
 
-    private fun mockedAdd() {
-        textNotes.forEach {
-            addNote(it)
-        }
-        todoNotes.forEach {
-            addNote(it)
-        }
-    }
 }

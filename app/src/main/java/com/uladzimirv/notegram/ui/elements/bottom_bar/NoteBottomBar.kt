@@ -43,6 +43,7 @@ import com.uladzimirv.notegram.util.compsoe.clickableNoRipple
 @Composable
 fun NoteBottomBar(
     pin: () -> Unit,
+    showLabels: () -> Unit,
     pinned: Boolean,
     colorSchema: NoteColorSchema,
     selected: ColorPref,
@@ -56,85 +57,13 @@ fun NoteBottomBar(
         verticalAlignment = Alignment.Bottom,
         modifier = modifier
             .fillMaxWidth()
-            .padding(end = 16.dp, bottom = 24.dp)
+            .clickableNoRipple() {}
+            .background(colorSchema.background.copy(alpha = .9f))
+            .padding(end = 16.dp, bottom = 24.dp, top = 12.dp)
     ) {
         val pinResId = remember(pinned) {
             if (pinned) R.drawable.ic_pin_filled
             else R.drawable.ic_pin_unfilled
-        }
-
-        AnimatedVisibility(
-            visible = colorMenuOpened,
-            enter = fadeIn() + expandIn(
-                animationSpec = tween(
-                    durationMillis = 30
-                )
-            ),
-            exit = fadeOut()
-        ) {
-            Row(
-                modifier = Modifier
-                    .background(colorSchema.background, CircleShape)
-                    .padding(6.dp)
-
-            ) {
-                ColorContainer(
-                    selected = selected == ColorPref.PINK,
-                    background = pink
-                ) {
-                    changeColor(ColorPref.PINK)
-                }
-                Gap(6)
-                ColorContainer(
-                    selected = selected == ColorPref.ORANGE,
-                    background = orange
-                ) {
-                    changeColor(ColorPref.ORANGE)
-                }
-                Gap(6)
-                ColorContainer(
-                    selected = selected == ColorPref.YELLOW,
-                    background = yellow
-                ) {
-                    changeColor(ColorPref.YELLOW)
-                }
-                Gap(6)
-                ColorContainer(
-                    selected = selected == ColorPref.BLACK,
-                    background = black
-                ) {
-                    changeColor(ColorPref.BLACK)
-                }
-                Gap(6)
-                ColorContainer(
-                    selected = selected == ColorPref.GLOW,
-                    background = glow
-                ) {
-                    changeColor(ColorPref.GLOW)
-                }
-                Gap(6)
-                ColorContainer(
-                    selected = selected == ColorPref.RED,
-                    background = red
-                ) {
-                    changeColor(ColorPref.RED)
-                }
-                Gap(6)
-                ColorContainer(
-                    selected = selected == ColorPref.CYAN,
-                    background = cyan
-                ) {
-                    changeColor(ColorPref.CYAN)
-                }
-                Gap(6)
-                ColorContainer(
-                    selected = selected == ColorPref.COMMON,
-                    background = backgroundPrimary
-                ) {
-                    changeColor(ColorPref.COMMON)
-                }
-            }
-
         }
         Gap(24)
         val resource = remember(colorMenuOpened) {
@@ -158,36 +87,138 @@ fun NoteBottomBar(
                 )
             )
         ) {
+            Row {
+                Box(
+                    modifier = Modifier
+                        .size(26.dp)
+                        .background(colorSchema.background, CircleShape)
+                ) {
+                    Icon(
+                        modifier = Modifier
+                            .clickableNoRipple(onClick = pin)
+                            .size(24.dp),
+                        painter = painterResource(id = pinResId),
+                        contentDescription = null,
+                        tint = colorSchema.accent,
+                    )
+                }
+
+                Gap(16)
+                Box(
+                    modifier = Modifier
+                        .size(26.dp)
+                        .background(colorSchema.background, CircleShape)
+                ) {
+                    Icon(
+                        modifier = Modifier
+                            .clickableNoRipple(onClick = showLabels)
+                            .size(24.dp),
+                        painter = painterResource(id = R.drawable.ic_label_thin),
+                        contentDescription = null,
+                        tint = colorSchema.accent,
+                    )
+                }
+
+            }
+
+        }
+        Gap(16)
+        Box(
+            modifier = Modifier
+                .size(26.dp)
+                .background(colorSchema.background, CircleShape)
+        ) {
             Icon(
                 modifier = Modifier
                     .clickable(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = null,
-                        onClick = pin
+                        onClick = {
+                            palette(!colorMenuOpened)
+                        }
                     )
                     .size(24.dp),
-                painter = painterResource(id = pinResId),
+                painter = painterResource(resource),
                 contentDescription = null,
                 tint = colorSchema.accent,
             )
         }
-        Gap(16)
-        Icon(
-            modifier = Modifier
-                .clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = null,
-                    onClick = {
-                        palette(!colorMenuOpened)
-                    }
-                )
-                .size(24.dp),
-            painter = painterResource(resource),
-            contentDescription = null,
-            tint = colorSchema.accent,
-        )
     }
 }
+
+//
+//        AnimatedVisibility(
+//            visible = colorMenuOpened,
+//            enter = fadeIn() + expandIn(
+//                animationSpec = tween(
+//                    durationMillis = 30
+//                )
+//            ),
+//            exit = fadeOut()
+//        ) {
+//            Row(
+//                modifier = Modifier
+//                    .background(colorSchema.background, CircleShape)
+//                    .padding(6.dp)
+//            ) {
+//                ColorContainer(
+//                    selected = selected == ColorPref.PINK,
+//                    background = pink
+//                ) {
+//                    changeColor(ColorPref.PINK)
+//                }
+//                Gap(6)
+//                ColorContainer(
+//                    selected = selected == ColorPref.ORANGE,
+//                    background = orange
+//                ) {
+//                    changeColor(ColorPref.ORANGE)
+//                }
+//                Gap(6)
+//                ColorContainer(
+//                    selected = selected == ColorPref.YELLOW,
+//                    background = yellow
+//                ) {
+//                    changeColor(ColorPref.YELLOW)
+//                }
+//                Gap(6)
+//                ColorContainer(
+//                    selected = selected == ColorPref.BLACK,
+//                    background = black
+//                ) {
+//                    changeColor(ColorPref.BLACK)
+//                }
+//                Gap(6)
+//                ColorContainer(
+//                    selected = selected == ColorPref.GLOW,
+//                    background = glow
+//                ) {
+//                    changeColor(ColorPref.GLOW)
+//                }
+//                Gap(6)
+//                ColorContainer(
+//                    selected = selected == ColorPref.RED,
+//                    background = red
+//                ) {
+//                    changeColor(ColorPref.RED)
+//                }
+//                Gap(6)
+//                ColorContainer(
+//                    selected = selected == ColorPref.CYAN,
+//                    background = cyan
+//                ) {
+//                    changeColor(ColorPref.CYAN)
+//                }
+//                Gap(6)
+//                ColorContainer(
+//                    selected = selected == ColorPref.COMMON,
+//                    background = backgroundPrimary
+//                ) {
+//                    changeColor(ColorPref.COMMON)
+//                }
+//            }
+//
+//        }
 
 @Composable
 fun ColorContainer(

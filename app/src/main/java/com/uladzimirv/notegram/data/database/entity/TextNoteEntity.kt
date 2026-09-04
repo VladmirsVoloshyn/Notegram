@@ -2,6 +2,7 @@ package com.uladzimirv.notegram.data.database.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.uladzimirv.notegram.domain.model.label.LabelId
 import com.uladzimirv.notegram.util.TEXT_NOTE_TABLE_NAME
 
 @Entity(tableName = TEXT_NOTE_TABLE_NAME)
@@ -17,5 +18,6 @@ data class TextNoteEntity(
     val status : String,
     val deletedAt: Long,
     val archivedAt: Long,
+    val labelsId : List<String>,
     val locked : Boolean
 )

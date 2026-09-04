@@ -3,6 +3,7 @@ package com.uladzimirv.notegram.data.database.entity
 import androidx.compose.runtime.Immutable
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.uladzimirv.notegram.domain.model.label.LabelId
 import com.uladzimirv.notegram.util.TODO_NOTE_TABLE_NAME
 
 @Entity(tableName = TODO_NOTE_TABLE_NAME)
@@ -17,6 +18,7 @@ class TodoNoteEntity(
     val list: List<TodoListItem>,
     val status: String,
     val deletedAt: Long,
+    val labelsId: List<String>,
     val archivedAt: Long,
     val locked: Boolean
 )

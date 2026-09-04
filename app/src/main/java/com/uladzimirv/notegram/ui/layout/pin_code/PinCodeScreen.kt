@@ -35,17 +35,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.uladzimirv.notegram.R
-import com.uladzimirv.notegram.app_flow.main.contract.MainMiddleware
-import com.uladzimirv.notegram.app_flow.main.contract.MainViewState
-import com.uladzimirv.notegram.ui.elements.BaseBottomSheet
+import com.uladzimirv.notegram.app_flow.main.contract.ApplicationViewState
+import com.uladzimirv.notegram.ui.elements.AppBottomSheet
 import com.uladzimirv.notegram.ui.elements.Gap
-import com.uladzimirv.notegram.ui.theme.AppTheme.backgroundPrimary
 import com.uladzimirv.notegram.ui.theme.AppTheme.backgroundSecondary
 import com.uladzimirv.notegram.ui.theme.AppTheme.textPrimary
 import com.uladzimirv.notegram.ui.theme.completeGreen
 import com.uladzimirv.notegram.ui.theme.errorRed
 import com.uladzimirv.notegram.util.STRING_EMPTY
-import com.uladzimirv.notegram.util.VEVO
 import com.uladzimirv.notegram.util.vibration.clickVibrate
 import kotlinx.coroutines.delay
 import kotlin.time.Duration.Companion.milliseconds
@@ -60,7 +57,7 @@ enum class PinConfirmation {
 @Composable
 fun PinCodeScreen(
     show: Boolean,
-    state: MainViewState.PinCodeScreenState,
+    state: ApplicationViewState.PinCodeScreenState,
     saveNew: (String) -> Unit = {},
     send: (String) -> Unit,
     drop: () -> Unit,
@@ -84,7 +81,7 @@ fun PinCodeScreen(
 
     LaunchedEffect(pinCode.value, confirmPinCode.value, state.attempt) {
         when (state.purpose) {
-            is MainViewState.PinCodeScreenState.PinCodePurpose.CreateNew -> {
+            is ApplicationViewState.PinCodeScreenState.PinCodePurpose.CreateNew -> {
                 if (pinCode.value.length == 4) {
                     if (confirmPinCode.value.isEmpty()) {
                         delay(300.milliseconds)
@@ -109,23 +106,23 @@ fun PinCodeScreen(
                 }
             }
 
-            is MainViewState.PinCodeScreenState.PinCodePurpose.DeletePinCode,
-            is MainViewState.PinCodeScreenState.PinCodePurpose.Access,
-            is MainViewState.PinCodeScreenState.PinCodePurpose.Unlock -> {
+            is ApplicationViewState.PinCodeScreenState.PinCodePurpose.DeletePinCode,
+            is ApplicationViewState.PinCodeScreenState.PinCodePurpose.Access,
+            is ApplicationViewState.PinCodeScreenState.PinCodePurpose.Unlock -> {
                 if (pinCode.value.length == 4) {
                     send(pinCode.value)
                 }
 
                 when (state.attempt) {
-                    MainViewState.PinCodeScreenState.Attempt.WRONG -> {
+                    ApplicationViewState.PinCodeScreenState.Attempt.WRONG -> {
                         context.clickVibrate(10)
                         delay(1000.milliseconds)
                         pinCode.value = STRING_EMPTY
                         drop()
                     }
 
-                    MainViewState.PinCodeScreenState.Attempt.ATTEMPT -> {}
-                    MainViewState.PinCodeScreenState.Attempt.SUCCESS -> {
+                    ApplicationViewState.PinCodeScreenState.Attempt.ATTEMPT -> {}
+                    ApplicationViewState.PinCodeScreenState.Attempt.SUCCESS -> {
                         onUnlock()
                         delay(200.milliseconds)
                         sheetState.hide()
@@ -141,26 +138,26 @@ fun PinCodeScreen(
     }
 
     val title = when (state.purpose) {
-        is MainViewState.PinCodeScreenState.PinCodePurpose.CreateNew -> if (confirmPinCode.value.isNotEmpty()) {
+        is ApplicationViewState.PinCodeScreenState.PinCodePurpose.CreateNew -> if (confirmPinCode.value.isNotEmpty()) {
             R.string.s_pin_code_repeat
         } else {
             R.string.s_pin_code_create
         }
 
-        is MainViewState.PinCodeScreenState.PinCodePurpose.Access,
-        is MainViewState.PinCodeScreenState.PinCodePurpose.DeletePinCode,
-        is MainViewState.PinCodeScreenState.PinCodePurpose.Unlock -> {
+        is ApplicationViewState.PinCodeScreenState.PinCodePurpose.Access,
+        is ApplicationViewState.PinCodeScreenState.PinCodePurpose.DeletePinCode,
+        is ApplicationViewState.PinCodeScreenState.PinCodePurpose.Unlock -> {
             when (state.attempt) {
-                MainViewState.PinCodeScreenState.Attempt.ATTEMPT -> R.string.s_pin_code_enter
-                MainViewState.PinCodeScreenState.Attempt.WRONG -> R.string.s_pin_code_enter_error
-                MainViewState.PinCodeScreenState.Attempt.SUCCESS -> R.string.s_pin_code_enter
+                ApplicationViewState.PinCodeScreenState.Attempt.ATTEMPT -> R.string.s_pin_code_enter
+                ApplicationViewState.PinCodeScreenState.Attempt.WRONG -> R.string.s_pin_code_enter_error
+                ApplicationViewState.PinCodeScreenState.Attempt.SUCCESS -> R.string.s_pin_code_enter
             }
         }
 
         else -> R.string.s_pin_code_enter
     }
 
-    BaseBottomSheet(
+    AppBottomSheet(
         backgroundColor = backgroundSecondary,
         sheetState = sheetState,
         showBottomSheet = show,
@@ -170,7 +167,7 @@ fun PinCodeScreen(
             confirmation.value = PinConfirmation.AWAIT
             onDismissRequest()
         },
-        sheetGesturesEnabled = true
+        sheetGesturesEnabled = false
     ) {
         Box {
             Column(

@@ -40,6 +40,7 @@ fun TopMainMenu(
     topPadding: Dp,
     openTrashbox: () -> Unit,
     openArchive: () -> Unit,
+    openLabels: () -> Unit,
     openSettings: () -> Unit,
     dismiss: () -> Unit
 ) {
@@ -62,9 +63,9 @@ fun TopMainMenu(
             val shape = RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp)
             Box(
                 modifier = Modifier
-                    .shadow(elevation = 24.dp, shape = shape)
+                    .shadow(elevation = 6.dp, shape = shape)
                     .fillMaxWidth()
-                    .clickable {}
+                    .clickableNoRipple(onClick = dismiss)
                     .wrapContentHeight()
                     .background(
                         color = backgroundSecondary,
@@ -86,6 +87,17 @@ fun TopMainMenu(
                         color = borderTertiary
                     )
                     Gap(8)
+                    MainMenuItem(
+                        iconResId = R.drawable.ic_label_thin,
+                        titleResId = R.string.s_labels
+                    ) {
+                        openLabels()
+                        dismiss()
+                    }
+                    Gap(8)
+                    HorizontalDivider(
+                        color = borderTertiary
+                    )
                     MainMenuItem(
                         iconResId = R.drawable.ic_archive,
                         titleResId = R.string.s_main_menu_archive
@@ -136,6 +148,5 @@ fun TopMainMenu(
         }
 
     }
-
 
 }

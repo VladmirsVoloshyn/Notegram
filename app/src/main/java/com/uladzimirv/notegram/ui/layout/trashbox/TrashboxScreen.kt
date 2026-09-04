@@ -28,15 +28,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.BlurredEdgeTreatment
 import androidx.compose.ui.draw.blur
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.uladzimirv.notegram.R
-import com.uladzimirv.notegram.app_flow.main.contract.MainIntent
-import com.uladzimirv.notegram.app_flow.main.contract.MainViewState
-import com.uladzimirv.notegram.ui.elements.BaseBottomSheet
+import com.uladzimirv.notegram.app_flow.main.contract.ApplicationIntent
+import com.uladzimirv.notegram.app_flow.main.contract.ApplicationViewState
+import com.uladzimirv.notegram.ui.elements.AppBottomSheet
 import com.uladzimirv.notegram.ui.elements.Gap
 import com.uladzimirv.notegram.ui.elements.info_dialog.InfoDialog
 import com.uladzimirv.notegram.ui.elements.layer.TrashboxActionColumn
@@ -46,6 +45,7 @@ import com.uladzimirv.notegram.ui.layout.main.DeleteConfirmationDialog
 import com.uladzimirv.notegram.ui.layout.main.NotesGreedList
 import com.uladzimirv.notegram.ui.layout.main.com.NoteType
 import com.uladzimirv.notegram.ui.theme.AppTheme.backgroundPrimary
+import com.uladzimirv.notegram.ui.theme.AppTheme.backgroundSecondary
 import com.uladzimirv.notegram.ui.theme.AppTheme.buttonPrimary
 import com.uladzimirv.notegram.ui.theme.AppTheme.buttonSecondary
 import com.uladzimirv.notegram.ui.theme.AppTheme.textSecondary
@@ -57,9 +57,9 @@ import kotlin.time.Duration.Companion.milliseconds
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TrashboxScreen(
-    state: MainViewState.TrashBoxState,
-    deleteState: MainViewState.DeleteState,
-    intent: (MainIntent) -> Unit
+    state: ApplicationViewState.TrashBoxState,
+    deleteState: ApplicationViewState.DeleteState,
+    intent: (ApplicationIntent) -> Unit
 ) {
     val showTip = remember {
         mutableStateOf(false)
@@ -67,11 +67,12 @@ fun TrashboxScreen(
     val sheetState: SheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true,
     )
-    BaseBottomSheet(
+    AppBottomSheet(
+        backgroundColor = backgroundSecondary,
         sheetState = sheetState,
         showBottomSheet = state.show,
         onDismissRequest = {
-            intent(MainIntent.TopMenuIntent.OpenTrashbox(false))
+            intent(ApplicationIntent.TopMenuIntent.OpenTrashbox(false))
             showTip.value = false
         },
         sheetGesturesEnabled = false
@@ -82,7 +83,7 @@ fun TrashboxScreen(
         ) { paddingValues ->
             Box(
                 modifier = Modifier
-                    .background(backgroundPrimary)
+                    .background(backgroundSecondary)
                     .padding(top = paddingValues.calculateTopPadding())
                     .fillMaxSize()
                     .let {
@@ -124,7 +125,7 @@ fun TrashboxScreen(
                         scope.launch {
                             sheetState.hide()
                             delay(100.milliseconds)
-                            intent(MainIntent.TopMenuIntent.OpenTrashbox(false))
+                            intent(ApplicationIntent.TopMenuIntent.OpenTrashbox(false))
                         }
                     }
                     Gap(16)
@@ -132,14 +133,14 @@ fun TrashboxScreen(
                         list = state.trashBox,
                         onClick = {},
                         onLongClick = { id, li ->
-                            intent(MainIntent.TrashBoxIntent.SelectNote(id, li))
+                            intent(ApplicationIntent.TrashBoxIntent.SelectNote(id, li))
                         }
                     )
                 }
                 DoubleButtonNestedBottomBar(
                     isEmpty = state.trashBox.isEmpty(),
                     modifier = Modifier.align(Alignment.BottomCenter),
-                    clearTrashbox = { intent(MainIntent.TrashBoxIntent.ClearTrashbox) },
+                    clearTrashbox = { intent(ApplicationIntent.TrashBoxIntent.ClearTrashbox) },
                     showInfo = {
                         showTip.value = true
                     }
@@ -163,22 +164,22 @@ fun TrashboxScreen(
                     TrashboxGreedItemMenuLayer(
                         note = note.note,
                         layoutInfo = note.layoutInfo,
-                        close = { intent(MainIntent.TrashBoxIntent.CloseSelectionMenu) },
+                        close = { intent(ApplicationIntent.TrashBoxIntent.CloseSelectionMenu) },
                         actionsContent = { destination ->
                             TrashboxActionColumn(
                                 isLayerVisible = true,
                                 menuDestination = destination,
                                 removeFromTrashbox = {
                                     intent(
-                                        MainIntent.MainScreenIntent.Delete(
+                                        ApplicationIntent.MainScreenIntent.Delete(
                                             note.note.id
                                         )
                                     )
-                                    intent(MainIntent.TrashBoxIntent.CloseSelectionMenu)
+                                    intent(ApplicationIntent.TrashBoxIntent.CloseSelectionMenu)
                                 },
                                 restore = {
-                                    intent(MainIntent.TrashBoxIntent.Restore(note.note.id))
-                                    intent(MainIntent.TrashBoxIntent.CloseSelectionMenu)
+                                    intent(ApplicationIntent.TrashBoxIntent.Restore(note.note.id))
+                                    intent(ApplicationIntent.TrashBoxIntent.CloseSelectionMenu)
                                 }
                             )
                         }
@@ -191,8 +192,8 @@ fun TrashboxScreen(
                 show = deleteState.note != null,
                 noteTitle = deleteState.note?.title.orEmpty(),
                 type = deleteState.note?.getType() ?: NoteType.TEXT,
-                cancel = { intent(MainIntent.MainScreenIntent.CloseSheets) },
-                confirm = { intent(MainIntent.MainScreenIntent.ConfirmDelete) }
+                cancel = { intent(ApplicationIntent.MainScreenIntent.CloseSheets) },
+                confirm = { intent(ApplicationIntent.MainScreenIntent.ConfirmDelete) }
             )
         }
     }

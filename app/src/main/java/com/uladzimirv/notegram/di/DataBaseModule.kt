@@ -36,4 +36,8 @@ class DataBaseModule {
     @Provides
     @Singleton
     fun providesTodoNotesDao(database: NotegramDataBase) = database.todoNotesDao()
+
+    @Provides
+    @Singleton
+    fun providesLabelDao(database: NotegramDataBase) = database.labelsDao()
 }

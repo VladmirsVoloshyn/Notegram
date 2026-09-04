@@ -7,12 +7,19 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -43,6 +50,7 @@ import com.uladzimirv.notegram.ui.model.TodoNoteUI
 import com.uladzimirv.notegram.ui.theme.AppTheme.borderPrimary
 import com.uladzimirv.notegram.ui.theme.NoteColorSchema
 import com.uladzimirv.notegram.util.ifNotEmpty
+import kotlin.random.Random
 
 
 @Composable
@@ -143,7 +151,7 @@ fun MainTodoNoteGreedItem(
                 val list = remember(note.list, note.selectedList) {
                     note.list + note.selectedList
                 }
-                repeat(if (list.size > 5) 5 else list.size) {
+                repeat(if (list.size > 10) 10 else list.size) {
                     TodoListItemMainUI(
                         text = list[it].text,
                         selected = list[it].selected,
@@ -156,6 +164,33 @@ fun MainTodoNoteGreedItem(
                         text = "...",
                         fontSize = 14.sp
                     )
+                }
+            }
+            Box(
+                modifier = Modifier
+                    .let {
+                        if (note.labels.isEmpty()) it.height(0.dp) else it.heightIn(0.dp, 120.dp)
+                    }
+                    .let {
+                        if (note.locked) {
+                            it.blur(6.dp, BlurredEdgeTreatment.Unbounded)
+                        } else it.background(schema.background.copy(alpha = .9f))
+                    }
+                    .padding(top = 4.dp)
+                    .padding(top = 4.dp, bottom = 6.dp)
+            ) {
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(5),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    items(
+                        items = note.labels.toList(),
+                        key = { it.id }
+                    ) { label ->
+                        LabelGridMiniatureItem(
+                            label = label
+                        )
+                    }
                 }
             }
         }

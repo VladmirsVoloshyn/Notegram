@@ -25,14 +25,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.uladzimirv.notegram.R
-import com.uladzimirv.notegram.app_flow.main.contract.MainIntent
-import com.uladzimirv.notegram.app_flow.main.contract.MainViewState
+import com.uladzimirv.notegram.app_flow.main.contract.ApplicationIntent
+import com.uladzimirv.notegram.app_flow.main.contract.ApplicationViewState
 import com.uladzimirv.notegram.data.preferences.PreferencesRepository
-import com.uladzimirv.notegram.ui.elements.BaseBottomSheet
+import com.uladzimirv.notegram.ui.elements.AppBottomSheet
 import com.uladzimirv.notegram.ui.elements.Gap
 import com.uladzimirv.notegram.ui.elements.top_bar.SubScreenTopBar
 import com.uladzimirv.notegram.ui.layout.pin_code.PinCodeScreen
-import com.uladzimirv.notegram.ui.theme.AppTheme.backgroundPrimary
 import com.uladzimirv.notegram.ui.theme.AppTheme.backgroundSecondary
 import com.uladzimirv.notegram.ui.theme.AppTheme.buttonPrimary
 import com.uladzimirv.notegram.ui.theme.AppTheme.textPrimary
@@ -45,19 +44,19 @@ import kotlin.time.Duration.Companion.milliseconds
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
-    state: MainViewState.SettingsScreenState,
-    pinState: MainViewState.PinCodeScreenState,
-    intent: (MainIntent) -> Unit
+    state: ApplicationViewState.SettingsScreenState,
+    pinState: ApplicationViewState.PinCodeScreenState,
+    intent: (ApplicationIntent) -> Unit
 ) {
     val sheetState: SheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true,
     )
-    BaseBottomSheet(
+    AppBottomSheet(
         backgroundColor = backgroundSecondary,
         sheetState = sheetState,
         showBottomSheet = state.show,
         onDismissRequest = {
-            intent(MainIntent.TopMenuIntent.OpenSettings(false))
+            intent(ApplicationIntent.TopMenuIntent.OpenSettings(false))
         },
         sheetGesturesEnabled = false,
     ) {
@@ -85,31 +84,31 @@ fun SettingsScreen(
                             scope.launch {
                                 sheetState.hide()
                                 delay(100.milliseconds)
-                                intent(MainIntent.TopMenuIntent.OpenSettings(false))
+                                intent(ApplicationIntent.TopMenuIntent.OpenSettings(false))
                             }
                         }
                         Gap(12)
                         AppThemeSelector(
                             theme = state.theme
                         ) {
-                            intent(MainIntent.SettingsIntent.ChangeTheme(it))
+                            intent(ApplicationIntent.SettingsIntent.ChangeTheme(it))
                         }
                         Gap(16)
                         PrivacySection(
                             hasPinCode = state.hasPinCode,
                             deletePinCode = {
                                 intent(
-                                    MainIntent.SettingsIntent.ShowPinCode(
+                                    ApplicationIntent.SettingsIntent.ShowPinCode(
                                         show = true,
-                                        purpose = MainViewState.PinCodeScreenState.PinCodePurpose.DeletePinCode
+                                        purpose = ApplicationViewState.PinCodeScreenState.PinCodePurpose.DeletePinCode
                                     )
                                 )
                             },
                             createPin = {
                                 intent(
-                                    MainIntent.SettingsIntent.ShowPinCode(
+                                    ApplicationIntent.SettingsIntent.ShowPinCode(
                                         show = true,
-                                        purpose = MainViewState.PinCodeScreenState.PinCodePurpose.CreateNew(
+                                        purpose = ApplicationViewState.PinCodeScreenState.PinCodePurpose.CreateNew(
                                             state.hasPinCode
                                         )
                                     )
@@ -123,25 +122,25 @@ fun SettingsScreen(
 
         PinCodeScreen(
             state = pinState,
-            show = pinState.callPlace == MainViewState.PinCodeScreenState.PinCodeCallPlace.SETTINGS,
-            saveNew = { intent(MainIntent.PinCodeIntent.SavePinCode(it)) },
-            send = { intent(MainIntent.PinCodeIntent.ProtectedAccess(it)) },
-            drop = { intent(MainIntent.PinCodeIntent.DropAttempt) },
+            show = pinState.callPlace == ApplicationViewState.PinCodeScreenState.PinCodeCallPlace.SETTINGS,
+            saveNew = { intent(ApplicationIntent.PinCodeIntent.SavePinCode(it)) },
+            send = { intent(ApplicationIntent.PinCodeIntent.ProtectedAccess(it)) },
+            drop = { intent(ApplicationIntent.PinCodeIntent.DropAttempt) },
             onUnlock = {
                 when (pinState.purpose) {
-                    is MainViewState.PinCodeScreenState.PinCodePurpose.CreateNew -> {
+                    is ApplicationViewState.PinCodeScreenState.PinCodePurpose.CreateNew -> {
                         intent(
-                            MainIntent.SettingsIntent.ShowPinCode(
+                            ApplicationIntent.SettingsIntent.ShowPinCode(
                                 show = true,
-                                purpose = MainViewState.PinCodeScreenState.PinCodePurpose.CreateNew(
+                                purpose = ApplicationViewState.PinCodeScreenState.PinCodePurpose.CreateNew(
                                     state.hasPinCode
                                 )
                             )
                         )
                     }
 
-                    MainViewState.PinCodeScreenState.PinCodePurpose.DeletePinCode -> {
-                        intent(MainIntent.PinCodeIntent.DeletePinCode)
+                    ApplicationViewState.PinCodeScreenState.PinCodePurpose.DeletePinCode -> {
+                        intent(ApplicationIntent.PinCodeIntent.DeletePinCode)
                     }
 
                     else -> {}
@@ -149,9 +148,9 @@ fun SettingsScreen(
             },
             onDismissRequest = {
                 intent(
-                    MainIntent.SettingsIntent.ShowPinCode(
+                    ApplicationIntent.SettingsIntent.ShowPinCode(
                         show = false,
-                        purpose = MainViewState.PinCodeScreenState.PinCodePurpose.Close
+                        purpose = ApplicationViewState.PinCodeScreenState.PinCodePurpose.Close
                     )
                 )
             }

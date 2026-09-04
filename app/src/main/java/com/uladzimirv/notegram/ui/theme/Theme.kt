@@ -158,5 +158,27 @@ val blackCyanDim = Color(0xFF818181)
 val completeGreen = Color(0xFF87D97F)
 val errorRed = Color(0xFFDE5757)
 
+val redL = Color(0xFFE12D2D)
+val redAccent = Color(0xFF460D0D)
+val greenL = Color(0xFF58EA20)
+val greenAccent = Color(0xFF133A08)
+val brownL = Color(0xFFA25B02)
+val brownAccent = Color(0xFF2D1705)
+val grayL = Color(0xFF606060)
+val grayAccent = Color(0xFF1E1E1E)
+val yellowL = Color(0xFFE1BA2D)
+val yellowAccent = Color(0xFF251E03)
+val blueL = Color(0xFF1EB7B1)
+val blueAccent = Color(0xFF052A28)
+val pinkL = Color(0xFFE450EA)
+val pinkAccent = Color(0xFF451846)
+val orangeL = Color(0xFFDA6920)
+val orangeAccent = Color(0xFF41290B)
+val purpleL = Color(0xFF651CD7)
+val purpleAccent = Color(0xFF130834)
+val blackL = Color(0xFF000000)
+val whiteL = Color(0xFFFFFFFF)
+
+
 
 

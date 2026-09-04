@@ -4,10 +4,18 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -20,25 +28,35 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.BlurredEdgeTreatment
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.uladzimirv.notegram.R
+import com.uladzimirv.notegram.app_flow.main.contract.ApplicationIntent
 import com.uladzimirv.notegram.domain.model.note.NoteId
 import com.uladzimirv.notegram.ui.elements.Gap
+import com.uladzimirv.notegram.ui.layout.labels.LabelGridItem
 import com.uladzimirv.notegram.ui.layout.main.com.ItemLayoutInfo
+import com.uladzimirv.notegram.ui.model.LabelUI
 import com.uladzimirv.notegram.ui.model.TextNoteUI
 import com.uladzimirv.notegram.ui.theme.AppTheme
 import com.uladzimirv.notegram.ui.theme.AppTheme.borderPrimary
 import com.uladzimirv.notegram.ui.theme.AppTheme.textPrimary
+import com.uladzimirv.notegram.ui.theme.LabelColorSchema
 import com.uladzimirv.notegram.ui.theme.NoteColorSchema
+import com.uladzimirv.notegram.ui.theme.blueL
+import com.uladzimirv.notegram.ui.theme.red
+import com.uladzimirv.notegram.util.compsoe.clickableNoRipple
 import com.uladzimirv.notegram.util.ifNotEmpty
+import kotlin.random.Random
 
 @Composable
 fun MainTextNoteGreedItem(
@@ -136,14 +154,78 @@ fun MainTextNoteGreedItem(
                     text = it,
                     color = schema.accent,
                     fontSize = 14.sp,
-                    maxLines = 15,
+                    maxLines = 25,
                     overflow = TextOverflow.Ellipsis,
                 )
             }
+            Box(
+                modifier = Modifier
+                    .let {
+                        if (note.labels.isEmpty()) it.height(0.dp) else it.heightIn(0.dp, 120.dp)
+                    }
+                    .let {
+                        if (note.locked) {
+                            it.blur(6.dp, BlurredEdgeTreatment.Unbounded)
+                        } else it.background(schema.background.copy(alpha = .9f))
+                    }
+                    .padding(top = 4.dp, bottom = 6.dp)
+            ) {
+                LazyVerticalGrid(
+                    modifier= Modifier,
+                    columns = GridCells.Fixed(5),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    items(
+                        items = note.labels.toList(),
+                        key = { it.id }
+                    ) { label ->
+                        LabelGridMiniatureItem(
+                            label = label
+                        )
+                    }
+                }
+            }
         }
+
         LockIcon(
             show = note.locked,
             color = schema.accent
         )
     }
 }
+
+@Composable
+fun LabelGridMiniatureItem(
+    label: LabelUI
+) {
+    val colorSchema = LabelColorSchema.fromPref(label.colorPref)
+    Column(
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Box {
+            Icon(
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .scale(1.8f)
+                    .size(16.dp),
+                painter = painterResource(R.drawable.ic_label_filled),
+                contentDescription = null,
+                tint = colorSchema.background
+            )
+            Text(
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .width(17.dp),
+                text = label.name,
+                color = colorSchema.textColor,
+                maxLines = 1,
+                fontWeight = FontWeight.SemiBold,
+                textAlign = TextAlign.Start,
+                fontSize = 8.sp
+            )
+        }
+    }
+
+}
+
